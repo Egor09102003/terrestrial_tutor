@@ -38,4 +38,4 @@ jobs:
             cd terrestrial_tutor
             docker compose down backend && docker compose up --build -d backend
             docker compose down frontend && docker compose up -d frontend
-            docker compose down nginx && docker compose up -d nginx
+            docker compose restart nginx
