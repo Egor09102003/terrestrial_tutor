@@ -19,6 +19,9 @@
       [attr.aria-expanded]="!isCollapsed[i]"
       aria-controls="collapseExample"
     >
+      ID:
+      <ngb-highlight [result]="task.task.id.toString()" [term]="filterText.value" [highlightClass]="'highlight-effect'"></ngb-highlight>
+      , Название
       <ngb-highlight [result]="task.task.name" [term]="filterText.value" [highlightClass]="'highlight-effect'"></ngb-highlight>
       , Тема:
       <ngb-highlight [result]="task.task.level1" [term]="filterText.value" [highlightClass]="'highlight-effect'"></ngb-highlight>
@@ -61,7 +64,7 @@
         <div class="card-body">
           <b class="row m-0">Файлы: </b>
           <div class="d-inline-block mt-3" *ngFor="let file of task.task.files">
-            <a class="mx-3" *ngIf="!checkImage(file)" href="{{file}}" download><img src="assets/document.png" width="60px"></a>
+            <a class="mx-3" *ngIf="!checkImage(file)" href="{{file}}" download><img src="assets/document.png" width="60px" alt="document"></a>
             <div *ngIf="!checkImage(file)" class="row mx-2 text-center" style="
                 background-color: white;
                 width: 60px;

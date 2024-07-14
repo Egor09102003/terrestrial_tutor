@@ -1,7 +1,6 @@
 package com.example.terrestrial_tutor.web.controller;
 
 import com.example.terrestrial_tutor.annotations.Api;
-import com.example.terrestrial_tutor.dto.SelectionDTO;
 import com.example.terrestrial_tutor.dto.TaskDTO;
 import com.example.terrestrial_tutor.dto.facade.TaskFacade;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
@@ -17,11 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -53,12 +48,7 @@ public class TaskController {
     @GetMapping("/tasks/all")
     public ResponseEntity<List<TaskDTO>> getAllTasks() {
         List<TaskEntity> tasksList = taskService.getAllTasks();
-        tasksList.sort(Comparator.comparingLong(TaskEntity::getId));
-        List<TaskDTO> tasksDTO = new ArrayList<>();
-        for (TaskEntity task : tasksList) {
-            tasksDTO.add(taskFacade.taskToTaskDTO(task));
-        }
-        return new ResponseEntity<>(tasksDTO, HttpStatus.OK);
+        return new ResponseEntity<>(getSortedDto(tasksList), HttpStatus.OK);
     }
 
     /**
@@ -85,11 +75,7 @@ public class TaskController {
     public ResponseEntity<List<TaskDTO>> getTasksBySubjectAndHW(@PathVariable String subject) {
         SubjectEntity currentSubject = subjectService.findSubjectByName(subject);
         List<TaskEntity> tasksList = taskService.getTasksBySubject(currentSubject);
-        List<TaskDTO> tasksDTO = new ArrayList<>();
-        for (TaskEntity task : tasksList) {
-            tasksDTO.add(taskFacade.taskToTaskDTO(task));
-        }
-        return new ResponseEntity<>(tasksDTO, HttpStatus.OK);
+        return new ResponseEntity<>(getSortedDto(tasksList), HttpStatus.OK);
     }
 
     @GetMapping("/task/{id}")
@@ -118,6 +104,15 @@ public class TaskController {
     public ResponseEntity<Set<FilesResponse>> getTaskFile(@PathVariable Long id) throws IOException {
         TaskEntity task = taskService.getTaskById(id);
         return new ResponseEntity<>(uploadFilesService.getFilesByPaths(task.getFiles()), HttpStatus.OK);
+    }
+
+    public List<TaskDTO> getSortedDto(List<TaskEntity> tasksList) {
+        tasksList.sort(Comparator.comparingLong(TaskEntity::getId));
+        List<TaskDTO> tasksDTO = new ArrayList<>();
+        for (TaskEntity task : tasksList) {
+            tasksDTO.add(taskFacade.taskToTaskDTO(task));
+        }
+        return tasksDTO;
     }
 
 }
