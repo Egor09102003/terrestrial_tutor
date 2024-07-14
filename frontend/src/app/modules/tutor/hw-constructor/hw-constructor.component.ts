@@ -137,11 +137,16 @@ export class HwConstructorComponent implements OnInit {
       }
       if (this.homework?.tasksCheckingTypes) {
         for (let task of tasks) {
-          updatedCheckingMap[task.id] = this.homework?.tasksCheckingTypes[task.id];
+          updatedCheckingMap[task.id] = <string>this.homework?.tasksCheckingTypes[task.id];
         }
         this.homework.tasksCheckingTypes = updatedCheckingMap;
       }
     }
-    console.log(updatedCheckingMap);
+  }
+
+  deleteHomework() {
+    this.tutorService.deleteHomeworkById(this.homework?.id).subscribe();
+    sessionStorage.setItem('tab', '2');
+    this.router.navigate(['tutor']);
   }
 }

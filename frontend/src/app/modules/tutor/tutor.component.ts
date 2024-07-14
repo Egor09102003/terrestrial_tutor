@@ -1,11 +1,8 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {TutorService} from "./services/tutor.service";
-import {map, Subject, Subscription} from "rxjs";
 import {Router} from "@angular/router";
 import {dataService} from "./services/data.service";
 import {Homework} from "../../models/Homework";
-import * as HomeworkSelectors from "./storage/homework.selectors"
-import * as HomeworkActions from "./storage/homework.actions"
 import {TutorDataService} from "./storage/tutor.data.service";
 
 @Component({
@@ -21,12 +18,17 @@ export class TutorComponent implements OnInit {
               private tutorDataService: TutorDataService,) { }
 
   currentSubjects: any;
-  subscriptions: Subscription[] = [];
+  activeTab = 1;
   pageLoaded: boolean =  true;
   homeworks: Homework[] = [];
 
   ngOnInit(): void {
     let homeworkId = Number(sessionStorage.getItem("homeworkId"));
+    let tab = sessionStorage.getItem('tab')
+    if (tab == '2') {
+      this.activeTab = 2;
+      this.getHomeworks();
+    }
     if (homeworkId && sessionStorage.getItem('pid') != '1') {
       this.tutorService.deleteHomeworkById(homeworkId).subscribe(() => {
         sessionStorage.clear();
@@ -60,6 +62,10 @@ export class TutorComponent implements OnInit {
     this.tutorDataService.setHomework(homework);
     sessionStorage.setItem('homeworkId', String(homework.id));
     sessionStorage.setItem('pid', '1');
-    this.router.navigate(['tutor/constructor/add/pup']);
+    this.router.navigate(['tutor/constructor']);
+  }
+
+  setTab(tab: number) {
+    this.activeTab = tab;
   }
 }
