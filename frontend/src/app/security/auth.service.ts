@@ -47,4 +47,9 @@ export class AuthService {
       role: user.role
     });
   }
+
+  getCurrentUserId(): Observable<any> {
+    return this.http.get(this.AUTH_API + 'user/id');
+  }
+
 }

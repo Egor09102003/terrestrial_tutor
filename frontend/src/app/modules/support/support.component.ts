@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {TokenStorageService} from "../../security/token-storage.service";
-import {Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {TaskService} from "../task/services/task.service";
 import {Task} from "../../models/Task";
-import {SupportDataService} from "./services/support.data.service";
 
 @Component({
   selector: 'app-support',
@@ -17,12 +16,10 @@ export class SupportComponent implements OnInit {
 
   constructor(private tokenService: TokenStorageService,
               private router: Router,
-              private supportDataService: SupportDataService,
-              private taskService: TaskService,) {}
+              private taskService: TaskService,
+              private route: ActivatedRoute,) {}
 
   ngOnInit(): void {
-    sessionStorage.clear();
-    this.supportDataService.setTask(null);
     this.taskService.getAllTasks().subscribe(tasks => {
       this.tasks = tasks;
       this.tasksUpload = true;
@@ -30,11 +27,13 @@ export class SupportComponent implements OnInit {
   }
 
   addTask(task: Task | null = null) {
+    let supportId = this.route.snapshot.paramMap.get('id');
     if (task) {
-      this.supportDataService.setTask(task);
-      sessionStorage.setItem('taskId', JSON.stringify(task.id));
+      this.router.navigate([`support/${supportId}/task/${task.id}`]);
+    } else {
+      this.router.navigate([`support/${supportId}/task`]);
     }
-    this.router.navigate(['support/task/add']);
+
   }
 
   protected readonly onsubmit = onsubmit;

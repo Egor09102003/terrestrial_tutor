@@ -46,7 +46,9 @@ export class LoginComponent implements OnInit {
       console.log("Successfully logged in!");
       this.tokenStorage.saveToken(data.token);
       this.tokenStorage.saveUser(data);
-      this.router.navigate([data.role.toLowerCase()]);
+      this.authService.getCurrentUserId().subscribe(id =>
+        this.router.navigate([data.role.toLowerCase(), id])
+      )
     });
   }
 

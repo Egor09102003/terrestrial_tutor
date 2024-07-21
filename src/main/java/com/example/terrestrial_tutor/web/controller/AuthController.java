@@ -4,6 +4,7 @@ import com.example.terrestrial_tutor.annotations.Api;
 import com.example.terrestrial_tutor.entity.AdminEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SupportEntity;
+import com.example.terrestrial_tutor.entity.TutorEntity;
 import com.example.terrestrial_tutor.entity.enums.ERole;
 import com.example.terrestrial_tutor.exceptions.NotAdminException;
 import com.example.terrestrial_tutor.payload.request.LoginRequest;
@@ -16,10 +17,8 @@ import com.example.terrestrial_tutor.security.SecurityConstants;
 import com.example.terrestrial_tutor.service.*;
 import com.example.terrestrial_tutor.validators.ResponseErrorValidation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,7 +30,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 
 /**
  * Контроллер для авторизации
@@ -132,6 +130,26 @@ public class AuthController {
         supportService.addNewSupport(registrationRequest);
 
         return new ResponseEntity<>(new RegistrationSuccess("Support registration success"), HttpStatus.OK);
+    }
+
+    @GetMapping("/auth/user/id")
+    public ResponseEntity<Long> getCurrentUserId() {
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Long userId;
+
+        if (user instanceof PupilEntity pupil) {
+            userId = pupil.getId();
+        } else if (user instanceof TutorEntity tutor){
+            userId = tutor.getId();
+        } else if (user instanceof SupportEntity support){
+            userId = support.getId();
+        } else {
+            AdminEntity admin = (AdminEntity) user;
+            userId = admin.getId();
+        }
+
+        return new ResponseEntity<Long>(userId, HttpStatus.OK);
     }
 
 }

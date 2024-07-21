@@ -1,15 +1,14 @@
-import {Component, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {dataService} from "../services/data.service";
-import {Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {TutorService} from "../services/tutor.service";
 import {Homework} from "../../../models/Homework";
 import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {Task} from "../../../models/Task";
 import {CodemirrorComponent} from "@ctrl/ngx-codemirror";
-import {Subscription, throwError} from "rxjs";
+import {throwError} from "rxjs";
 import {TutorDataService} from "../storage/tutor.data.service";
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
-import {error} from "@angular/compiler-cli/src/transformers/util";
 import {catchError} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
 
@@ -25,31 +24,32 @@ export class HwConstructorComponent implements OnInit {
               private dataService: dataService,
               private router: Router,
               private fb: UntypedFormBuilder,
-              private tutorDataService: TutorDataService,) { }
+              private tutorDataService: TutorDataService,
+              private route: ActivatedRoute,
+              ) { }
 
   homework: Homework | null = null;
   //@ts-ignore
   hwForm: UntypedFormGroup;
   isCollapsed: boolean[] = [];
-  update: boolean = false;
-  currentTasks: Task[] | null = null;
+  currentTasks: Task[]|null = null;
   pageLoaded: boolean = false;
-  subscriptions: Subscription[] = [];
   errorMessage = "";
+  tutorId: number|null = null;
 
   ngOnInit(): void {
-    if (this.tutorDataService.getHomework()) {
-      this.homework = this.tutorDataService.getHomework();
+    let hwId = Number(this.route.snapshot.paramMap.get('hwId'));
+    this.tutorId = Number(this.route.snapshot.paramMap.get('id'));
+    this.tutorService.getHomework(hwId).subscribe(homework => {
+      this.homework = homework;
       this.initFields();
       this.initForm();
-    } else {
-      let homework: number = Number(sessionStorage.getItem("homeworkId"));
-      this.tutorService.getHomework(homework).subscribe(homework => {
-        this.homework = homework;
-        this.initFields();
-        this.initForm();
-      })
-    }
+    });
+
+    setInterval(() => {
+      this.saveHomework();
+      this.tutorService.saveHomework(this.homework).subscribe();
+    }, 60000);
   }
 
   initFields() {
@@ -76,7 +76,7 @@ export class HwConstructorComponent implements OnInit {
 
   addTasks(): void {
     this.saveHomework();
-    this.router.navigate(['/tutor/constructor/hw/add/task'])
+    this.router.navigate([`/tutor/${this.tutorId}/constructor/${this.homework?.id}/hw/add/task`])
   }
 
   saveHomework() {
@@ -98,7 +98,7 @@ export class HwConstructorComponent implements OnInit {
         this.pageLoaded = true;
         this.tutorDataService.setHomework(null);
         sessionStorage.removeItem("homeworkId");
-        this.router.navigate(['/tutor']);
+        this.router.navigate([`/tutor/${this.tutorId}`]);
       });
     }
   }
@@ -124,7 +124,7 @@ export class HwConstructorComponent implements OnInit {
 
   addPupils() {
     this.saveHomework();
-    this.router.navigate(['tutor/constructor/add/pup']);
+    this.router.navigate([`tutor/${this.tutorId}/constructor/${this.homework?.id}/add/pup`]);
   }
 
   onDrop(event: CdkDragDrop<Task[]>) {
@@ -147,6 +147,6 @@ export class HwConstructorComponent implements OnInit {
   deleteHomework() {
     this.tutorService.deleteHomeworkById(this.homework?.id).subscribe();
     sessionStorage.setItem('tab', '2');
-    this.router.navigate(['tutor']);
+    this.router.navigate([`tutor/${this.tutorId}`]);
   }
 }
