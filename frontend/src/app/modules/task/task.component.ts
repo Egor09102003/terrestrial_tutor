@@ -9,8 +9,7 @@ import {Subject} from "../../models/Subject";
 import {SubjectsService} from "../subjects/services/subjects.service";
 import {SupportService} from "../support/services/support.service";
 import {Task} from "../../models/Task";
-import {Router} from "@angular/router";
-import {SupportDataService} from "../support/services/support.data.service";
+import {ActivatedRoute, Router} from "@angular/router";
 import {TaskService} from "./services/task.service";
 
 
@@ -42,23 +41,20 @@ export class TaskComponent implements OnInit {
               private subjectsService: SubjectsService,
               private supportService: SupportService,
               private taskService: TaskService,
-              private supportDataService: SupportDataService,
-              private router: Router,) {
+              private router: Router,
+              private route: ActivatedRoute,
+              ) {
   }
 
   ngOnInit(): void {
-    if (this.supportDataService.getTask()) {
-      this.task = this.supportDataService.getTask();
-      this.createTaskForm();
-      this.getAllSubjects();
-      this.pageLoaded = true;
-    } else if (sessionStorage.getItem('taskId')) {
-      this.taskService.getTaskById(sessionStorage.getItem('taskId')).subscribe(task => {
+    let taskId = this.route.snapshot.paramMap.get('taskId');
+    if (taskId) {
+      this.taskService.getTaskById(taskId).subscribe(task => {
         this.task = task;
         this.createTaskForm();
         this.getAllSubjects();
         this.pageLoaded = true;
-      })
+      });
     } else {
       this.createTaskForm();
       this.getAllSubjects();
@@ -166,9 +162,9 @@ export class TaskComponent implements OnInit {
       task.id = this.task.id;
       task.files = this.task.files;
     }
-
+    let supportId = this.route.snapshot.paramMap.get('id');
     this.supportService.addTask(task).subscribe(data => {
-      this.supportService.addFiles(files, data).subscribe(() => this.router.navigate(['/support']));
+      this.supportService.addFiles(files, data).subscribe(() => this.router.navigate([`/support/${supportId}`]));
     })
   }
 

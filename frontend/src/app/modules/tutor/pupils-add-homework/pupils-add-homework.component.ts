@@ -2,9 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {PupilService} from "../../pupil/services/pupil.service";
 import {Pupil} from "../../../models/Pupil";
 import {PupilSelect} from "../../../models/PupilSelect";
-import {dataService} from "../services/data.service";
 import {Homework} from "../../../models/Homework";
-import {Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {UntypedFormControl} from "@angular/forms";
 import {TutorDataService} from "../storage/tutor.data.service";
 import {TutorService} from "../services/tutor.service";
@@ -19,7 +18,9 @@ export class PupilsAddHomeworkComponent implements OnInit {
   constructor(private pupilService: PupilService,
               private tutorDataService: TutorDataService,
               private router: Router,
-              private tutorService: TutorService,) { }
+              private tutorService: TutorService,
+              private route: ActivatedRoute,
+              ) { }
 
   allPupils: PupilSelect[] = [];
   currentPupils: number[] | undefined = [];
@@ -32,8 +33,8 @@ export class PupilsAddHomeworkComponent implements OnInit {
     this.homework = this.tutorDataService.getHomework();
     this.currentPupils = this.homework?.pupilIds;
     this.pupilService.getAllPupils().subscribe(pupils => {
-      if (this.homework == undefined) {
-        this.tutorService.getHomework(sessionStorage.getItem("homeworkId")).subscribe(homework => {
+      if (this.homework == null) {
+        this.tutorService.getHomework(this.route.snapshot.paramMap.get('hwId')).subscribe(homework => {
           this.homework = homework;
           this.currentPupils = this.homework?.pupilIds;
           this.fillPupils(pupils);
@@ -88,15 +89,14 @@ export class PupilsAddHomeworkComponent implements OnInit {
     this.pageLoaded = false
     if (this.homework) {
       this.homework.pupilIds = this.getSelectedPupilsIds();
-      this.tutorDataService.setHomework(this.homework);
       this.tutorService.saveHomework(this.homework).subscribe(() => {
+        let tutorId = this.route.snapshot.paramMap.get('id');
         this.pageLoaded = true;
         if (sessionStorage.getItem('pid') != '1') {
-          this.router.navigate(['tutor/constructor']);
+          this.router.navigate([`tutor/${tutorId}/constructor/${this.homework?.id}`]);
         } else {
-          this.router.navigate(['tutor']);
+          this.router.navigate([`tutor/${tutorId}`]);
           sessionStorage.removeItem('pid');
-          sessionStorage.removeItem('homeworkId');
         }
       });
     }
