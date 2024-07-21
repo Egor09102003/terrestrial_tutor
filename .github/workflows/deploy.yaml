@@ -36,4 +36,5 @@ jobs:
             git pull;
             docker compose down backend frontend nginx;
             docker compose up -d --build backend;
-            docker compose up -d frontend nginx;
+            docker compose up -d frontend && sleep 30;
+            docker compose up -d nginx;
