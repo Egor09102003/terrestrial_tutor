@@ -23,19 +23,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     if: github.event.pull_request.merged == true
-    steps:  
-      - uses: actions/checkout@v4
-      - name: Up containers
-        uses: easingthemes/ssh-deploy@main
+    steps:
+      - name: Deploy to live
+        uses: D3rHase/ssh-command-action@v0.2.2
         with:
-          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH }}
-          ARGS: ""
-          SOURCE: "./"
-          REMOTE_HOST: 87.249.49.62
-          REMOTE_USER: tutor
-          TARGET: "/home/tutor/terrestrial_tutor"
-          SCRIPT_AFTER: |
-            cd terrestrial_tutor
-            docker compose down backend && docker compose up --build -d backend
-            docker compose down frontend && docker compose up -d frontend
-            docker compose restart nginx
+          host: 87.249.49.62
+          user: tutor
+          private_key: ${{ secrets.DEPLOY_SSH }}
+          command: |
+            cd /home/tutor/terrestrial_tutor;
+            git checkout master;
+            git pull;
+            docker compose down backend frontend nginx;
+            docker compose up -d --build backend;
+            docker compose up -d frontend && sleep 30;
+            docker compose up -d nginx;
