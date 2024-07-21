@@ -5,7 +5,7 @@ import {Task} from "../../../models/Task";
 import {TaskSelect} from "../../../models/TaskSelect";
 import {CodemirrorComponent} from "@ctrl/ngx-codemirror";
 import {TutorService} from "../services/tutor.service";
-import {Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {Homework} from "../../../models/Homework";
 import {Store} from "@ngrx/store";
 import {map} from "rxjs";
@@ -27,7 +27,9 @@ export class TaskChoiceComponent implements OnInit {
               private tutorService : TutorService,
               private router: Router,
               private store: Store,
-              private tutorDataService: TutorDataService,) { }
+              private tutorDataService: TutorDataService,
+              private route: ActivatedRoute,
+              ) { }
 
   allTasks: TaskSelect[] = [];
   filteredTasks: TaskSelect[] = [];
@@ -43,7 +45,7 @@ export class TaskChoiceComponent implements OnInit {
       this.subject = this.homework?.subject;
       this.setTasks();
     } else {
-      let homework: number = Number(sessionStorage.getItem("homeworkId"));
+      let homework: number = Number(this.route.snapshot.paramMap.get('hwId'));
       this.tutorService.getHomework(homework).subscribe(homework => {
         this.homework = homework;
         this.subject = this.homework?.subject;
@@ -146,7 +148,8 @@ export class TaskChoiceComponent implements OnInit {
       this.pageLoaded = false;
       this.tutorService.saveHomework(this.homework).subscribe(homework => {
         this.pageLoaded = true;
-        this.router.navigate(['/tutor/constructor']);
+        let tutorId = this.route.snapshot.paramMap.get('id');
+        this.router.navigate([`/tutor/${tutorId}/constructor/${homework.id}`]);
       });
     }
   }

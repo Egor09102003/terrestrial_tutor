@@ -64,6 +64,11 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     public void deleteHomeworkById(Long id) {
         HomeworkEntity homework = getHomeworkById(id);
+        List<AttemptEntity> attempts = homework.getAnswerEntities();
+        for (AttemptEntity attempt : attempts) {
+            attempt.setHomework(null);
+            attemptRepository.save(attempt);
+        }
         TutorEntity tutor = homework.getTutor();
         tutor.getHomeworkList().remove(homework);
         tutorService.updateTutor(tutor);

@@ -1,5 +1,5 @@
-<ul ngbNav #nav="ngbNav" class="nav-tabs">
-  <li ngbNavItem>
+<ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="activeTab">
+  <li [ngbNavItem]="1">
     <a class="mx-3" ngbNavLink>Создать ДЗ</a>
     <ng-template ngbNavContent>
       <div *ngIf="!currentSubjects || !pageLoaded" class="row m-3 col-12 spinner-border" role="status"></div>
@@ -16,7 +16,7 @@
     </ng-template>
   </li>
 
-  <li ngbNavItem>
+  <li [ngbNavItem]="2">
     <a (click)="getHomeworks()" class="mx-3" ngbNavLink>Назначить ДЗ</a>
     <ng-template ngbNavContent>
       <div *ngIf="!currentSubjects || !pageLoaded" class="row m-3 col-12 spinner-border" role="status"></div>
