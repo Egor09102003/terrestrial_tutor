@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import {Observable} from 'rxjs';
 import {TokenStorageService} from '../../../security/token-storage.service';
+import { AuthService } from 'src/app/security/auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,8 +10,9 @@ import {TokenStorageService} from '../../../security/token-storage.service';
 export class AuthGuardService  {
 
   constructor(private router: Router,
-              private tokenService: TokenStorageService
-  ) {
+              private tokenService: TokenStorageService,
+              private authService: AuthService,
+              ) {
   }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
@@ -24,25 +26,11 @@ export class AuthGuardService  {
         return false;
       }
     } else {
-      if (state.url.includes('login') || state.url.includes('registration')) {
-        this.router.navigate([currentUser.role.toLowerCase()]);
-        return false
-      }
-      if (state.url.includes('admin') && currentUser.role != 'ADMIN') {
-        this.router.navigate([currentUser.role.toLowerCase()]);
-        return false;
-      }
-      if (state.url.includes('pupil') && currentUser.role != 'PUPIL') {
-        this.router.navigate([currentUser.role.toLowerCase()]);
-        return false;
-      }
-      if (state.url.includes('tutor') && currentUser.role != 'TUTOR') {
-        this.router.navigate([currentUser.role.toLowerCase()]);
-        return false;
-      }
-      if (state.url.includes('support') && currentUser.role != 'SUPPORT') {
-        this.router.navigate([currentUser.role.toLowerCase()]);
-        return false;
+      if (!state.url.includes(currentUser.role.toLowerCase()) || !route.paramMap.get('id')) {
+        this.authService.getCurrentUserId().subscribe(id => {
+          this.router.navigate([currentUser.role.toLowerCase(), id]);
+          return false;
+        });
       }
       return true;
     }
