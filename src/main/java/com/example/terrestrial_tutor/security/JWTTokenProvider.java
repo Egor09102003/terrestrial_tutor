@@ -3,13 +3,13 @@ import com.example.terrestrial_tutor.entity.AdminEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SupportEntity;
 import com.example.terrestrial_tutor.entity.TutorEntity;
+import com.example.terrestrial_tutor.entity.User;
 import com.example.terrestrial_tutor.entity.enums.ERole;
 import com.example.terrestrial_tutor.exceptions.NotVerificationException;
 import io.jsonwebtoken.*;
 import lombok.NonNull;
 import org.slf4j.*;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -21,35 +21,21 @@ public class JWTTokenProvider {
     public static final Logger LOG = LoggerFactory.getLogger(JWTTokenProvider.class);
 
     public String generateToken(Authentication authentication) {
-        UserDetails user = (UserDetails) authentication.getPrincipal();
+        User user = (User) authentication.getPrincipal();
 
         Map<String, Object> claimsMap = new HashMap<>();
-        String userId;
-
-        if (user instanceof PupilEntity pupil) {
-            userId = Long.toString(pupil.getId());
-            claimsMap = getClaims(userId, pupil.getEmail(), pupil.getRole(), pupil.getVerification());
-        } else if (user instanceof TutorEntity tutor){
-            userId = Long.toString(tutor.getId());
-            claimsMap = getClaims(userId, tutor.getEmail(), tutor.getRole(), tutor.getVerification());
-        } else if (user instanceof SupportEntity support){
-            userId = Long.toString(support.getId());
-            claimsMap = getClaims(userId, support.getEmail(), support.getRole(), true);
-        } else {
-            AdminEntity admin = (AdminEntity) user;
-            userId = Long.toString(admin.getId());
-            claimsMap = getClaims(userId, admin.getEmail(), admin.getRole(), true);
-        }
+        Long userId = user.getId();
+        claimsMap = getClaims(userId, user.getEmail(), user.getRole(), user.getVerification());
 
         return Jwts.builder()
-                .setSubject(userId)
+                .setSubject(userId.toString())
                 .addClaims(claimsMap)
                 .signWith(SignatureAlgorithm.HS512, SecurityConstants.SECRET)
                 .compact();
     }
 
     @NonNull
-    private Map<String, Object> getClaims(String userId, String email, ERole role, Boolean verification) {
+    private Map<String, Object> getClaims(Long userId, String email, ERole role, Boolean verification) {
         Map<String, Object> claimsMap = new HashMap<>();
         claimsMap.put("id", userId);
         claimsMap.put("email", email);
@@ -80,7 +66,7 @@ public class JWTTokenProvider {
                 .setSigningKey(SecurityConstants.SECRET)
                 .parseClaimsJws(token)
                 .getBody();
-        String id = (String) claims.get("id");
+        String id = String.valueOf(claims.get("id"));
         return Long.parseLong(id);
     }
 

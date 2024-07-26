@@ -1,20 +1,15 @@
 package com.example.terrestrial_tutor.service.impl;
 
-import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SupportEntity;
-import com.example.terrestrial_tutor.repository.PupilRepository;
-import com.example.terrestrial_tutor.repository.SubjectRepository;
+import com.example.terrestrial_tutor.entity.User;
 import com.example.terrestrial_tutor.repository.SupportRepository;
-import com.example.terrestrial_tutor.service.PupilDetailsService;
 import com.example.terrestrial_tutor.service.SupportDetailsService;
-import com.example.terrestrial_tutor.service.SupportService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +22,7 @@ public class SupportDetailsServiceImpl implements SupportDetailsService {
     SupportRepository supportRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public User loadUserByUsername(String username) throws UsernameNotFoundException {
         SupportEntity support = supportRepository.findSupportEntityByUsername(username);
 
         if (support == null) {

@@ -1,7 +1,6 @@
 package com.example.terrestrial_tutor.service.impl;
 
 import com.example.terrestrial_tutor.entity.PupilEntity;
-import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.exceptions.UserExistException;
 import com.example.terrestrial_tutor.payload.request.RegistrationRequest;
 import com.example.terrestrial_tutor.repository.PupilRepository;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 

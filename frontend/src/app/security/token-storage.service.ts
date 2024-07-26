@@ -1,4 +1,7 @@
+import { HttpClient } from '@angular/common/http';
 import {Injectable} from '@angular/core';
+import { AuthService } from './auth.service';
+import { Router } from '@angular/router';
 
 const TOKEN_KEY = 'auth-token';
 const USER_KEY = 'auth-user';
@@ -8,7 +11,10 @@ const USER_KEY = 'auth-user';
 })
 export class TokenStorageService {
 
-  constructor() {
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+  ) {
   }
 
   public saveToken(token: string): void {
@@ -29,6 +35,14 @@ export class TokenStorageService {
   public getUser(): any{
     // @ts-ignore
     return JSON.parse(localStorage.getItem(USER_KEY));
+  }
+
+  public updateUserData() {
+    window.localStorage.removeItem(USER_KEY);
+    this.authService.getCurrentUser().subscribe(user => {
+      this.saveUser(user);
+      this.router.navigate(['/']);
+    })
   }
 
   logOut(): void {

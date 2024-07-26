@@ -1,7 +1,8 @@
 package com.example.terrestrial_tutor.service;
 
 import com.example.terrestrial_tutor.entity.CheckEntity;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.example.terrestrial_tutor.entity.User;
+
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public interface CheckService {
      * @return проверка
      */
 
-    CheckEntity addCheck(UserDetails newUser);
+    CheckEntity addCheck(User newUser);
 
     /**
      * Удаление проверки

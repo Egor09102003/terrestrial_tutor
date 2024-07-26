@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +31,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Controller
 @Api
+@PreAuthorize("hasRole('TUTOR')")
 public class TutorController {
 
     @Autowired
@@ -52,6 +55,7 @@ public class TutorController {
      * @return лист учеников
      */
     @GetMapping("/tutor/find/pupils/{subject}/{id}")
+    @Secured("TUTOR")
     public ResponseEntity<List<PupilDTO>> getTutorPupilsBySubject(@PathVariable String subject, @PathVariable Long id) {
         List<PupilEntity> pupils = tutorService.findTutorById(id).getPupils();
         List<PupilDTO> pupilsDTO = new ArrayList<>();

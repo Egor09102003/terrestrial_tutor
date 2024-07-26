@@ -10,7 +10,7 @@ import {authInterceptorProviders} from "./modules/auth/helper/auth-interceptor.s
 import {authErrorInterceptorProviders} from "./modules/auth/helper/error-interceptor.service";
 import {AdminComponent} from "./modules/admin/admin.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {SubjectsComponent} from './modules/subjects/subjects.component';
 import {NgbAlertModule, NgbModule} from "@ng-bootstrap/ng-bootstrap";
@@ -32,6 +32,7 @@ import { HomeworksDisplayingComponent } from './modules/pupil/homeworks.displayi
 import { PupilHomeworkStatisticComponent } from './modules/pupil/pupil.homework.statistic/pupil.homework.statistic.component';
 import {NgOptimizedImage} from "@angular/common";
 import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
+import { ErrorInterceptor } from './error.interceptor';
 
 @NgModule({
   declarations: [
@@ -81,7 +82,8 @@ import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
       autoPause: true,
       trace: false,
       traceLimit: 75
-    })
+    }),
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

@@ -3,13 +3,13 @@ package com.example.terrestrial_tutor.service.impl;
 import com.example.terrestrial_tutor.entity.CheckEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.TutorEntity;
+import com.example.terrestrial_tutor.entity.User;
 import com.example.terrestrial_tutor.entity.enums.ERole;
 import com.example.terrestrial_tutor.exceptions.CheckException;
 import com.example.terrestrial_tutor.repository.CheckRepository;
 import com.example.terrestrial_tutor.service.CheckService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -31,7 +31,7 @@ public class CheckServiceImpl implements CheckService {
         return checkRepository.findCheckEntityById(id);
     }
 
-    public CheckEntity addCheck(UserDetails newUser) {
+    public CheckEntity addCheck(User newUser) {
         CheckEntity newCheck = new CheckEntity();
         newCheck.setDate(new Date());
         if (newUser instanceof PupilEntity pupil) {

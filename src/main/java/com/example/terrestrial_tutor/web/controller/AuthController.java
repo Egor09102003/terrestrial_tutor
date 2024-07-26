@@ -5,6 +5,7 @@ import com.example.terrestrial_tutor.entity.AdminEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SupportEntity;
 import com.example.terrestrial_tutor.entity.TutorEntity;
+import com.example.terrestrial_tutor.entity.User;
 import com.example.terrestrial_tutor.entity.enums.ERole;
 import com.example.terrestrial_tutor.exceptions.NotAdminException;
 import com.example.terrestrial_tutor.payload.request.LoginRequest;
@@ -24,7 +25,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -68,15 +68,18 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = SecurityConstants.TOKEN_PREFIX + jwtTokenProvider.generateToken(authentication);
-
         if (authentication.getPrincipal() instanceof AdminEntity) {
-            return ResponseEntity.ok(new JWTTokenSuccessResponse(true, jwt, ERole.ADMIN));
+            AdminEntity admin = (AdminEntity) authentication.getPrincipal();
+            return ResponseEntity.ok(new JWTTokenSuccessResponse(true, jwt, ERole.ADMIN, admin.getId()));
         } else if (authentication.getPrincipal() instanceof PupilEntity) {
-            return ResponseEntity.ok(new JWTTokenSuccessResponse(true, jwt, ERole.PUPIL));
+            PupilEntity pupil = (PupilEntity) authentication.getPrincipal();
+            return ResponseEntity.ok(new JWTTokenSuccessResponse(true, jwt, ERole.PUPIL, pupil.getId()));
         } else if (authentication.getPrincipal() instanceof SupportEntity) {
-            return ResponseEntity.ok(new JWTTokenSuccessResponse(true, jwt, ERole.SUPPORT));
+            SupportEntity support = (SupportEntity) authentication.getPrincipal();
+            return ResponseEntity.ok(new JWTTokenSuccessResponse(true, jwt, ERole.SUPPORT, support.getId()));
         } else {
-            return ResponseEntity.ok(new JWTTokenSuccessResponse(true, jwt, ERole.TUTOR));
+            TutorEntity tutor = (TutorEntity) authentication.getPrincipal();
+            return ResponseEntity.ok(new JWTTokenSuccessResponse(true, jwt, ERole.TUTOR, tutor.getId()));
         }
     }
 
@@ -87,7 +90,7 @@ public class AuthController {
             System.out.println(errors);
             return errors;
         }
-        UserDetails newUser = null;
+        User newUser = null;
         if (registrationRequest.getRole() == ERole.PUPIL) {
             newUser = pupilService.addNewPupil(registrationRequest);
         } else if (registrationRequest.getRole() == ERole.TUTOR) {
@@ -132,24 +135,12 @@ public class AuthController {
         return new ResponseEntity<>(new RegistrationSuccess("Support registration success"), HttpStatus.OK);
     }
 
-    @GetMapping("/auth/user/id")
-    public ResponseEntity<Long> getCurrentUserId() {
-        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    @GetMapping("/auth/user")
+    public JWTTokenSuccessResponse getCurrentUserId() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String jwt = SecurityConstants.TOKEN_PREFIX + jwtTokenProvider.generateToken(SecurityContextHolder.getContext().getAuthentication());
 
-        Long userId;
-
-        if (user instanceof PupilEntity pupil) {
-            userId = pupil.getId();
-        } else if (user instanceof TutorEntity tutor){
-            userId = tutor.getId();
-        } else if (user instanceof SupportEntity support){
-            userId = support.getId();
-        } else {
-            AdminEntity admin = (AdminEntity) user;
-            userId = admin.getId();
-        }
-
-        return new ResponseEntity<Long>(userId, HttpStatus.OK);
+        return new JWTTokenSuccessResponse(true, jwt, user.getRole(), user.getId());
     }
 
 }
