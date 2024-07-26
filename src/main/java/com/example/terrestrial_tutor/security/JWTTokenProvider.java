@@ -1,8 +1,4 @@
 package com.example.terrestrial_tutor.security;
-import com.example.terrestrial_tutor.entity.AdminEntity;
-import com.example.terrestrial_tutor.entity.PupilEntity;
-import com.example.terrestrial_tutor.entity.SupportEntity;
-import com.example.terrestrial_tutor.entity.TutorEntity;
 import com.example.terrestrial_tutor.entity.User;
 import com.example.terrestrial_tutor.entity.enums.ERole;
 import com.example.terrestrial_tutor.exceptions.NotVerificationException;

@@ -30,13 +30,17 @@ public class TaskFacade {
      */
 
     public TaskDTO taskToTaskDTO(TaskEntity task) {
+        LinkedList<?> answers = new LinkedList<>();
+        if (task.getAnswer() != null) {
+            answers = new Gson().fromJson(task.getAnswer(), LinkedList.class);
+        }
         TaskDTO taskDTO = new TaskDTO(
                 task.getId(),
                 task.getName(),
                 task.getChecking(),
                 task.getAnswerType(),
                 task.getTaskText(),
-                new Gson().fromJson(task.getAnswer(), LinkedList.class),
+                answers,
                 task.getSubject().getName(),
                 task.getLevel1(),
                 task.getLevel2(),

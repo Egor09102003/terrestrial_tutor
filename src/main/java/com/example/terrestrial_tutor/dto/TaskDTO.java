@@ -19,7 +19,7 @@ public class TaskDTO {
     final Integer checking;
     final String answerType;
     final String taskText;
-    final List<String> answers;
+    final List<?> answers;
     final String subject;
     final String level1;
     final String level2;

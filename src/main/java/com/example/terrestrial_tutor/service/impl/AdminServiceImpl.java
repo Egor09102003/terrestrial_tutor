@@ -1,15 +1,11 @@
 package com.example.terrestrial_tutor.service.impl;
 
 import com.example.terrestrial_tutor.entity.AdminEntity;
-import com.example.terrestrial_tutor.entity.TutorEntity;
 import com.example.terrestrial_tutor.exceptions.UserExistException;
 import com.example.terrestrial_tutor.payload.request.RegistrationRequest;
 import com.example.terrestrial_tutor.repository.AdminRepository;
-import com.example.terrestrial_tutor.repository.PupilRepository;
-import com.example.terrestrial_tutor.repository.TutorRepository;
 import com.example.terrestrial_tutor.security.JWTAuthenticationFilter;
 import com.example.terrestrial_tutor.service.AdminService;
-import com.example.terrestrial_tutor.service.TutorService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

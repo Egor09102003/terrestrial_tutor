@@ -186,7 +186,6 @@ public class HomeworkServiceImpl implements HomeworkService {
                     throw new CustomException("Task does not have a review type");
             }
         }
-        Long test = currentAttempt.getId();
         currentAttempt.setAnswers(new Gson().toJson(currentAttemptAnswers));
         attemptRepository.saveAndFlush(currentAttempt);
 

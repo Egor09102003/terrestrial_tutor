@@ -14,13 +14,12 @@ import com.example.terrestrial_tutor.payload.response.JWTTokenSuccessResponse;
 import com.example.terrestrial_tutor.payload.response.RegistrationSuccess;
 import com.example.terrestrial_tutor.security.JWTTokenProvider;
 import com.example.terrestrial_tutor.security.SecurityConstants;
-//import com.example.terrestrial_tutor.service.CheckService;
 import com.example.terrestrial_tutor.service.*;
 import com.example.terrestrial_tutor.validators.ResponseErrorValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,7 +35,6 @@ import javax.validation.Valid;
  */
 @CrossOrigin
 @Api
-@PreAuthorize("permitAll()")
 public class AuthController {
 
     @Autowired
@@ -104,6 +102,7 @@ public class AuthController {
     }
 
     @PostMapping("/auth/registration/admin/{secret}")
+    @Secured("hasAnyRole({'ADMIN'})")
     public ResponseEntity<Object> registerAdmin(@Valid @RequestBody RegistrationRequest registrationRequest
             , BindingResult bindResult, @PathVariable String secret) {
         ResponseEntity<Object> errors = responseErrorValidation.mapValidationService(bindResult);
@@ -120,6 +119,7 @@ public class AuthController {
     }
 
     @PostMapping("/auth/registration/support/{secret}")
+    @Secured("hasAnyRole({'SUPPORT'})")
     public ResponseEntity<Object> registerSupport(@Valid @RequestBody RegistrationRequest registrationRequest
             , BindingResult bindResult, @PathVariable String secret) {
         ResponseEntity<Object> errors = responseErrorValidation.mapValidationService(bindResult);

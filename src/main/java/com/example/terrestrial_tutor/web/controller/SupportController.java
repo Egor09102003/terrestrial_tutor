@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,6 +42,7 @@ public class SupportController {
      * @return статус операции
      */
     @PostMapping("/support/add/task")
+    @Secured("hasAnyRole({'SUPPORT'})")
     public ResponseEntity<Long> addTask(@RequestBody TaskDTO task) {
         SupportEntity support = (SupportEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long taskId = taskService.addNewTask(task, support).getId();

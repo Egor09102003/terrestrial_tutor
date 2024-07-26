@@ -5,7 +5,6 @@ import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SupportEntity;
 import com.example.terrestrial_tutor.entity.TutorEntity;
 import com.example.terrestrial_tutor.entity.enums.ERole;
-import com.example.terrestrial_tutor.repository.SupportRepository;
 import com.example.terrestrial_tutor.service.AdminDetailsService;
 import com.example.terrestrial_tutor.service.PupilDetailsService;
 import com.example.terrestrial_tutor.service.SupportDetailsService;

@@ -1,7 +1,6 @@
 package com.example.terrestrial_tutor.payload.request;
 
 import com.example.terrestrial_tutor.annotations.PasswordMatches;
-import com.example.terrestrial_tutor.annotations.ValidEmail;
 import com.example.terrestrial_tutor.entity.enums.ERole;
 import lombok.Data;
 

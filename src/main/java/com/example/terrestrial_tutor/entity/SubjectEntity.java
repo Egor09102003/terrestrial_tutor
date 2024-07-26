@@ -32,7 +32,7 @@ public class SubjectEntity {
 
     @NonNull
     @Column(name = "count_level")
-    int countLevel;
+    Integer countLevel;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "tutors")

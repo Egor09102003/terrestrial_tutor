@@ -4,7 +4,6 @@ import com.example.terrestrial_tutor.dto.TaskDTO;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.SupportEntity;
 import com.example.terrestrial_tutor.entity.TaskEntity;
-import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
 
 import java.util.List;
 import java.util.Map;

@@ -29,7 +29,7 @@ public class TaskEntity {
 
     @NonNull
     @Column(name = "checking")
-    int checking;
+    Integer checking;
 
     @NonNull
     @Column(name = "answer_type")
