@@ -11,7 +11,7 @@
 
       <button class="m-3 col-2 btn btn-primary" (click)="addPupils()">Добавить учеников</button>
 
-      <button class="mx-3 col-2 btn btn-primary" (click)="submit()">Сохранить домашку</button>
+      <button class="mx-3 col-2 btn btn-primary" [disabled]="hwForm.invalid" (click)="submit()">Сохранить домашку</button>
 
       <button class="mx-3 col-2 btn btn-primary" (click)="deleteHomework()">Удалить домашку</button>
     </div>
@@ -24,9 +24,9 @@
           <p class="mb-1 text-uppercase fw-bold col-3">Название работы</p>
         </div>
 
-        <div class="row mb-3 justify-content-start text-center">
-          <input class="col-3 m-0" formControlName="name" placeholder="Введите название">
-          <div class="invalid-feedback col-4">Название обязательно</div>
+        <div class="row col-3 mb-3 justify-content-start text-center">
+          <input class="col-12 m-0" [ngClass]="{'is-invalid': hwForm.controls['name'].invalid}" formControlName="name" placeholder="Введите название">
+          <div class="invalid-feedback">Название обязательно</div>
         </div>
       </div>
 
@@ -65,7 +65,7 @@
             [attr.aria-expanded]="!isCollapsed[i]"
             aria-controls="collapseExample"
           >
-            {{ task.name }}, Тема: {{ task.level1 }}, Подтема: {{ task.level2 }}
+           ID: {{task.id}}, Название: {{ task.name }}, Тема: {{ task.level1 }}, Подтема: {{ task.level2 }}
           </button>
 
           <div class="col-12 mt-2 mb-2 mx-0 p-0" #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed[i]">

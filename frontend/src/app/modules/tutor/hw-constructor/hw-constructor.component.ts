@@ -67,8 +67,9 @@ export class HwConstructorComponent implements OnInit {
   initForm(): void {
     this.hwForm = this.fb.group( {
       name: [this.homework?.name, Validators.compose([Validators.required])],
-      deadLine: [this.homework?.deadLine, Validators.compose([Validators.required])],
-      targetTime: ['', Validators.compose([Validators.required])],
+      deadLine: [this.homework?.deadLine, /*Validators.compose([Validators.required])*/],
+      targetTime: ['', /*Validators.compose([Validators.required])*/],
+      tasks: [this.homework?.tasks, Validators.required]
     });
     if (this.homework != null)
       this.pageLoaded = true;
@@ -132,6 +133,7 @@ export class HwConstructorComponent implements OnInit {
     let updatedCheckingMap: {[key: number]: string} = {};
     if (tasks) {
       moveItemInArray(tasks, event.previousIndex, event.currentIndex);
+      console.log(tasks)
       if (this.homework) {
         this.homework.tasks = tasks;
       }

@@ -83,7 +83,13 @@ public class HomeworkFacade {
                 .map(id -> pupilService.findPupilById(id)).collect(Collectors.toSet()));
 
         if (homeworkDTO.getTasksCheckingTypes() != null) {
-            homework.setTaskCheckingTypes(new Gson().toJson(homeworkDTO.getTasksCheckingTypes()));
+            LinkedHashMap<Long, String> tasksCheckingTypes = new LinkedHashMap<>();
+            for (TaskDTO task : homeworkDTO.getTasks()) {
+                if (homeworkDTO.getTasksCheckingTypes().containsKey(task.getId())) {
+                    tasksCheckingTypes.put(task.getId(), homeworkDTO.getTasksCheckingTypes().get(task.getId()));
+                }
+            }
+            homework.setTaskCheckingTypes(new Gson().toJson(tasksCheckingTypes));
         }
 
         return homework;
