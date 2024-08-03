@@ -7,7 +7,6 @@ import {LoginComponent} from "./modules/auth/login/login.component";
 import {RegistrationComponent} from "./modules/auth/registration/registration.component";
 import {PupilComponent} from "./modules/pupil/pupil.component";
 import {authInterceptorProviders} from "./modules/auth/helper/auth-interceptor.service";
-import {authErrorInterceptorProviders} from "./modules/auth/helper/error-interceptor.service";
 import {AdminComponent} from "./modules/admin/admin.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
@@ -24,15 +23,13 @@ import { PupilsAddHomeworkComponent } from './modules/tutor/pupils-add-homework/
 import {provideStore} from "@ngrx/store";
 import {homeworkFeature} from "./modules/tutor/storage/homework.reducer";
 import {provideStoreDevtools} from "@ngrx/store-devtools";
-import {provideEffects} from "@ngrx/effects";
-import * as homeworkEffects from "./modules/tutor/storage/homework.effects";
 import {TaskChoiceComponent} from "./modules/tutor/task-choise/task-choice.component";
 import { HomeworksListComponent } from './modules/pupil/homeworks.list/homeworks.list.component';
 import { HomeworksDisplayingComponent } from './modules/pupil/homeworks.displaying/homeworks.displaying.component';
 import { PupilHomeworkStatisticComponent } from './modules/pupil/pupil.homework.statistic/pupil.homework.statistic.component';
 import {NgOptimizedImage} from "@angular/common";
 import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
-import { ErrorInterceptor } from './error.interceptor';
+import { ErrorInterceptor } from './modules/auth/helper/error.interceptor';
 
 @NgModule({
   declarations: [
@@ -69,10 +66,6 @@ import { ErrorInterceptor } from './error.interceptor';
   ],
   providers: [
     authInterceptorProviders,
-    authErrorInterceptorProviders,
-    provideEffects(
-      homeworkEffects
-    ),
     provideStore( {
       [homeworkFeature.name]: homeworkFeature.reducer,
     }),

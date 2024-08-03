@@ -3,7 +3,7 @@ import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { TokenStorageService } from "./security/token-storage.service";
+import { TokenStorageService } from "../../../security/token-storage.service";
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
@@ -18,9 +18,14 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
 
       catchError( (err: HttpErrorResponse) =>  {
-        if (err) {
-          this.tokenService.updateUserData();
-          return new Observable<any>;
+        switch (err.status) {
+          case 401:
+            this.router.navigate(['/login']);
+            window.location.reload();
+            break;
+          case 403:
+            this.tokenService.updateUserData();
+            break;
         }
         return new Observable<any>
       })

@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import { AuthService } from './auth.service';
 import { Router } from '@angular/router';
@@ -38,11 +37,15 @@ export class TokenStorageService {
   }
 
   public updateUserData() {
-    window.localStorage.removeItem(USER_KEY);
-    this.authService.getCurrentUser().subscribe(user => {
-      this.saveUser(user);
-      this.router.navigate(['/']);
-    })
+    if (window.localStorage.getItem(USER_KEY)) {
+      window.localStorage.removeItem(USER_KEY);
+    }
+    if (window.localStorage.getItem(TOKEN_KEY)) {
+      this.authService.getCurrentUser().subscribe(user => {
+        this.saveUser(user);
+        this.router.navigate(['/']);
+      })
+    }
   }
 
   logOut(): void {

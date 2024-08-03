@@ -8,7 +8,7 @@
       <input type="password" placeholder="Пароль" class="col-4" formControlName="password">
     </div>
     <div class="justify-content-center row mt-3">
-      <button class="btn btn-primary col-3 mt-3 mb-3" [disabled]="loginForm.invalid" type="submit">
+      <button #submitButton class="btn btn-primary col-3 mt-3 mb-3" [disabled]="loginForm.invalid" type="submit">
         Войти
       </button>
     </div>

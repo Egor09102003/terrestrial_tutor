@@ -1,10 +1,8 @@
-import {Component, ElementRef, OnInit, ViewEncapsulation} from '@angular/core';
-import {UntypedFormBuilder, UntypedFormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {AuthService} from "../../../security/auth.service";
 import {TokenStorageService} from "../../../security/token-storage.service";
-import {Router, RouterLink} from "@angular/router";
-import {catchError} from "rxjs/operators";
-import {Observable, throwError} from "rxjs";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-login',
@@ -15,16 +13,13 @@ export class LoginComponent implements OnInit {
   // @ts-ignore
   public loginForm: UntypedFormGroup;
   unauthorized:boolean = false;
+  @ViewChild('submitButton') submitButton: ElementRef;
 
   constructor(
     private authService: AuthService,
     private tokenStorage: TokenStorageService,
     private router: Router,
-    private fb: UntypedFormBuilder,
-    private elementRef: ElementRef) {
-    // if (this.tokenStorage.getUser()) {
-    //   this.router.navigate(['main']);
-    // }
+    private fb: UntypedFormBuilder,) {
   }
 
   ngOnInit(): void {
@@ -39,15 +34,20 @@ export class LoginComponent implements OnInit {
   }
 
   submit(): void {
+    this.submitButton.nativeElement.disabled = true;
+    console.log(this.submitButton.nativeElement.disabled);
     this.authService.login({
       username: this.loginForm.value.username,
       password: this.loginForm.value.password
-    }).subscribe(data => {
-      console.log("Successfully logged in!");
-      this.tokenStorage.saveToken(data.token);
-      this.tokenStorage.saveUser(data);
-      this.router.navigate([data.role.toLowerCase(), data.userId])
-    });
+    }).subscribe(
+      data => {
+        this.submitButton.nativeElement.disabled = false;
+        console.log("Successfully logged in!");
+        this.tokenStorage.saveToken(data.token);
+        this.tokenStorage.saveUser(data);
+        this.router.navigate([data.role.toLowerCase(), data.userId])
+      },
+    );
   }
 
 }
