@@ -52,9 +52,7 @@
               {{ getChecking(task.id) }}
             </button>
             <div ngbDropdownMenu class="text-center col-12">
-              <button class="nav-btn col-12" type="button" ngbDropdownItem (click)="setChecking(task.id, 'AUTO')">Авто</button>
-              <button class="nav-btn col-12" type="button" ngbDropdownItem (click)="setChecking(task.id, 'INSTANCE')">Моментальная</button>
-              <button class="nav-btn col-12" type="button" ngbDropdownItem (click)="setChecking(task.id, 'MANUALLY')">Ручная</button>
+              <button *ngFor="let checkingType of checkingTypes | keyvalue" class="nav-btn col-12" type="button" ngbDropdownItem (click)="setChecking(task.id, checkingType.key)">{{checkingType.value}}</button>
             </div>
           </div>
           <button

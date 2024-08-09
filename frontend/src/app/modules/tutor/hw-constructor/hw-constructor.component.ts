@@ -11,6 +11,7 @@ import {TutorDataService} from "../storage/tutor.data.service";
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {catchError} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
+import {checkingTypes} from "../../../models/CheckingTypes";
 
 @Component({
   selector: 'app-hw-constructor',
@@ -151,4 +152,7 @@ export class HwConstructorComponent implements OnInit {
     sessionStorage.setItem('tab', '2');
     this.router.navigate([`tutor/${this.tutorId}`]);
   }
+
+  public readonly Object = Object;
+  public readonly checkingTypes = checkingTypes;
 }

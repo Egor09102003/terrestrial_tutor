@@ -17,11 +17,13 @@
           <button type="button" class="drop-btn btn-primary p-2 col-12"
                   (focusout)="taskForm.controls['answerType'].markAsTouched()"
                   [ngClass]="{'is-invalid': invalid('answerType')}" ngbDropdownToggle>
-            {{taskForm.controls['answerType'].value}}
+            {{answerTypes[taskForm.controls['answerType'].value]
+              ? answerTypes[taskForm.controls['answerType'].value]
+              : taskForm.controls['answerType'].value}}
           </button>
           <div ngbDropdownMenu class="text-center col-12">
-            <button ngbDropdownItem class="nav-btn col-12" *ngFor="let answerType of answerTypes; let i = index"
-                    (click)="typeChange(answerType)">{{ answerType }}</button>
+            <button ngbDropdownItem class="nav-btn col-12" *ngFor="let answerType of answerTypes | keyvalue"
+                    (click)="typeChange(answerType.key)">{{ answerType.value }}</button>
           </div>
           <div *ngIf="invalid('answerType')" class="invalid-feedback col-4">Тип проверки обязателен</div>
         </div>
@@ -41,7 +43,7 @@
       </div>
     </div>
 
-    <div *ngIf="taskForm.controls['answerType'].value == 'Код'" class="container mb-3 col-6">
+    <div *ngIf="taskForm.controls['answerType'].value == 'CODE'" class="container mb-3 col-6">
       <div class="row mb-1 justify-content-center text-center">
         <p class="mb-0 text-uppercase fw-bold col-4">Код</p>
       </div>
@@ -57,7 +59,7 @@
       </div>
     </div>
 
-    <div *ngIf="taskForm.controls['answerType'].value == 'Варианты'" class="container mb-3 col-8">
+    <div *ngIf="taskForm.controls['answerType'].value == 'VARIANTS'" class="container mb-3 col-8">
       <div class="row mb-1 justify-content-center text-center">
         <p class="mb-0 text-uppercase fw-bold col-4">Варианты ответов</p>
       </div>
@@ -78,7 +80,7 @@
 
     </div>
 
-    <div *ngIf="taskForm.controls['answerType'].value == 'Текст или значение'" class="container mb-3">
+    <div *ngIf="taskForm.controls['answerType'].value == 'VALUE'" class="container mb-3">
       <div class="row mb-1 justify-content-center text-center">
         <p class="mb-0 text-uppercase fw-bold col-4">Ответ</p>
       </div>

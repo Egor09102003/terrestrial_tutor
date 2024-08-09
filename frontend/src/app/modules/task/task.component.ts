@@ -11,6 +11,7 @@ import {SupportService} from "../support/services/support.service";
 import {Task} from "../../models/Task";
 import {ActivatedRoute, Router} from "@angular/router";
 import {TaskService} from "./services/task.service";
+import {answerTypes} from "../../models/AnswerTypes";
 
 
 @Component({
@@ -23,7 +24,6 @@ export class TaskComponent implements OnInit {
   // @ts-ignore
   taskForm: UntypedFormGroup;
   subjects: Subject[] | undefined;
-  answerTypes = ['Варианты', 'Текст или значение', 'Код'];
   options = {
     lineNumbers: true,
     theme: 'material',
@@ -232,5 +232,5 @@ export class TaskComponent implements OnInit {
     this.taskForm.controls['table'].setValue(newTable);
   }
 
-  protected readonly toString = toString;
+  protected readonly answerTypes = answerTypes;
 }
