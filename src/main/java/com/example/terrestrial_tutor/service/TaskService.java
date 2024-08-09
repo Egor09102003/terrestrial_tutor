@@ -80,4 +80,12 @@ public interface TaskService {
      */
     TaskEntity addNewTask(TaskDTO dto, SupportEntity support);
 
+    /**
+     * Удаление задания по id
+     * 
+     * @param id
+     * @return
+     */
+    Long delete(Long id);
+
 }

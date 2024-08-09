@@ -1,5 +1,6 @@
 package com.example.terrestrial_tutor.service.impl;
 
+import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.SupportEntity;
 import com.example.terrestrial_tutor.exceptions.UserExistException;
 import com.example.terrestrial_tutor.payload.request.RegistrationRequest;
@@ -84,5 +85,9 @@ public class SupportServiceImpl implements SupportService {
 
     public SupportEntity findSupportById(Long id) {
         return supportRepository.findSupportEntityById(id);
+    }
+
+    public SupportEntity save(SupportEntity support) {
+        return supportRepository.save(support);
     }
 }

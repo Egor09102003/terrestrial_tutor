@@ -9,6 +9,7 @@ import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
 import com.example.terrestrial_tutor.exceptions.CustomException;
 import com.example.terrestrial_tutor.repository.TaskRepository;
 import com.example.terrestrial_tutor.service.SubjectService;
+import com.example.terrestrial_tutor.service.SupportService;
 import com.example.terrestrial_tutor.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ public class TaskServiceImpl implements TaskService {
     SubjectService subjectService;
     @Autowired
     private TaskFacade taskFacade;
+    @Autowired
+    private SupportService supportService;
 
     /**
      * Функция вывода листа заданий по учебному прдмету и уровню выбора 1
@@ -137,5 +140,11 @@ public class TaskServiceImpl implements TaskService {
             case "ручная" -> MANUALLY;
             default -> null;
         };
+    }
+
+    public Long delete(Long id) {
+        TaskEntity task = taskRepository.findTaskEntityById(id);
+        taskRepository.delete(task);
+        return id;
     }
 }
