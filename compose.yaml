@@ -20,6 +20,7 @@ services:
         ipv4_address: 10.0.0.2
 
   builder-be:
+    profiles: [prod]
     image: backend-builder
     build:
       context: .
@@ -30,6 +31,7 @@ services:
         ipv4_address: 10.0.0.3
 
   backend:
+    profiles: [prod]
     image: backend
     volumes:
       - ./frontend/src/assets:/assets
@@ -81,40 +83,3 @@ services:
     networks:
       localnet:
         ipv4_address: 10.0.0.6
-
-  postgres_dev:
-    image: postgres:16.1
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: postgres
-    environment:
-      POSTGRES_DB: terrestrial_tutor
-      POSTGRES_PASSWORD: tErRrEsTrIaLtUtOr
-      POSTGRES_USER: tutor
-    ports:
-      - '5433:5432'
-    volumes:
-      - ./db_snapshots/:/dumps
-      - ./db_snapshots/init/:/docker-entrypoint-initdb.d/
-
-  backend_deploy:
-    image: backend
-    volumes:
-      - ./frontend/src/assets:/assets
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: app
-    ports:
-      - "8182:8181"
-    depends_on:
-      - builder-be
-    environment:
-      - SERVER_PORT=8181
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://10.0.0.6:5432/terrestrial_tutor
-      - SPRING_DATASOURCE_USERNAME=tutor
-      - SPRING_DATASOURCE_PASSWORD=tErRrEsTrIaLtUtOr
-    networks:
-      localnet:
-        ipv4_address: 10.0.0.8
