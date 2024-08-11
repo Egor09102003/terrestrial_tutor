@@ -3,6 +3,7 @@ package com.example.terrestrial_tutor.dto.facade;
 import com.example.terrestrial_tutor.dto.TaskDTO;
 import com.example.terrestrial_tutor.entity.SupportEntity;
 import com.example.terrestrial_tutor.entity.TaskEntity;
+import com.example.terrestrial_tutor.entity.enums.AnswerTypes;
 import com.example.terrestrial_tutor.service.SubjectService;
 import com.example.terrestrial_tutor.service.TaskService;
 import com.google.gson.Gson;
@@ -38,13 +39,15 @@ public class TaskFacade {
                 task.getId(),
                 task.getName(),
                 task.getChecking(),
-                task.getAnswerType(),
+                task.getAnswerType().name(),
                 task.getTaskText(),
                 answers,
                 task.getSubject().getName(),
                 task.getLevel1(),
                 task.getLevel2(),
-                task.getTable());
+                task.getTable(),
+                task.getAnalysis(),
+                task.getCost());
         taskDTO.setFiles(task.getFiles());
         return taskDTO;
     }
@@ -53,7 +56,7 @@ public class TaskFacade {
         TaskEntity taskEntity = new TaskEntity();
         taskEntity.setName(taskDTO.getName());
         taskEntity.setChecking(taskDTO.getChecking());
-        taskEntity.setAnswerType(taskDTO.getAnswerType());
+        taskEntity.setAnswerType(AnswerTypes.valueOf(taskDTO.getAnswerType()));
         taskEntity.setTaskText(taskDTO.getTaskText());
         taskEntity.setFiles(taskDTO.getFiles());
         taskEntity.setId(taskDTO.getId());
@@ -63,6 +66,8 @@ public class TaskFacade {
         taskEntity.setSubject(subjectService.findSubjectByName(taskDTO.getSubject()));
         taskEntity.setAnswer(new Gson().toJson(taskDTO.getAnswers()));
         taskEntity.setSupport(support);
+        taskEntity.setAnalysis(taskDTO.getAnalysis());
+        taskEntity.setCost(taskDTO.getCost());
         return taskEntity;
     }
 }

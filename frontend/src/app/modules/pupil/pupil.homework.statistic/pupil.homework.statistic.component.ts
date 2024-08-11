@@ -105,11 +105,15 @@ export class PupilHomeworkStatisticComponent {
 
   getResultProgress() {
     let percent = 0;
+    // let points: number = 0;
     for (let task in this.checkingAnswers) {
       if (this.checkingAnswers) {
         let pupilAnswer = this.checkingAnswers[task].pupilAnswer;
         let rightAnswer = this.checkingAnswers[task].rightAnswer;
-        percent += this.getAnswerStatus(pupilAnswer ? pupilAnswer: '', rightAnswer) == 'green' ? 1 : 0;
+        if (this.getAnswerStatus(pupilAnswer ? pupilAnswer: '', rightAnswer) == 'green' ? 1 : 0) {
+          percent += 1;
+          // points += this.tasks?.find((curTask: Task) => curTask.id.toString() === task).cost;
+        }
       }
     }
     if (this.tasks) {

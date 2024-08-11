@@ -1,5 +1,6 @@
 package com.example.terrestrial_tutor.entity;
 
+import com.example.terrestrial_tutor.entity.enums.AnswerTypes;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -33,7 +34,7 @@ public class TaskEntity {
 
     @NonNull
     @Column(name = "answer_type")
-    String answerType;
+    AnswerTypes answerType;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "task_files", joinColumns = @JoinColumn(name = "entity_id"))
@@ -64,4 +65,10 @@ public class TaskEntity {
     @ManyToOne()
     @JoinColumn(name = "support")
     SupportEntity support;
+
+    @Column(name = "analysis", columnDefinition="text")
+    String analysis;
+
+    @Column(name = "cost")
+    Integer cost;
 }

@@ -12,6 +12,7 @@ import {Task} from "../../models/Task";
 import {ActivatedRoute, Router} from "@angular/router";
 import {TaskService} from "./services/task.service";
 import {answerTypes} from "../../models/AnswerTypes";
+import {toNumbers} from "@angular/compiler-cli/src/version_helpers";
 
 
 @Component({
@@ -110,8 +111,12 @@ export class TaskComponent implements OnInit {
       tableCols: [table.length > 0 ? table[0].length : ''],
       table: [
         table,
-      ]
+      ],
+      analysis: this.task?.analysis ? this.task?.analysis : '',
+      cost: this.task?.cost ? this.task?.cost : 0,
     });
+
+    form.controls['taskName'].markAllAsTouched();
 
     if (this.task && "id" in this.task) {
       this.taskService.getTaskFiles(this.task.id).subscribe(files => {
@@ -153,7 +158,9 @@ export class TaskComponent implements OnInit {
       level1: this.taskForm.controls['level1'].value,
       level2: this.taskForm.controls['level2'].value,
       table: this.tableToJson(),
-      files: []
+      files: [],
+      analysis: this.formatLink(this.taskForm.controls['analysis'].value),
+      cost: this.taskForm.controls['cost'].value,
     };
 
     let files = this.taskForm.controls['files'].value;
@@ -166,6 +173,14 @@ export class TaskComponent implements OnInit {
     this.supportService.addTask(task).subscribe(data => {
       this.supportService.addFiles(files, data).subscribe(() => this.router.navigate([`/support/${supportId}`]));
     })
+  }
+
+  formatLink(link: string): string {
+    if (link.includes('http')) {
+      return link;
+    }
+
+    return 'https://' + link;
   }
 
   invalid(controlName: string) {

@@ -24,5 +24,7 @@ public class TaskDTO {
     final String level1;
     final String level2;
     final String table;
+    final String analysis;
+    final Integer cost;
     Set<String> files;
 }

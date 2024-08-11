@@ -22,6 +22,8 @@
       <h3><u>Тема: {{ task.level1 }}</u></h3>
       <h3><u>Подтема: {{ task.level2 }}</u></h3>
       <h3><u>Номер: {{ task.id }}</u></h3>
+      <h3><u>Баллы: {{ task.cost }}</u></h3>
+      <h3><u>Ссылка: <a target="_blank" href="{{task.analysis}}">{{task.analysis}}</a></u></h3>
 
       <div class="container-fluid mx-auto p-3 mb-5 min-vh-70 border-opacity-25 rounded-4 border border-2 col-12 plate text-le">
         <h3 style="white-space: pre-line; font-size: 1em" [innerHTML]="task.taskText"></h3>

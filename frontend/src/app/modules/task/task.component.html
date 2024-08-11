@@ -9,7 +9,7 @@
         <p class="mb-1 text-uppercase fw-bold col-3">Тип</p>
       </div>
       <div class="row mb-3 justify-content-center text-center">
-        <input class="col-3 m-1" formControlName="taskName" placeholder="Введите название"
+        <input class="col-3 m-1 text-center" formControlName="taskName" placeholder="Введите название"
                [ngClass]="{'is-invalid': invalid('taskName')}">
 
 
@@ -67,7 +67,7 @@
       <div class="row justify-content-center text-center">
         <div formArrayName="taskAns">
           <div *ngFor="let answer of taskAns.controls; let i = index">
-            <input class="col-4 m-1" [formControlName]="i" placeholder="Введите вариант ответа"
+            <input class="col-4 m-1 text-center" [formControlName]="i" placeholder="Введите вариант ответа"
                    [ngClass]="{'is-invalid': invalidAnswer(taskAns.controls[i])}">
             <button class="btn btn-primary col-1 m-1" (click)="deleteAns(i)">-</button>
             <div class="invalid-feedback">Ответ обязателен</div>
@@ -119,14 +119,26 @@
 
     <div class="container mb-3">
       <div class="row mb-1 justify-content-center text-center">
+        <p class="mb-0 text-uppercase fw-bold col-3 ">Ссылка на разбор</p>
+        <p class="mb-0 text-uppercase fw-bold col-3">Баллы за задание</p>
+      </div>
+
+      <div class="row mb-1 justify-content-center text-center">
+        <input class="col-3 m-1 text-center" formControlName="analysis" placeholder="Введите ссылку">
+        <input type="number" class="col-3 m-1 text-center" formControlName="cost" placeholder="Введите балл">
+      </div>
+    </div>
+
+    <div class="container mb-3">
+      <div class="row mb-1 justify-content-center text-center">
         <p class="mb-0 text-uppercase fw-bold col-3">Тема первого уровня</p>
         <p class="mb-0 text-uppercase fw-bold col-3">Тема второго уровня</p>
       </div>
 
       <div class="row mb-1 justify-content-center text-center">
-        <input class="col-3 m-1" formControlName="level1" placeholder="Введите тему"
+        <input class="col-3 m-1 text-center" formControlName="level1" placeholder="Введите тему"
                [ngClass]="{'is-invalid': invalid('level1')}">
-        <input class="col-3 m-1" formControlName="level2" placeholder="Введите тему">
+        <input class="col-3 m-1 text-center" formControlName="level2" placeholder="Введите тему">
         <div class="invalid-feedback">Тема первого уровня обязательна</div>
       </div>
     </div>

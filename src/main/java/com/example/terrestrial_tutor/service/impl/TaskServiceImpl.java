@@ -118,7 +118,6 @@ public class TaskServiceImpl implements TaskService {
         TaskEntity task = taskFacade.taskDTOToTask(dto, support);
         if (task.getId() != null && dto.getId() != 0) {
             TaskEntity savedTask = taskRepository.findTaskEntityById(dto.getId());
-            savedTask.setTaskText("test");
             return taskRepository.saveAndFlush(task);
         }
 
