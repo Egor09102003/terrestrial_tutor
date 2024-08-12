@@ -35,7 +35,6 @@ export class LoginComponent implements OnInit {
 
   submit(): void {
     this.submitButton.nativeElement.disabled = true;
-    console.log(this.submitButton.nativeElement.disabled);
     this.authService.login({
       username: this.loginForm.value.username,
       password: this.loginForm.value.password
