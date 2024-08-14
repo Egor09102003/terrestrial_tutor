@@ -10,6 +10,7 @@
       <h3><u>Тема: {{ task.level1 }}</u></h3>
       <h3><u>Подтема: {{ task.level2 }}</u></h3>
       <h3><u>Номер: {{ task.id }}</u></h3>
+      <h3><u>Баллы: {{ task.cost }}</u></h3>
 
       <div class="container-fluid mx-auto p-3 mb-5 min-vh-70 border-opacity-25 rounded-4 border border-2 col-12 plate text-le">
         <h3 style="white-space: pre-line" [innerHTML]="autoLink(task.taskText)"></h3>
@@ -31,7 +32,7 @@
           </table>
         </div>
 
-        <div *ngIf="task.answerType == 'Варианты'">
+        <div *ngIf="task.answerType == 'VARIANTS'">
           <div *ngFor="let answer of task.answers">
             <div class="form-check form-check-inline align-content-center align-items-center">
               <input [ngClass]="{'is-invalid': tasksStatus[task.id.toString()] == 2,
@@ -41,7 +42,7 @@
           </div>
         </div>
 
-        <div *ngIf="task.answerType == 'Текст или значение'">
+        <div *ngIf="task.answerType == 'VALUE'">
           <input [ngClass]="{'is-invalid': tasksStatus[task.id.toString()] == 2,
             'is-valid': tasksStatus[task.id.toString()] == 1}"
                  formControlName = "{{task.id.toString()}}" placeholder="Введите ответ">

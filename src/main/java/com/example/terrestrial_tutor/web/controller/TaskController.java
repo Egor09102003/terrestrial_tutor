@@ -125,8 +125,6 @@ public class TaskController {
 
     @DeleteMapping("/tasks/{id}/delete")
     public ResponseEntity<Long> deleteTask(@PathVariable Long id) {
-        System.out.println(id);
-        System.out.println("id");
         taskService.delete(id);
         return new ResponseEntity<>(id, HttpStatus.OK);
     }

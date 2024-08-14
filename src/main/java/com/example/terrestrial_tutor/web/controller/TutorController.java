@@ -72,7 +72,6 @@ public class TutorController {
     @GetMapping("/tutor/subjects")
     @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
     public ResponseEntity<List<SubjectDTO>> getTutorPupilsBySubject() {
-        System.out.println(((User)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getRole());
         TutorEntity tutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<SubjectEntity> subjects = tutorService.findTutorSubjectsByTutorId(tutor.getId());
         List<SubjectDTO> subjectsDTO = new ArrayList<>();

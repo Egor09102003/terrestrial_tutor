@@ -30,6 +30,7 @@ import { PupilHomeworkStatisticComponent } from './modules/pupil/pupil.homework.
 import {NgOptimizedImage} from "@angular/common";
 import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
 import { ErrorInterceptor } from './modules/auth/helper/error.interceptor';
+import { TaskCardComponent } from './modules/task/card/task.card.component/task.card.component';
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import { ErrorInterceptor } from './modules/auth/helper/error.interceptor';
     TaskChoiceComponent,
     BrowseNotificationsComponent,
     PupilsAddHomeworkComponent,
+    TaskCardComponent
   ],
   imports: [
     BrowserModule,

@@ -6,6 +6,7 @@ import com.example.terrestrial_tutor.dto.TaskDTO;
 import com.example.terrestrial_tutor.entity.AttemptEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
+import com.example.terrestrial_tutor.entity.enums.AnswerTypes;
 import com.example.terrestrial_tutor.service.PupilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,15 +42,18 @@ public class PupilFacade {
                     HomeworkDTO clearedHomework = homeworkFacade.homeworkToHomeworkDTO(homework);
                     List<TaskDTO> tasks = new ArrayList<>();
                     clearedHomework.getTasks().forEach(taskDTO -> {
-                        if (taskDTO.getAnswerType().equals("Варианты")) {
-                            Collections.shuffle(taskDTO.getAnswers());
-                            tasks.add(taskDTO);
-                        } else {
-                            TaskDTO clearedTask = new TaskDTO(taskDTO.getId(), taskDTO.getName(), taskDTO.getChecking(),
-                                    taskDTO.getAnswerType(), taskDTO.getTaskText(), null, taskDTO.getSubject(),
-                                    taskDTO.getLevel1(), taskDTO.getLevel2(), taskDTO.getTable());
-                            clearedTask.setFiles(taskDTO.getFiles());
-                            tasks.add(clearedTask);
+                        switch (AnswerTypes.valueOf(taskDTO.getAnswerType())) {
+                            case VARIANTS:
+                                Collections.shuffle(taskDTO.getAnswers());
+                                tasks.add(taskDTO);
+                                break;
+                            default:
+                                TaskDTO clearedTask = new TaskDTO(taskDTO.getId(), taskDTO.getName(), taskDTO.getChecking(),
+                                        taskDTO.getAnswerType(), taskDTO.getTaskText(), null, taskDTO.getSubject(),
+                                        taskDTO.getLevel1(), taskDTO.getLevel2(), taskDTO.getTable(), taskDTO.getAnalysis(),
+                                        taskDTO.getCost());
+                                clearedTask.setFiles(taskDTO.getFiles());
+                                tasks.add(clearedTask);
                         }
                     });
                     clearedHomework.setTasks(new LinkedList<>(tasks));

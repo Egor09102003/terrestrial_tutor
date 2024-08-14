@@ -12,4 +12,6 @@ export interface Task {
   level2: string;
   table: string;
   files: string[];
+  analysis: string;
+  cost: number;
 }

@@ -25,7 +25,7 @@
         </div>
 
         <div class="row col-3 mb-3 justify-content-start text-center">
-          <input class="col-12 m-0" [ngClass]="{'is-invalid': hwForm.controls['name'].invalid}" formControlName="name" placeholder="Введите название">
+          <input class="col-12 m-0" [ngClass]="{'is-invalid': hwForm.controls['name'].invalid && hwForm.controls['name'].touched}" formControlName="name" placeholder="Введите название">
           <div class="invalid-feedback">Название обязательно</div>
         </div>
       </div>
@@ -52,66 +52,10 @@
               {{ getChecking(task.id) }}
             </button>
             <div ngbDropdownMenu class="text-center col-12">
-              <button class="nav-btn col-12" type="button" ngbDropdownItem (click)="setChecking(task.id, 'AUTO')">Авто</button>
-              <button class="nav-btn col-12" type="button" ngbDropdownItem (click)="setChecking(task.id, 'INSTANCE')">Моментальная</button>
-              <button class="nav-btn col-12" type="button" ngbDropdownItem (click)="setChecking(task.id, 'MANUALLY')">Ручная</button>
+              <button *ngFor="let checkingType of checkingTypes | keyvalue" class="nav-btn col-12" type="button" ngbDropdownItem (click)="setChecking(task.id, checkingType.key)">{{checkingType.value}}</button>
             </div>
           </div>
-          <button
-            type="button"
-            class="btn btn-primary col-8"
-            style="text-align: start"
-            (click)="collapse.toggle(); codemirrorInit();"
-            [attr.aria-expanded]="!isCollapsed[i]"
-            aria-controls="collapseExample"
-          >
-           ID: {{task.id}}, Название: {{ task.name }}, Тема: {{ task.level1 }}, Подтема: {{ task.level2 }}
-          </button>
-
-          <div class="col-12 mt-2 mb-2 mx-0 p-0" #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed[i]">
-            <div class="card">
-              <div class="card-body"><b>Номер: </b>{{ task.id }}</div>
-              <div class="card-body"><b>Название: </b>{{ task.name }}</div>
-              <div class="card-body"><b>Текст: </b>{{ task.taskText }}</div>
-              <div class="card-body"><b>Тип ответа: </b>{{ task.answerType }}</div>
-              <div class="card-body">
-                <b>Ответы: </b>
-                <ngx-codemirror class="col-5 m-2" #codemirrorComponent *ngIf="task.answerType == 'Код'"
-                                [options]="{
-                            lineNumbers: true,
-                            theme: 'material',
-                            mode: 'python',
-                            matchBrackets: true,
-                            readOnly: true
-                            }"
-                                [(ngModel)]="task.answers[0]"
-                ></ngx-codemirror>
-                <div *ngIf="task.answerType != 'Код'">{{ task.answers }}</div>
-              </div>
-              <div class="card-body"><b>Тема 1: </b>{{ task.level1 }}</div>
-              <div class="card-body"><b>Тема 2: </b>{{ task.level2 }}</div>
-              <div class="card-body">
-                <b class="row m-0">Картинки: </b>
-                <div class="d-inline-block" *ngFor="let image of task.files">
-                  <img *ngIf="checkImage(image)" class="m-2 border-opacity-25 border border-2"
-                       [src]="image" width="500px" height="auto" alt="">
-                  <div *ngIf="checkImage(image)" class="row mx-2 text-center" style="
-                width: 500px;
-                word-wrap: break-word">{{image.substring(image.indexOf('.') + 1)}}</div>
-                </div>
-              </div>
-              <div class="card-body">
-                <b class="row m-0">Файлы: </b>
-                <div class="d-inline-block mt-3" *ngFor="let file of task.files">
-                  <a class="mx-3" *ngIf="!checkImage(file)" href="{{file}}" download><img src="assets/document.png" width="60px"></a>
-                  <div *ngIf="!checkImage(file)" class="row mx-2 text-center" style="
-                  background-color: white;
-                  width: 60px;
-                  word-wrap: break-word">{{file.substring(file.indexOf('.') + 1)}}</div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <task-card [task]="task"></task-card>
         </div>
       </div>
     </div>
