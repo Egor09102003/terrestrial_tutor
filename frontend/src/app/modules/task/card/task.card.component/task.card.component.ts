@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, Input, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
 import {CodemirrorComponent} from "@ctrl/ngx-codemirror";
 import { TaskSelect } from 'src/app/models/TaskSelect';
@@ -13,13 +13,14 @@ import { answerTypes } from 'src/app/models/AnswerTypes';
 })
 export class TaskCardComponent {
     @ViewChild('codemirrorComponent') codemirror: CodemirrorComponent | undefined;
+    @Output() isCollapsed: boolean = true;
     @Input() task: Task;
 
     filterText = new UntypedFormControl('');
-    isCollapsed: boolean = true;
     protected readonly answerTypes = answerTypes;
 
     ngOnInit() {
+
     }
 
     checkImage(file: string): boolean {

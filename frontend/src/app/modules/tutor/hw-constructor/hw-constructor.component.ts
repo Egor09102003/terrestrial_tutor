@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {dataService} from "../services/data.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {TutorService} from "../services/tutor.service";
@@ -8,10 +8,11 @@ import {Task} from "../../../models/Task";
 import {CodemirrorComponent} from "@ctrl/ngx-codemirror";
 import {throwError} from "rxjs";
 import {TutorDataService} from "../storage/tutor.data.service";
-import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
+import {CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray} from "@angular/cdk/drag-drop";
 import {catchError} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
 import {checkingTypes} from "../../../models/CheckingTypes";
+import { TaskCardComponent } from '../../task/card/task.card.component/task.card.component';
 
 @Component({
   selector: 'app-hw-constructor',
@@ -20,6 +21,9 @@ import {checkingTypes} from "../../../models/CheckingTypes";
 })
 export class HwConstructorComponent implements OnInit {
   @ViewChild('codemirrorComponent') codemirror: CodemirrorComponent | undefined;
+  @ViewChildren('taskCard') taskCollapse: QueryList<TaskCardComponent> ;
+  @ViewChildren('cdkDrag') cdkDrag: QueryList<ElementRef> ;
+  @ViewChildren('cdkDropList') cdkDropList: CdkDropList ;
 
   constructor(private tutorService: TutorService,
               private dataService: dataService,
@@ -32,7 +36,6 @@ export class HwConstructorComponent implements OnInit {
   homework: Homework | null = null;
   //@ts-ignore
   hwForm: UntypedFormGroup;
-  isCollapsed: boolean[] = [];
   currentTasks: Task[]|null = null;
   pageLoaded: boolean = false;
   errorMessage = "";
@@ -56,12 +59,6 @@ export class HwConstructorComponent implements OnInit {
   initFields() {
     if (this.homework) {
       this.currentTasks = this.homework.tasks;
-      this.isCollapsed = [];
-      if (this.homework?.tasksCheckingTypes) {
-        for (let task of this.currentTasks) {
-          this.isCollapsed.push(true);
-        }
-      }
     }
   }
 
@@ -134,7 +131,7 @@ export class HwConstructorComponent implements OnInit {
     let updatedCheckingMap: {[key: number]: string} = {};
     if (tasks) {
       moveItemInArray(tasks, event.previousIndex, event.currentIndex);
-      console.log(tasks)
+      console.log(this.taskCollapse);
       if (this.homework) {
         this.homework.tasks = tasks;
       }
@@ -151,6 +148,18 @@ export class HwConstructorComponent implements OnInit {
     this.tutorService.deleteHomeworkById(this.homework?.id).subscribe();
     sessionStorage.setItem('tab', '2');
     this.router.navigate([`tutor/${this.tutorId}`]);
+  }
+
+  checkCollapse(i: number) {
+    console.log(this.cdkDropList.data);
+    let currentDrag = this.cdkDrag.get(i)?.nativeElement;
+    if (!this.taskCollapse.get(i)?.isCollapsed) {
+      if (currentDrag?.draggable) {
+        currentDrag.draggable = false;
+      }      
+    } else {
+      currentDrag.draggable = true;
+    }
   }
 
   public readonly Object = Object;

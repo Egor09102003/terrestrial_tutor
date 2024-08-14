@@ -16,14 +16,15 @@
         <button type="button" class="btn btn-primary col-3" (click)="submit()">На главную</button>
       </div>
     </div>
-    <h2 class="mx-3 mb-5">Ваш процент выполнения: {{ getResultProgress() }}%</h2>
+    <h2 class="mx-3 mb-5">Ваш процент выполнения: {{ statistic.percent }}%</h2>
+    <h2 class="mx-3 mb-5">Ваши баллы: {{ statistic.points }} из {{ statistic.pointsMax }}</h2>
     <div class="d-inline m-3" *ngFor="let task of tasks">
       <h2>{{ task.name }}</h2>
       <h3><u>Тема: {{ task.level1 }}</u></h3>
       <h3><u>Подтема: {{ task.level2 }}</u></h3>
       <h3><u>Номер: {{ task.id }}</u></h3>
-      <h3><u>Баллы: {{ task.cost }}</u></h3>
-      <h3><u>Ссылка: <a target="_blank" href="{{task.analysis}}">{{task.analysis}}</a></u></h3>
+      <h3><u>Баллы: {{ checkAnswer(task) }} из {{ task.cost }}</u></h3>
+      <h3 *ngIf="task.analysis"><u>Ссылка: <a target="_blank" href="{{task.analysis}}">{{task.analysis}}</a></u></h3>
 
       <div class="container-fluid mx-auto p-3 mb-5 min-vh-70 border-opacity-25 rounded-4 border border-2 col-12 plate text-le">
         <h3 style="white-space: pre-line; font-size: 1em" [innerHTML]="task.taskText"></h3>

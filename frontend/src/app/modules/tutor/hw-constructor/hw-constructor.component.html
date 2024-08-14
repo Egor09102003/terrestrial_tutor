@@ -44,7 +44,7 @@
     </form>
 
     <div class="container col-12 mx-auto mt-4" cdkDropList (cdkDropListDropped)="onDrop($event)">
-      <div *ngFor="let task of currentTasks let i = index" cdkDrag [cdkDragDisabled]="isCollapsed[i]">
+      <div *ngFor="let task of currentTasks let i = index" cdkDrag>
         <div class="row col-12 m-3">
           <h3 class="text-end col-1">{{i + 1}}.</h3>
           <div ngbDropdown class="col-3">
