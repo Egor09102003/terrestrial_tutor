@@ -12,6 +12,7 @@ import com.example.terrestrial_tutor.service.TutorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class ChecksController {
      * @return лист проверок
      */
     @GetMapping("/check/all")
+    @Secured("hasAnyRole({'ADMIN'})")
     public ResponseEntity<List<CheckDTO>> checks() {
         List<CheckDTO> checkList = checkService.getAllChecks()
                 .stream()
@@ -55,6 +57,7 @@ public class ChecksController {
      * @return удаление проверки
      */
     @DeleteMapping("/check/close/{id}")
+    @Secured("hasAnyRole({'ADMIN'})")
     public ResponseEntity<CheckEntity> closeCheck(@PathVariable Long id) {
         CheckEntity check = checkService.findCheckById(id);
         if (check.getRole() == ERole.PUPIL) {

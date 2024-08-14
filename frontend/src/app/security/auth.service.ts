@@ -48,8 +48,8 @@ export class AuthService {
     });
   }
 
-  getCurrentUserId(): Observable<any> {
-    return this.http.get(this.AUTH_API + 'user/id');
+  getCurrentUser(): Observable<any> {
+    return this.http.get(this.AUTH_API + 'user');
   }
 
 }

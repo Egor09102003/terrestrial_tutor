@@ -1,7 +1,8 @@
 package com.example.terrestrial_tutor.service;
 
 import com.example.terrestrial_tutor.entity.PupilEntity;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.example.terrestrial_tutor.entity.User;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
@@ -14,7 +15,7 @@ public interface PupilDetailsService extends UserDetailsService {
      * @param username логин
      * @return userDetails
      */
-    UserDetails loadUserByUsername(String username);
+    User loadUserByUsername(String username);
 
     /**
      * Загрузка ученика по id

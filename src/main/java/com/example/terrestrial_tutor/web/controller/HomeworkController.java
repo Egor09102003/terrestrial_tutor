@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,6 +54,7 @@ public class HomeworkController {
      * @return сохраненное дз
      */
     @PostMapping("/homework/save")
+    @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
     public ResponseEntity<HomeworkDTO> saveHomework(@RequestBody HomeworkDTO homeworkDTO) {
         HomeworkEntity newHomework = homeworkService.saveHomework(homeworkFacade.homeworkDTOToHomework(homeworkDTO));
         HomeworkDTO newHomeworkDTO = homeworkFacade.homeworkToHomeworkDTO(newHomework);
@@ -66,6 +68,7 @@ public class HomeworkController {
      * @return лист выборки
      */
     @PostMapping("/homework/selection")
+    @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
     public ResponseEntity<List<TaskEntity>> getTasksSelection(@RequestBody SelectionDTO selectionDTO) {
         SubjectEntity currentSubject = subjectService.findSubjectByName(selectionDTO.getSubject());
         List<TaskEntity> result = taskService.getSelectionTask(selectionDTO.getChoices(), currentSubject);
@@ -81,6 +84,7 @@ public class HomeworkController {
      * @return дз с добавленной попыткой
      */
     @PostMapping("/pupil/homework/{homeworkId}/{attempt}")
+    @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
     public ResponseEntity<HomeworkAnswersDTO> getCheckingAnswers(@RequestBody Map<Long, String> answers,
                                                                  @PathVariable Long homeworkId,
                                                                  @PathVariable int attempt) {
@@ -134,6 +138,7 @@ public class HomeworkController {
      */
 
     @DeleteMapping("/homework/delete/{id}")
+    @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
     public HttpStatus deleteHomeworkById(@PathVariable Long id) {
         homeworkService.deleteHomeworkById(id);
         return HttpStatus.OK;
@@ -145,6 +150,7 @@ public class HomeworkController {
      * @return все дз
      */
     @GetMapping("/homework/all")
+    @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
     public ResponseEntity<List<HomeworkDTO>> getHomeworks() {
         List<HomeworkEntity> allHomeworks = homeworkService.getAllHomeworks();
         List<HomeworkDTO> allHomeworksDto = new ArrayList<>();

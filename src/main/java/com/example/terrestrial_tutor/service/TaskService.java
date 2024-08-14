@@ -4,7 +4,6 @@ import com.example.terrestrial_tutor.dto.TaskDTO;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.SupportEntity;
 import com.example.terrestrial_tutor.entity.TaskEntity;
-import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
 
 import java.util.List;
 import java.util.Map;
@@ -80,5 +79,13 @@ public interface TaskService {
      * @return добавленное задание
      */
     TaskEntity addNewTask(TaskDTO dto, SupportEntity support);
+
+    /**
+     * Удаление задания по id
+     * 
+     * @param id
+     * @return
+     */
+    Long delete(Long id);
 
 }

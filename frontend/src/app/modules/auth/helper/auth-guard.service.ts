@@ -26,9 +26,9 @@ export class AuthGuardService  {
         return false;
       }
     } else {
-      if (!state.url.includes(currentUser.role.toLowerCase()) || !route.paramMap.get('id')) {
-        this.authService.getCurrentUserId().subscribe(id => {
-          this.router.navigate([currentUser.role.toLowerCase(), id]);
+      if (!state.url.includes(currentUser.role.toLowerCase()) || route.paramMap.get('id') != currentUser.userId) {
+        this.authService.getCurrentUser().subscribe(data => {
+          this.router.navigate([currentUser.role.toLowerCase(), data.userId]);
           return false;
         });
       }

@@ -88,7 +88,7 @@ export class HomeworksDisplayingComponent {
           this.statistic = <HomeworkAnswers>homework;
         }
         sessionStorage.setItem('tryNumber', String(this.statistic.attemptCount));
-        this.router.navigate(['/pupil/homework/statistic']);
+        this.router.navigate([`/pupil/${this.pupil?.id}/homework/${this.homework?.id}/statistic`]);
       });
     }
   }

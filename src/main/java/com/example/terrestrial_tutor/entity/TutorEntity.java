@@ -6,8 +6,6 @@ import com.example.terrestrial_tutor.entity.enums.ERole;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.*;
 
 /**
@@ -20,7 +18,7 @@ import java.util.*;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "tutors", schema = "public")
-public class TutorEntity implements UserDetails {
+public class TutorEntity implements User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")

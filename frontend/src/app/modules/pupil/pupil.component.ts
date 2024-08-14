@@ -39,7 +39,7 @@ export class PupilComponent {
   submit(subject: string) {
     this.pupilDataService.setCurrentSubject(subject);
     sessionStorage.setItem('currentSubject', JSON.stringify(subject));
-    this.router.navigate(['/pupil/homeworks']);
+    this.router.navigate([`/pupil/${this.pupil?.id}/homeworks`]);
   }
 
 }

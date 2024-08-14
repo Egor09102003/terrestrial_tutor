@@ -4,7 +4,6 @@ import com.example.terrestrial_tutor.entity.enums.ERole;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -19,7 +18,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "admins", schema = "public")
-public class AdminEntity implements UserDetails {
+public class AdminEntity implements User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
@@ -116,6 +115,11 @@ public class AdminEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public Boolean getVerification() {
         return true;
     }
 }
