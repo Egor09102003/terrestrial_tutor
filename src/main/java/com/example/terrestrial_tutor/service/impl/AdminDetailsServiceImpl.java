@@ -1,18 +1,15 @@
 package com.example.terrestrial_tutor.service.impl;
 
 import com.example.terrestrial_tutor.entity.AdminEntity;
-import com.example.terrestrial_tutor.entity.TutorEntity;
+import com.example.terrestrial_tutor.entity.User;
 import com.example.terrestrial_tutor.repository.AdminRepository;
-import com.example.terrestrial_tutor.repository.TutorRepository;
 import com.example.terrestrial_tutor.service.AdminDetailsService;
-import com.example.terrestrial_tutor.service.TutorDetailsService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +22,7 @@ public class AdminDetailsServiceImpl implements AdminDetailsService {
     AdminRepository adminRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public User loadUserByUsername(String username) throws UsernameNotFoundException {
         AdminEntity admin = adminRepository.findAdminEntityByUsername(username);
 
         if (admin == null) {

@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,17 +69,20 @@ public class PupilController {
      * @return ученик
      */
     @GetMapping("/pupil/{id}")
+    @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
     public ResponseEntity<PupilEntity> getPupilById(@PathVariable Long id) {
         return new ResponseEntity<>(pupilService.findPupilById(id), HttpStatus.OK);
     }
 
     @GetMapping("/pupil")
+    @Secured("hasAnyRole({'PUPIL'})")
     public ResponseEntity<PupilDTO> getCurrentPupil(Principal principal) {
         PupilDTO pupilDTO = pupilFacade.pupilToPupilDTO(pupilService.getCurrentPupil(principal));
         return new ResponseEntity<PupilDTO>(pupilDTO, HttpStatus.OK);
     }
 
     @GetMapping("/pupil/all")
+    @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
     public ResponseEntity<List<PupilDTO>> getAllPupils() {
         List<PupilEntity> pupils = pupilService.findAllPupils();
         List<PupilDTO> pupilsDTO = new ArrayList<>();
@@ -89,6 +93,7 @@ public class PupilController {
     }
 
     @PostMapping("/pupil/add/subjects")
+    @Secured("hasAnyRole({'ADMIN'})")
     public ResponseEntity<List<PupilDTO>> addSubjects(@RequestBody AddSubjectRequest addSubjectRequest) {
         String subject = addSubjectRequest.getSubject();
         List<Long> ids = addSubjectRequest.getIds();

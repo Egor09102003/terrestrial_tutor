@@ -13,4 +13,5 @@ public class JWTTokenSuccessResponse {
     private boolean success;
     private String token;
     private ERole role;
+    private Long userId;
 }

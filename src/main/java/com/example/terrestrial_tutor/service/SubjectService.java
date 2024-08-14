@@ -58,4 +58,12 @@ public interface SubjectService {
      * @return обновленный предмет
      */
     SubjectEntity updateSubject(SubjectEntity subject);
+
+    /**
+     * Сохранение предмета
+     * 
+     * @param subject
+     * @return
+     */
+    SubjectEntity save(SubjectEntity subject);
 }

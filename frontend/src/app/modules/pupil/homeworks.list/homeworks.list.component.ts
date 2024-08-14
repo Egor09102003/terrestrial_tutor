@@ -94,12 +94,12 @@ export class HomeworksListComponent {
       sessionStorage.setItem('currentHomework', JSON.stringify(homework.id));
     }
     this.pupilDataService.setCurrentHomework(homework);
-    this.router.navigate(['pupil/homework']);
+    this.router.navigate([`pupil/${this.pupil?.id}/homework/${homework.id}`]);
   }
 
   submitCompletedHomeworks(tryNumber: number, homeworkId: string) {
     sessionStorage.setItem('tryNumber', JSON.stringify(tryNumber));
     sessionStorage.setItem('currentHomework', homeworkId)
-    this.router.navigate(['pupil/homework/statistic']);
+    this.router.navigate([`pupil/${this.pupil?.id}/homework/${homeworkId}/statistic`]);
   }
 }

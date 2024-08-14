@@ -47,4 +47,8 @@ public class SubjectServiceImpl implements SubjectService {
         return subjectRepository.findSubjectEntityByName(subject).getTutors();
     }
 
+    public SubjectEntity save(SubjectEntity subject) {
+        return subjectRepository.save(subject);
+    }
+
 }

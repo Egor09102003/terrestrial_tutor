@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -100,6 +101,13 @@ public class TaskController {
         return new ResponseEntity<>(listTasks, HttpStatus.OK);
     }
 
+    /**
+     * Получение файлов задания
+     * 
+     * @param id
+     * @return
+     * @throws IOException
+     */
     @GetMapping("/tasks/{id}/files")
     public ResponseEntity<Set<FilesResponse>> getTaskFile(@PathVariable Long id) throws IOException {
         TaskEntity task = taskService.getTaskById(id);
@@ -113,6 +121,12 @@ public class TaskController {
             tasksDTO.add(taskFacade.taskToTaskDTO(task));
         }
         return tasksDTO;
+    }
+
+    @DeleteMapping("/tasks/{id}/delete")
+    public ResponseEntity<Long> deleteTask(@PathVariable Long id) {
+        taskService.delete(id);
+        return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
 }

@@ -159,7 +159,7 @@ public class HomeworkServiceImpl implements HomeworkService {
             switch (check.name()) {
                 case "AUTO":
                     switch (task.getAnswerType()) {
-                        case "Варианты", "Текст или значение", "Код":
+                        case VARIANTS, VALUE:
                             currentAttemptAnswers.put(task.getId(), entry.getValue());
                             checkingAnswers.put(entry.getKey(), new HomeworkAnswersDTO.DetailsAnswer(entry.getValue(), rightAnswer));
                             break;
@@ -169,7 +169,7 @@ public class HomeworkServiceImpl implements HomeworkService {
                     break;
                 case "INSTANCE":
                     switch (task.getAnswerType()) {
-                        case "Варианты", "Текст или значение", "Код":
+                        case VARIANTS, VALUE:
                             checkingAnswers.put(entry.getKey(), new HomeworkAnswersDTO.DetailsAnswer(entry.getValue(), rightAnswer));
                             if (attemptEntity != null && rightAnswer.equals(currentAttemptAnswers.get(task.getId()))) {
                                 break;
@@ -186,7 +186,6 @@ public class HomeworkServiceImpl implements HomeworkService {
                     throw new CustomException("Task does not have a review type");
             }
         }
-        Long test = currentAttempt.getId();
         currentAttempt.setAnswers(new Gson().toJson(currentAttemptAnswers));
         attemptRepository.saveAndFlush(currentAttempt);
 

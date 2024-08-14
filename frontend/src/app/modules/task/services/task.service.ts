@@ -29,4 +29,8 @@ export class TaskService {
   getTaskFiles(id: number): Observable<any> {
     return this.http.get(this.TASK_API + `${id}/files`);
   }
+
+  deleteTask(id: number) {
+    return this.http.delete(this.TASK_API + `${id}/delete`);
+  }
 }

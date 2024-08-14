@@ -1,6 +1,7 @@
 package com.example.terrestrial_tutor.service.impl;
 
 import com.example.terrestrial_tutor.entity.TutorEntity;
+import com.example.terrestrial_tutor.entity.User;
 import com.example.terrestrial_tutor.repository.TutorRepository;
 import com.example.terrestrial_tutor.service.TutorDetailsService;
 import lombok.AccessLevel;
@@ -9,7 +10,6 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ public class TutorDetailsServiceImpl implements TutorDetailsService {
     TutorRepository tutorRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public User loadUserByUsername(String username) throws UsernameNotFoundException {
         TutorEntity tutor = tutorRepository.findTutorEntityByUsername(username);
 
         if (tutor == null) {

@@ -1,0 +1,65 @@
+<button
+    type="button"
+    class="btn btn-primary mt-2 mb-2 col-8"
+    style="text-align: start"
+    (click)="collapse.toggle(); codemirrorInit()"
+    [attr.aria-expanded]="!isCollapsed"
+    aria-controls="collapseExample"
+>
+    ID:
+    <ngb-highlight [result]="task.id.toString()" [term]="filterText.value" [highlightClass]="'highlight-effect'"></ngb-highlight>
+    , Название
+    <ngb-highlight [result]="task.name" [term]="filterText.value" [highlightClass]="'highlight-effect'"></ngb-highlight>
+    , Тема:
+    <ngb-highlight [result]="task.level1" [term]="filterText.value" [highlightClass]="'highlight-effect'"></ngb-highlight>
+    , Подтема:
+    <ngb-highlight [result]="task.level2" [term]="filterText.value" [highlightClass]="'highlight-effect'"></ngb-highlight>
+    , Баллы: {{task.cost}}
+</button>
+
+<div class="col-8" #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed">
+    <div class="card">
+    <div class="card-body"><b>Номер: </b>{{ task.id.toString() }}</div>
+    <div class="card-body"><b>Название: </b>{{ task.name }}</div>
+    <div class="card-body"><b>Текст: </b>{{ task.taskText }}</div>
+    <div class="card-body"><b>Тип ответа: </b>{{ answerTypes[task.answerType] }}</div>
+    <div class="card-body"><b>Ссылка на разбор: </b><a target="_blank" href="{{task.analysis}}">{{task.analysis}}</a></div>
+    <div class="card-body"><b>Баллы: </b>{{ task.cost }}</div>
+    <div class="card-body">
+        <b>Ответы: </b>
+        <ngx-codemirror class="col-5 m-2" #codemirrorComponent *ngIf="task.answerType == 'Код'"
+                        [options]="{
+                        lineNumbers: true,
+                        theme: 'material',
+                        mode: 'python',
+                        matchBrackets: true,
+                        readOnly: true
+                        }"
+                        [(ngModel)]="task.answers[0]"
+        ></ngx-codemirror>
+        <div *ngIf="task.answerType != 'Код'">{{ task.answers }}</div>
+    </div>
+    <div class="card-body"><b>Тема 1: </b>{{ task.level1 }}</div>
+    <div class="card-body"><b>Тема 2: </b>{{ task.level2 }}</div>
+    <div class="card-body">
+        <b class="row m-0">Картинки: </b>
+        <div class="d-inline-block" *ngFor="let image of task.files">
+        <img *ngIf="checkImage(image)" class="m-2 border-opacity-25 border border-2"
+                [src]="image" width="200px" height="auto" alt="">
+        <div *ngIf="checkImage(image)" class="row mx-2 text-center" style="
+            width: 200px;
+            word-wrap: break-word">{{image.substring(image.indexOf('.') + 1)}}</div>
+        </div>
+    </div>
+    <div class="card-body">
+        <b class="row m-0">Файлы: </b>
+        <div class="d-inline-block mt-3" *ngFor="let file of task.files">
+        <a class="mx-3" *ngIf="!checkImage(file)" href="{{file}}" download><img src="assets/document.png" width="60px" alt="document"></a>
+        <div *ngIf="!checkImage(file)" class="row mx-2 text-center" style="
+            background-color: white;
+            width: 60px;
+            word-wrap: break-word">{{file.substring(file.indexOf('.') + 1)}}</div>
+        </div>
+    </div>
+    </div>
+</div>

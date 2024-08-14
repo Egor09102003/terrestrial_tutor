@@ -7,10 +7,9 @@ import {LoginComponent} from "./modules/auth/login/login.component";
 import {RegistrationComponent} from "./modules/auth/registration/registration.component";
 import {PupilComponent} from "./modules/pupil/pupil.component";
 import {authInterceptorProviders} from "./modules/auth/helper/auth-interceptor.service";
-import {authErrorInterceptorProviders} from "./modules/auth/helper/error-interceptor.service";
 import {AdminComponent} from "./modules/admin/admin.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {SubjectsComponent} from './modules/subjects/subjects.component';
 import {NgbAlertModule, NgbModule} from "@ng-bootstrap/ng-bootstrap";
@@ -24,14 +23,14 @@ import { PupilsAddHomeworkComponent } from './modules/tutor/pupils-add-homework/
 import {provideStore} from "@ngrx/store";
 import {homeworkFeature} from "./modules/tutor/storage/homework.reducer";
 import {provideStoreDevtools} from "@ngrx/store-devtools";
-import {provideEffects} from "@ngrx/effects";
-import * as homeworkEffects from "./modules/tutor/storage/homework.effects";
 import {TaskChoiceComponent} from "./modules/tutor/task-choise/task-choice.component";
 import { HomeworksListComponent } from './modules/pupil/homeworks.list/homeworks.list.component';
 import { HomeworksDisplayingComponent } from './modules/pupil/homeworks.displaying/homeworks.displaying.component';
 import { PupilHomeworkStatisticComponent } from './modules/pupil/pupil.homework.statistic/pupil.homework.statistic.component';
 import {NgOptimizedImage} from "@angular/common";
 import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
+import { ErrorInterceptor } from './modules/auth/helper/error.interceptor';
+import { TaskCardComponent } from './modules/task/card/task.card.component/task.card.component';
 
 @NgModule({
   declarations: [
@@ -51,6 +50,7 @@ import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
     TaskChoiceComponent,
     BrowseNotificationsComponent,
     PupilsAddHomeworkComponent,
+    TaskCardComponent
   ],
   imports: [
     BrowserModule,
@@ -68,10 +68,6 @@ import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
   ],
   providers: [
     authInterceptorProviders,
-    authErrorInterceptorProviders,
-    provideEffects(
-      homeworkEffects
-    ),
     provideStore( {
       [homeworkFeature.name]: homeworkFeature.reducer,
     }),
@@ -81,7 +77,8 @@ import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
       autoPause: true,
       trace: false,
       traceLimit: 75
-    })
+    }),
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

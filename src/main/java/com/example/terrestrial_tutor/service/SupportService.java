@@ -60,4 +60,11 @@ public interface SupportService {
 
     List<SupportEntity> findAllSupports();
 
+    /**
+     * Сохранение пользователя тех поддержки
+     * 
+     * @param support
+     * @return
+     */
+    SupportEntity save(SupportEntity support);
 }

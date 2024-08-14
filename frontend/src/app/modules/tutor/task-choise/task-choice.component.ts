@@ -11,6 +11,7 @@ import {Store} from "@ngrx/store";
 import {map} from "rxjs";
 import {TutorDataService} from "../storage/tutor.data.service";
 import {UntypedFormControl} from "@angular/forms";
+import {answerTypes} from "../../../models/AnswerTypes";
 
 @Component({
   selector: 'app-task-choise',
@@ -155,4 +156,5 @@ export class TaskChoiceComponent implements OnInit {
   }
 
   protected readonly event = event;
+  protected readonly answerTypes = answerTypes;
 }

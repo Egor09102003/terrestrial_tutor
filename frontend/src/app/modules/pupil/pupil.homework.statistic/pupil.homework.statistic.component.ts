@@ -20,6 +20,11 @@ export class PupilHomeworkStatisticComponent {
   checkingAnswers: {[key: string]: DetailsAnswer} = {};
   tryNumber: number[] = [1];
   currentTry: number = 1;
+  statistic = {
+    percent: 0,
+    points: 0,
+    pointsMax: 0,
+  };
 
   constructor(private pupilService: PupilService,
               private router: Router,
@@ -76,6 +81,7 @@ export class PupilHomeworkStatisticComponent {
             if (answers.checkingAnswers) {
               this.checkingAnswers = answers.checkingAnswers;
             }
+            this.getResultProgress();
           });
         }
 
@@ -105,20 +111,37 @@ export class PupilHomeworkStatisticComponent {
 
   getResultProgress() {
     let percent = 0;
-    for (let task in this.checkingAnswers) {
+    let points = 0;
+    let pointsMax = 0;
+    
+    for (let taskId in this.checkingAnswers) {
       if (this.checkingAnswers) {
-        let pupilAnswer = this.checkingAnswers[task].pupilAnswer;
-        let rightAnswer = this.checkingAnswers[task].rightAnswer;
-        percent += this.getAnswerStatus(pupilAnswer ? pupilAnswer: '', rightAnswer) == 'green' ? 1 : 0;
+        let pupilAnswer = this.checkingAnswers[taskId].pupilAnswer;
+        let rightAnswer = this.checkingAnswers[taskId].rightAnswer;
+        let task = this.tasks?.find((curTask: Task) => curTask.id.toString() === taskId);
+        if (this.getAnswerStatus(pupilAnswer ? pupilAnswer: '', rightAnswer) == 'green' ? 1 : 0) {
+          percent += 1;
+          if (task) {
+            points += task.cost ?? 1;
+          }
+        }
+        pointsMax += task?.cost ?? 1;
       }
     }
     if (this.tasks) {
-      return (percent / this.tasks?.length * 100).toFixed(2);
+      this.statistic.percent = Number((percent / this.tasks?.length * 100).toFixed(2));
+      this.statistic.points = Number(points.toString());
+      this.statistic.pointsMax = pointsMax;
     }
-    return 0;
   }
 
   setCurrentAttempt(attempt: number) {
+    this.statistic = {
+      percent: 0,
+      points: 0,
+      pointsMax: 0,
+    };
+    this.getResultProgress();
     this.currentTry = attempt;
     this.getStatistic();
   }
@@ -159,6 +182,11 @@ export class PupilHomeworkStatisticComponent {
       }
     }
     return null;
+  }
+
+  checkAnswer(task: Task) {
+    let answerStatistic = this.checkingAnswers[task.id.toString()];
+    return answerStatistic.rightAnswer === answerStatistic.pupilAnswer ? task.cost : 0;
   }
 
 }
