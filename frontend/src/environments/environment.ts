@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  MAIN_API_PATH: 'http://10.0.0.4:8181/api/'
+  MAIN_API_PATH: 'http://localhost:8181/api/',
+  FILES_PATH: 'http://localhost:81/files/',
 };
 
 /*

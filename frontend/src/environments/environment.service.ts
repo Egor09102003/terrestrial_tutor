@@ -10,4 +10,8 @@ export class EnvironmentService {
     return environment.MAIN_API_PATH;
   }
 
+  get filesPath(): string {
+    return environment.FILES_PATH;
+  }
+
 }

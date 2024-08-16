@@ -4,6 +4,7 @@ import {CodemirrorComponent} from "@ctrl/ngx-codemirror";
 import { TaskSelect } from 'src/app/models/TaskSelect';
 import {Task} from "../../../../models/Task";
 import { answerTypes } from 'src/app/models/AnswerTypes';
+import { EnvironmentService } from 'src/environments/environment.service';
 
 @Component({
     selector: 'task-card',
@@ -18,6 +19,12 @@ export class TaskCardComponent {
 
     filterText = new UntypedFormControl('');
     protected readonly answerTypes = answerTypes;
+
+    constructor(
+        public env: EnvironmentService,
+    ) {
+
+    }
 
     ngOnInit() {
 

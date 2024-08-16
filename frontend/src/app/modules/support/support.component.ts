@@ -37,7 +37,11 @@ export class SupportComponent implements OnInit {
   }
 
   deleteTask(task: Task) {
-    this.taskService.deleteTask(task.id).subscribe(id => window.location.reload);
+    this.tasksUpload = false;
+    this.taskService.deleteTask(task.id).subscribe(id => {
+      console.log(id + ' task deleted!');
+      window.location.reload();
+    });
   }
 
   protected readonly onsubmit = onsubmit;

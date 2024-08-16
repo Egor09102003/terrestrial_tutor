@@ -40,7 +40,6 @@ export class RegistrationComponent implements OnInit {
   }
 
   submit(): void {
-    console.log(this.registrationForm.value);
     this.authService.register(this.registrationForm.value).subscribe();
   }
 }
