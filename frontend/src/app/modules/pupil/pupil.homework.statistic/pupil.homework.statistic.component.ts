@@ -5,6 +5,7 @@ import {PupilDataService} from "../services/pupil.data.service";
 import {Pupil} from "../../../models/Pupil";
 import {DetailsAnswer, HomeworkAnswers} from "../../../models/HomeworkAnswers";
 import {Task} from "../../../models/Task";
+import { EnvironmentService } from 'src/environments/environment.service';
 
 @Component({
   selector: 'app-pupil.homework.statistic',
@@ -28,7 +29,9 @@ export class PupilHomeworkStatisticComponent {
 
   constructor(private pupilService: PupilService,
               private router: Router,
-              private pupilDataService: PupilDataService,) {}
+              private pupilDataService: PupilDataService,
+              public env: EnvironmentService,
+            ) {}
 
   ngOnInit(): void {
     let  serviceHomework = this.pupilDataService.getCurrentHomework()?.id;

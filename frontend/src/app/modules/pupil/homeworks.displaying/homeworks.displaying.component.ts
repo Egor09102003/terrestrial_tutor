@@ -8,6 +8,7 @@ import { TutorService } from '../../tutor/services/tutor.service';
 import {FormBuilder, FormGroup } from "@angular/forms";
 import {HomeworkAnswers} from "../../../models/HomeworkAnswers";
 import {Task} from "../../../models/Task";
+import { EnvironmentService } from 'src/environments/environment.service';
 
 @Component({
     selector: 'app-homeworks.displaying',
@@ -28,7 +29,8 @@ export class HomeworksDisplayingComponent {
       private pupilService: PupilService,
       private homeworkService: TutorService,
       private router: Router,
-      private fb: FormBuilder
+      private fb: FormBuilder,
+      public env: EnvironmentService,
     ) {}
 
   ngOnInit(): void {

@@ -56,7 +56,7 @@ public class SupportController {
         try {
             TaskEntity task = taskService.getTaskById(id);
             if (files != null) {
-                task.setFiles(uploadFilesService.uploadFiles(files, task));
+                task.getFiles().addAll(uploadFilesService.uploadFiles(files));
             }
             taskService.save(task);
         } catch (Exception e) {

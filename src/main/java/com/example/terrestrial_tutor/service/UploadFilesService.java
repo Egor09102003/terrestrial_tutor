@@ -18,6 +18,6 @@ public interface UploadFilesService {
     * @return статус операции
     * @throws IOException
     */
-    Set<String> uploadFiles(Set<MultipartFile> file, TaskEntity curTak) throws IOException;
+    Set<String> uploadFiles(Set<MultipartFile> file) throws IOException;
     Set<FilesResponse> getFilesByPaths(Set<String> paths) throws IOException;
 }
