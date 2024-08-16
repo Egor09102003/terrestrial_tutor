@@ -131,7 +131,6 @@ export class HwConstructorComponent implements OnInit {
     let updatedCheckingMap: {[key: number]: string} = {};
     if (tasks) {
       moveItemInArray(tasks, event.previousIndex, event.currentIndex);
-      console.log(this.taskCollapse);
       if (this.homework) {
         this.homework.tasks = tasks;
       }
@@ -151,7 +150,6 @@ export class HwConstructorComponent implements OnInit {
   }
 
   checkCollapse(i: number) {
-    console.log(this.cdkDropList.data);
     let currentDrag = this.cdkDrag.get(i)?.nativeElement;
     if (!this.taskCollapse.get(i)?.isCollapsed) {
       if (currentDrag?.draggable) {

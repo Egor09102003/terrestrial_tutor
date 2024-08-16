@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import {
   UntypedFormArray,
   UntypedFormBuilder, UntypedFormControl,
@@ -12,7 +12,7 @@ import {Task} from "../../models/Task";
 import {ActivatedRoute, Router} from "@angular/router";
 import {TaskService} from "./services/task.service";
 import {answerTypes} from "../../models/AnswerTypes";
-import {toNumbers} from "@angular/compiler-cli/src/version_helpers";
+import { EnvironmentService } from 'src/environments/environment.service';
 
 
 @Component({
@@ -34,7 +34,7 @@ export class TaskComponent implements OnInit {
     extraKeys: {'Ctrl-Space': 'autocomplete'}
   };
   task: Task | null = null;
-  files: File[] | null = [];
+  files: File[] = [];
   filesExist = false;
   pageLoaded = false;
 
@@ -44,6 +44,7 @@ export class TaskComponent implements OnInit {
               private taskService: TaskService,
               private router: Router,
               private route: ActivatedRoute,
+              public env: EnvironmentService,
               ) {
   }
 
@@ -106,37 +107,15 @@ export class TaskComponent implements OnInit {
       }])],
       level1: [this.task?.level1 ? this.task?.level1 : '', Validators.compose([Validators.required])],
       level2: [this.task?.level2 ? this.task?.level2 : ''],
-      files: [''],
+      files: [this.task?.files] ?? [''],
       tableRows: [table.length],
       tableCols: [table.length > 0 ? table[0].length : ''],
       table: [
         table,
       ],
       analysis: this.task?.analysis ? this.task?.analysis : '',
-      cost: this.task?.cost ? this.task?.cost : 0,
+      cost: this.task?.cost ? this.task?.cost : 1,
     });
-
-    form.controls['taskName'].markAllAsTouched();
-
-    if (this.task && "id" in this.task) {
-      this.taskService.getTaskFiles(this.task.id).subscribe(files => {
-        const fileLoader = document.querySelector('input[type="file"]');
-        const dataTransfer = new DataTransfer();
-        if (files) {
-          for (let file of files) {
-            if ('fileName' in file) {
-              let newFile: File = new File([file.file], file.fileName);
-              let displayedFile: File = new File([file.file], file.fileName.substring(file.fileName.indexOf('.') + 1));
-              this.files?.push(newFile);
-              dataTransfer.items.add(displayedFile);
-            }
-          }
-          this.filesExist = true;
-          form.controls['files'].setValue(this.files);
-          (<HTMLInputElement>fileLoader).files = dataTransfer.files;
-        }
-      })
-    }
     this.taskForm = form;
   }
 
@@ -158,20 +137,17 @@ export class TaskComponent implements OnInit {
       level1: this.taskForm.controls['level1'].value,
       level2: this.taskForm.controls['level2'].value,
       table: this.tableToJson(),
-      files: [],
+      files: this.taskForm.controls['files'].value,
       analysis: this.formatLink(this.taskForm.controls['analysis'].value),
       cost: this.taskForm.controls['cost'].value,
     };
 
-    let files = this.taskForm.controls['files'].value;
-
     if (this.task) {
       task.id = this.task.id;
-      task.files = this.task.files;
     }
     let supportId = this.route.snapshot.paramMap.get('id');
     this.supportService.addTask(task).subscribe(data => {
-      this.supportService.addFiles(files, data).subscribe(() => this.router.navigate([`/support/${supportId}`]));
+      this.supportService.addFiles(this.files, data).subscribe(() => this.router.navigate([`/support/${supportId}`]));
     })
   }
 
@@ -192,7 +168,11 @@ export class TaskComponent implements OnInit {
   }
 
   saveFile(event: any) {
-    this.taskForm.controls['files'].setValue(event.target.files);
+    let currentFiles: string[] = this.taskForm.controls['files'].value;
+    let newFiles: File[] = Array.from(event.target.files);
+    this.files = this.files?.concat(newFiles);
+    currentFiles = currentFiles.concat(newFiles.map(file => file?.name));
+    this.taskForm.controls['files'].setValue(currentFiles);
   }
 
   goBack(): void {
@@ -245,6 +225,20 @@ export class TaskComponent implements OnInit {
       }
     }
     this.taskForm.controls['table'].setValue(newTable);
+  }
+
+  isImage(file: string) {
+    let fileExt = file.substring(file.lastIndexOf('.') + 1);
+    return fileExt === 'png'
+      || fileExt === 'jpg'
+      || fileExt === 'svg';
+  }
+
+  deleteFile(file: string) {
+    if (this.task && 'files' in this.task) {
+      this.task.files.splice(this.task.files.indexOf(file), 1);
+      this.taskForm.controls['files'].setValue(this.task.files);
+    }
   }
 
   protected readonly answerTypes = answerTypes;

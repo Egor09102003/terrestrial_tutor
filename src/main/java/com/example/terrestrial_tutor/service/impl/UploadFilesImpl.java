@@ -24,51 +24,26 @@ public class UploadFilesImpl implements UploadFilesService {
     @Value("${upload.path}")
     private String uploadPath;
 
-    public Set<String> uploadFiles(Set<MultipartFile> files, TaskEntity curTask) throws IOException {
+    public Set<String> uploadFiles(Set<MultipartFile> files) throws IOException {
         Set<String> filesList = new HashSet<>();
         for (MultipartFile file : files) {
             if (file != null) {
-                File uploadDir;
-                if (file.getOriginalFilename().endsWith(".jpg") || file.getOriginalFilename().endsWith(".png")) {
-                    uploadDir = new File(uploadPath + "/images");
-                } else if (file.getOriginalFilename().endsWith(".pdf")) {
-                    uploadDir = new File(uploadPath + "/pdfs");
-                } else {
-                    uploadDir = new File(uploadPath + "/other_files");
-                }
+                File uploadDir = new File(uploadPath);
 
                 if (!uploadDir.exists()) {
                     uploadDir.mkdirs();
                 }
 
-                String fileUuid = UUID.randomUUID().toString();
-                String fileName = uploadDir + "/" + fileUuid + "." + file.getOriginalFilename();
+                String fileName = file.getOriginalFilename();
 
-                boolean fileExists = false;
-                if (curTask != null) {
-                    for (String savedFile : curTask.getFiles()) {
-                        if (savedFile.equals(file.getOriginalFilename())) {
-                            fileExists = true;
-                            filesList.add(savedFile);
-                            break;
-                        }
+                try {
+                    File newFile = new File(uploadDir + "/" + fileName);
+                    if (!newFile.exists()) {
+                        file.transferTo(newFile.toPath());
                     }
-                }
-
-                if (!fileExists) {
-                    file.transferTo(new File(fileName).toPath());
-                    filesList.add(fileName.substring(fileName.lastIndexOf("assets")));
-                }
-            }
-        }
-
-        if (curTask != null) {
-            for (String savedFile : curTask.getFiles()) {
-                if (!filesList.contains(savedFile)) {
-                    File notExistedFile = new File("/" + savedFile);
-                    if (notExistedFile.delete()) {
-                        log.info("File {} has been removed", savedFile);
-                    }
+                    filesList.add(fileName);
+                } catch (IOException e) {
+                    throw new IOException("Error while saving file '" + fileName + "': " + e.getMessage());
                 }
             }
         }
@@ -76,14 +51,18 @@ public class UploadFilesImpl implements UploadFilesService {
         return filesList;
     }
 
-    public Set<FilesResponse> getFilesByPaths(Set<String> paths) throws IOException {
+    public Set<FilesResponse> getFilesByPaths(Set<String> filesList) throws IOException {
         Set<FilesResponse> files = new HashSet<>();
-        for (String path : paths) {
-            File file = new File("/" + path);
-            if (file.exists()) {
-                MultipartFile curFile = new MockMultipartFile(path, "", null, Files.readAllBytes(Paths.get("/" + path)));
-                files.add(new FilesResponse(curFile.getName(), curFile.getBytes()));
+        try {
+            for (String savedFile : filesList) {
+                File file = new File(uploadPath + savedFile);
+                if (file.exists()) {
+                    MultipartFile curFile = new MockMultipartFile(savedFile, "", null, Files.readAllBytes(Paths.get(uploadPath + savedFile)));
+                    files.add(new FilesResponse(savedFile, curFile.getBytes()));
+                }
             }
+        } catch (IOException e) {
+            throw new IOException("Error while get file: " + e.getMessage());
         }
         return files;
     }
