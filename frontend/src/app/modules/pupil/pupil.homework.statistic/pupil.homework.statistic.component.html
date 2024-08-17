@@ -34,23 +34,15 @@
                [src]="env.filesPath + image" width="500px" height="auto" alt="">
         </div>
 
-        <div class="d-inline-block mb-3" *ngIf="decodeTable(task.table)">
-          <table class="mt-3 mx-auto">
-            <tbody *ngFor="let row of decodeTable(task.table); let i = index">
-            <tr>
-              <td class="col-3" *ngFor="let element of row; let j = index">
-                {{ element }}
-              </td>
-            </tr>
-            </tbody>
-          </table>
+        <div class="row">
+            <task-table table="{{task.table}}"></task-table>
         </div>
 
         <h3 class="row"
             style="background-color: {{getAnswerStatus(getAnswersStatistic(checkingAnswers[task.id.toString()], task.id.toString()).pupilAnswer,getAnswersStatistic(checkingAnswers[task.id.toString()], task.id.toString()).rightAnswer)}}">
           Ответ ученика: {{ getAnswersStatistic(checkingAnswers[task.id.toString()], task.id.toString()).pupilAnswer }}
         </h3>
-        <h3>Верный ответ: {{ getAnswersStatistic(checkingAnswers[task.id.toString()], task.id.toString()).rightAnswer }}</h3>
+        <h3 class="answer">Верный ответ: {{ getAnswersStatistic(checkingAnswers[task.id.toString()], task.id.toString()).rightAnswer }}</h3>
 
         <h2 class="mt-3" *ngIf="checkFilesAvailability(getTaskForPrint(task.id.toString()))">Файлы</h2>
         <div class="d-inline-block mt-1 mx-1" *ngFor="let file of task.files">
