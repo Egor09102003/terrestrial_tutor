@@ -159,7 +159,7 @@ public class HomeworkServiceImpl implements HomeworkService {
             switch (check.name()) {
                 case "AUTO":
                     switch (task.getAnswerType()) {
-                        case VARIANTS, VALUE:
+                        case VARIANTS, VALUE, DETAILED, TABLE:
                             currentAttemptAnswers.put(task.getId(), entry.getValue());
                             checkingAnswers.put(entry.getKey(), new HomeworkAnswersDTO.DetailsAnswer(entry.getValue(), rightAnswer));
                             break;
@@ -169,7 +169,7 @@ public class HomeworkServiceImpl implements HomeworkService {
                     break;
                 case "INSTANCE":
                     switch (task.getAnswerType()) {
-                        case VARIANTS, VALUE:
+                        case VARIANTS, VALUE, DETAILED, TABLE:
                             checkingAnswers.put(entry.getKey(), new HomeworkAnswersDTO.DetailsAnswer(entry.getValue(), rightAnswer));
                             if (attemptEntity != null && rightAnswer.equals(currentAttemptAnswers.get(task.getId()))) {
                                 break;

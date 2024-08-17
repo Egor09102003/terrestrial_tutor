@@ -1,14 +1,3 @@
-table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td, th {
-  font-size: 1.5em;
-  border: 2px solid #000000;
-  padding: 8px;
-}
-
 .is-valid {
   border-color: #28a745 !important;
 }

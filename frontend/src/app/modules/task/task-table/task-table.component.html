@@ -1,0 +1,11 @@
+<div class="d-inline-block mb-3" *ngIf="decodeTable()">
+  <table class="mt-3">
+    <tbody *ngFor="let row of decodeTable(); let i = index">
+    <tr>
+      <td class="col-3" *ngFor="let element of row; let j = index">
+        {{ element }}
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

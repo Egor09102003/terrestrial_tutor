@@ -1,0 +1,13 @@
+figcaption {
+  width: 200px;
+  overflow-wrap: anywhere;
+}
+
+.lb-images {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.lb-images:hover {
+  cursor: pointer;
+}
