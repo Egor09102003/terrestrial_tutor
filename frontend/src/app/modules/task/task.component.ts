@@ -1,5 +1,12 @@
 import {Component, OnInit} from '@angular/core';
-import {UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators} from "@angular/forms";
+import {
+  AbstractControl,
+  FormArray,
+  FormControl, FormGroup,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  Validators
+} from "@angular/forms";
 import {Subject} from "../../models/Subject";
 import {SubjectsService} from "../subjects/services/subjects.service";
 import {SupportService} from "../support/services/support.service";
@@ -19,7 +26,7 @@ import {Lightbox} from "ngx-lightbox";
 export class TaskComponent implements OnInit {
 
   // @ts-ignore
-  taskForm: UntypedFormGroup;
+  taskForm: FormGroup;
   subjects: Subject[] | undefined;
   options = {
     lineNumbers: true,
@@ -79,54 +86,42 @@ export class TaskComponent implements OnInit {
     let taskAnswers = [];
     if (this.task) {
       for (let i = 0; i < this.task.answers.length; i++) {
-        taskAnswers.push(this.fb.control(this.task.answers[i], Validators.compose([Validators.required])));
+        taskAnswers.push(new FormControl(this.task.answers[i], Validators.compose([Validators.required])));
       }
-    }
-    let table: UntypedFormControl[][] = [];
-    if (this.task?.table && JSON.parse(<string>this.task?.table)) {
-      let currentTable = JSON.parse(<string>this.task?.table);
-      for (let i = 0; i < currentTable.length; i++) {
-        let row = [];
-        for (let j = 0; j < currentTable[0].length; j++) {
-          row.push(this.fb.control(currentTable[i][j]));
-        }
-        table.push(row);
-      }
-    } else {
-      table = [[this.fb.control(''), this.fb.control(''), this.fb.control('')]];
     }
 
-    this.taskForm = this.fb.group({
-      taskName: [this.task?.name ? this.task?.name : '', Validators.compose([Validators.required])],
-      taskText: [this.task?.taskText ? this.task?.taskText : '', Validators.compose([Validators.required])],
-      taskAns: this.fb.array(
+    this.taskForm = new FormGroup({
+      taskName: new FormControl(this.task?.name ? this.task?.name : '', Validators.compose([Validators.required])),
+      taskText: new FormControl(this.task?.taskText ? this.task?.taskText : '', Validators.compose([Validators.required])),
+      taskAns: new FormArray(
         taskAnswers
-        , Validators.compose([Validators.required])),
-      selectedSubject: [this.task?.subject ? this.task?.subject : 'Выберете предмет', Validators.compose([(subject) => {
+        , Validators.compose([Validators.required,
+        ])),
+      selectedSubject: new FormControl(this.task?.subject ? this.task?.subject : 'Выберете предмет', Validators.compose([(subject) => {
         if (subject.value == 'Выберете предмет') {
           return {subjectNotSelected: false};
         } else {
           return null;
         }
-      }])],
-      answerType: [this.task?.answerType ? this.task?.answerType : 'Выберете тип', Validators.compose([(answerType) => {
+      }])),
+      answerType: new FormControl(this.task?.answerType ? this.task?.answerType : 'Выберете тип', Validators.compose([(answerType) => {
         if (answerType.value == 'Выберете тип') {
           return {answerType: false};
         } else {
           return null;
         }
-      }])],
-      level1: [this.task?.level1 ? this.task?.level1 : '', Validators.compose([Validators.required])],
-      level2: [this.task?.level2 ? this.task?.level2 : ''],
-      files: [this.task?.files] ?? [''],
-      tableRows: [table.length],
-      tableCols: [table.length > 0 ? table[0].length : ''],
-      table: [
-        table,
-      ],
-      analysis: this.task?.analysis ? this.task?.analysis : '',
-      cost: this.task?.cost ? this.task?.cost : 1,
+      }])),
+      level1: new FormControl(this.task?.level1 ? this.task?.level1 : '', Validators.compose([Validators.required])),
+      level2: new FormControl(this.task?.level2 ? this.task?.level2 : ''),
+      files: new FormControl(this.task?.files ?? ['']),
+      table: new FormControl(),
+      analysis: new FormControl(this.task?.analysis ? this.task?.analysis : ''),
+      cost: new FormControl(this.task?.cost ? this.task?.cost : 1),
     });
+
+    if (this.task && 'answerType' in this.task && this.task.answerType === 'TABLE') {
+      this.taskForm.controls['taskAns'].addValidators([this.validateTable]);
+    }
   }
 
   getAllSubjects(): void {
@@ -142,16 +137,22 @@ export class TaskComponent implements OnInit {
       name: this.taskForm.controls['taskName'].value,
       answerType: this.taskForm.controls['answerType'].value,
       taskText: this.taskForm.controls['taskText'].value,
-      answers: this.taskForm.controls['taskAns'].value,
+      answers: [],
       checking: 1,
       subject: this.taskForm.controls['selectedSubject'].value,
       level1: this.taskForm.controls['level1'].value,
       level2: this.taskForm.controls['level2'].value,
-      table: this.tableToJson(),
+      table: this.task && 'table' in this.task ? this.task.table : '',
       files: this.taskForm.controls['files'].value,
       analysis: this.formatLink(this.taskForm.controls['analysis'].value),
       cost: this.taskForm.controls['cost'].value,
     };
+
+    if (task.answerType === 'TABLE') {
+      task.answers = this.task?.answers ?? [''];
+    } else {
+      task.answers = this.taskForm.controls['taskAns'].value;
+    }
 
     if (this.task) {
       task.id = this.task.id;
@@ -195,7 +196,7 @@ export class TaskComponent implements OnInit {
   }
 
   addAns() {
-    this.taskAns.push(this.fb.control('', Validators.compose([Validators.required])));
+    this.taskAns.push(new FormControl('', Validators.compose([Validators.required])));
   }
 
   deleteAns(index: number) {
@@ -203,44 +204,20 @@ export class TaskComponent implements OnInit {
   }
 
   typeChange(answerType: any) {
-    this.taskForm.controls['taskAns'] = (this.fb.array([
-      this.fb.control( this.taskForm.controls['taskAns'].value[0], Validators.compose([Validators.required]))
-    ], Validators.compose([Validators.required])));
-    this.taskForm.controls['answerType'].setValue(answerType);
+    if (answerType !== 'TABLE') {
+      let fieldValue = [''];
+      if (this.taskForm.controls['answerType'].value !== 'TABLE') {
+        fieldValue = [this.taskForm.controls['taskAns'].value[0]];
+      }
+      this.taskForm.controls['taskAns'].setValue(fieldValue ?? [''])
+      this.taskForm.controls['taskAns'].removeValidators([this.validateTable]);
+    } else {
+      this.taskForm.controls['taskAns'].addValidators([this.validateTable]);
+    }
+    this.taskForm.controls['taskAns'].updateValueAndValidity();
     this.pageUnload();
-  }
-
-  get table() {
-    return this.taskForm.get('table') as UntypedFormArray;
-  }
-
-  tableToJson() {
-    let tableArray: any[][] = [];
-    let isEmpty = true;
-    let table = this.taskForm.controls['table'].value;
-    for (let i = 0; i < table.length; i++) {
-      tableArray.push([])
-      for (let col of table[i]) {
-        tableArray[i].push(col.value);
-        if (col.value[0].trim() !== '') {
-          isEmpty = false;
-        }
-      }
-    }
-    return !isEmpty ? JSON.stringify(tableArray) : '';
-  }
-
-  renderTable() {
-    let newTable: any[][] = [];
-    let rows = this.taskForm.controls['tableRows'].value;
-    let cols = this.taskForm.controls['tableCols'].value;
-    for (let i = 0; i < rows; i++) {
-      newTable.push([]);
-      for (let j = 0; j < cols; j++) {
-        newTable[i].push(this.fb.control(['']));
-      }
-    }
-    this.taskForm.controls['table'].setValue(newTable);
+    this.taskForm.removeValidators(Validators.required);
+    this.taskForm.controls['answerType'].setValue(answerType);
   }
 
   isImage(file: string) {
@@ -265,7 +242,6 @@ export class TaskComponent implements OnInit {
 
   open(index: number): void {
     // open lightbox
-    console.log('test');
     this.lightbox.open(this.lightboxGallery, index);
   }
 
@@ -275,6 +251,43 @@ export class TaskComponent implements OnInit {
 
   reloadPage (event: Event) {
     event.preventDefault();
+  }
+
+  updateTable(table: string, property: string) {
+    if (this.task && property in this.task) {
+      switch (property) {
+        case 'table':
+          this.task.table = table;
+          break;
+        case 'answers':
+          this.task.answers = [table];
+          this.taskForm.controls['taskAns'].setValue([table]);
+          this.taskForm.controls['taskAns'].updateValueAndValidity();
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  get answerTable() {
+    return this.task?.answers[0] ?? '';
+  }
+
+  validateTable(taskAns: AbstractControl) {
+    try {
+      let decodedData = JSON.parse(taskAns.value);
+      for (let row of decodedData) {
+        for (let col of row) {
+          if (col && col !== '') {
+            return null;
+          }
+        }
+      }
+      return {taskAns: false};
+    } catch (e) {
+      return {taskAns: false};
+    }
   }
 
   protected readonly answerTypes = answerTypes;

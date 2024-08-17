@@ -112,3 +112,7 @@ textarea {
   border-radius: 20px;
 }
 
+.answer {
+  white-space: pre-wrap;
+}
+
