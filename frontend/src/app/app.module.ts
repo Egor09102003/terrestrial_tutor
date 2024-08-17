@@ -31,6 +31,7 @@ import {NgOptimizedImage} from "@angular/common";
 import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
 import { ErrorInterceptor } from './modules/auth/helper/error.interceptor';
 import { TaskCardComponent } from './modules/task/card/task.card.component/task.card.component';
+import {LightboxModule} from "ngx-lightbox";
 
 @NgModule({
   declarations: [
@@ -65,6 +66,7 @@ import { TaskCardComponent } from './modules/task/card/task.card.component/task.
     NgOptimizedImage,
     CdkDropList,
     CdkDrag,
+    LightboxModule
   ],
   providers: [
     authInterceptorProviders,

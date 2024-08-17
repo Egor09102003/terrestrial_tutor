@@ -7,8 +7,8 @@ target/
 devel
 terrestrial_tutor.iml
 
-### Front ###
-/frontend/src/assets
+### Local files ###
+/public
 
 ### DB ###
 /db_snapshots/backups

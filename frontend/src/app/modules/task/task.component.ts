@@ -1,10 +1,5 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import {
-  UntypedFormArray,
-  UntypedFormBuilder, UntypedFormControl,
-  UntypedFormGroup,
-  Validators
-} from "@angular/forms";
+import {Component, OnInit} from '@angular/core';
+import {UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators} from "@angular/forms";
 import {Subject} from "../../models/Subject";
 import {SubjectsService} from "../subjects/services/subjects.service";
 import {SupportService} from "../support/services/support.service";
@@ -12,7 +7,8 @@ import {Task} from "../../models/Task";
 import {ActivatedRoute, Router} from "@angular/router";
 import {TaskService} from "./services/task.service";
 import {answerTypes} from "../../models/AnswerTypes";
-import { EnvironmentService } from 'src/environments/environment.service';
+import {EnvironmentService} from 'src/environments/environment.service';
+import {Lightbox} from "ngx-lightbox";
 
 
 @Component({
@@ -35,7 +31,8 @@ export class TaskComponent implements OnInit {
   };
   task: Task | null = null;
   files: File[] = [];
-  filesExist = false;
+  otherFiles: string[] = [];
+  lightboxGallery: Array<any> = [];
   pageLoaded = false;
 
   constructor(private fb: UntypedFormBuilder,
@@ -45,6 +42,7 @@ export class TaskComponent implements OnInit {
               private router: Router,
               private route: ActivatedRoute,
               public env: EnvironmentService,
+              private lightbox: Lightbox,
               ) {
   }
 
@@ -53,6 +51,19 @@ export class TaskComponent implements OnInit {
     if (taskId) {
       this.taskService.getTaskById(taskId).subscribe(task => {
         this.task = task;
+        if (task && 'files' in task) {
+          for (let file of task.files) {
+            if (this.isImage(file)) {
+              this.lightboxGallery.push({
+                src: this.env.filesPath + file,
+                caption: file,
+                thumb: this.env.filesPath + file,
+              })
+            } else {
+              this.otherFiles.push(file);
+            }
+          }
+        }
         this.createTaskForm();
         this.getAllSubjects();
         this.pageLoaded = true;
@@ -85,12 +96,12 @@ export class TaskComponent implements OnInit {
       table = [[this.fb.control(''), this.fb.control(''), this.fb.control('')]];
     }
 
-    let form = this.fb.group({
+    this.taskForm = this.fb.group({
       taskName: [this.task?.name ? this.task?.name : '', Validators.compose([Validators.required])],
       taskText: [this.task?.taskText ? this.task?.taskText : '', Validators.compose([Validators.required])],
       taskAns: this.fb.array(
         taskAnswers
-      , Validators.compose([Validators.required])),
+        , Validators.compose([Validators.required])),
       selectedSubject: [this.task?.subject ? this.task?.subject : 'Выберете предмет', Validators.compose([(subject) => {
         if (subject.value == 'Выберете предмет') {
           return {subjectNotSelected: false};
@@ -116,7 +127,6 @@ export class TaskComponent implements OnInit {
       analysis: this.task?.analysis ? this.task?.analysis : '',
       cost: this.task?.cost ? this.task?.cost : 1,
     });
-    this.taskForm = form;
   }
 
   getAllSubjects(): void {
@@ -126,6 +136,7 @@ export class TaskComponent implements OnInit {
   }
 
   submit() {
+    window.removeEventListener('beforeunload', this.reloadPage)
     let task: Task = {
       id: 0,
       name: this.taskForm.controls['taskName'].value,
@@ -147,12 +158,12 @@ export class TaskComponent implements OnInit {
     }
     let supportId = this.route.snapshot.paramMap.get('id');
     this.supportService.addTask(task).subscribe(data => {
-      this.supportService.addFiles(this.files, data).subscribe(() => this.router.navigate([`/support/${supportId}`]));
+      this.supportService.addFiles(this.files, data).subscribe(() => window.location.reload());
     })
   }
 
   formatLink(link: string): string {
-    if (link.includes('http')) {
+    if (link.includes('http') || link === '') {
       return link;
     }
 
@@ -193,9 +204,10 @@ export class TaskComponent implements OnInit {
 
   typeChange(answerType: any) {
     this.taskForm.controls['taskAns'] = (this.fb.array([
-      this.fb.control('', Validators.compose([Validators.required]))
+      this.fb.control( this.taskForm.controls['taskAns'].value[0], Validators.compose([Validators.required]))
     ], Validators.compose([Validators.required])));
     this.taskForm.controls['answerType'].setValue(answerType);
+    this.pageUnload();
   }
 
   get table() {
@@ -204,14 +216,18 @@ export class TaskComponent implements OnInit {
 
   tableToJson() {
     let tableArray: any[][] = [];
+    let isEmpty = true;
     let table = this.taskForm.controls['table'].value;
     for (let i = 0; i < table.length; i++) {
       tableArray.push([])
       for (let col of table[i]) {
         tableArray[i].push(col.value);
+        if (col.value[0].trim() !== '') {
+          isEmpty = false;
+        }
       }
     }
-    return JSON.stringify(tableArray);
+    return !isEmpty ? JSON.stringify(tableArray) : '';
   }
 
   renderTable() {
@@ -239,6 +255,26 @@ export class TaskComponent implements OnInit {
       this.task.files.splice(this.task.files.indexOf(file), 1);
       this.taskForm.controls['files'].setValue(this.task.files);
     }
+    if (this.lightboxGallery.includes(file)) {
+      this.lightboxGallery.splice(this.lightboxGallery.indexOf(file), 1);
+    }
+    if (this.otherFiles.includes(file)) {
+      this.otherFiles.splice(this.otherFiles.indexOf(file), 1);
+    }
+  }
+
+  open(index: number): void {
+    // open lightbox
+    console.log('test');
+    this.lightbox.open(this.lightboxGallery, index);
+  }
+
+  pageUnload() {
+    window.addEventListener('beforeunload', this.reloadPage);
+  }
+
+  reloadPage (event: Event) {
+    event.preventDefault();
   }
 
   protected readonly answerTypes = answerTypes;

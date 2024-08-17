@@ -1,0 +1,52 @@
+figcaption {
+  width: 200px;
+  overflow-wrap: anywhere;
+}
+
+.lb-images {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.lb-images:hover {
+  cursor: pointer;
+}
+
+.table-responsive {
+  max-height: 300px;
+  max-width: 300px;
+
+  .table>:not(caption)>*>* {
+    background-color: #1E1E1E !important;
+  }
+
+  td {
+    width: 60px;
+  }
+  input {
+    width: 60px;
+  }
+
+  tbody, td, tfoot, th, thead, tr {
+    border: 0;
+  }
+
+  .table {
+    width: 0;
+    margin: auto;
+  }
+
+  @media only screen and (min-width: 568px) {
+    td {
+      width: 100px;
+    }
+    input {
+      width: 100px;
+    }
+    max-width: 500px;
+  }
+
+  @media only screen and (min-width: 960px) {
+    max-width: 768px;
+  }
+}

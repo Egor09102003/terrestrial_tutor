@@ -1,20 +1,21 @@
 <div class="container mt-1">
   <h2 class="text-center">Создание задания</h2>
   <div *ngIf="!pageLoaded" class="row m-3 col-12 spinner-border" role="status"></div>
-  <form *ngIf="pageLoaded" [formGroup]="taskForm" class="mt-5">
+  <form *ngIf="pageLoaded" [formGroup]="taskForm" class="mt-5" (input)="pageUnload()">
 
     <div class="container mb-3">
-      <div class="row mb-1 justify-content-center text-center">
-        <p class="mb-1 text-uppercase fw-bold col-3">Название задания</p>
-        <p class="mb-1 text-uppercase fw-bold col-3">Тип</p>
-      </div>
       <div class="row mb-3 justify-content-center text-center">
-        <input class="col-3 m-1 text-center" formControlName="taskName" placeholder="Введите название"
-               [ngClass]="{'is-invalid': invalid('taskName')}">
+        <div class="col-7 col-md-4 col-lg-3 mb-3">
+          <p class="mb-1 text-uppercase fw-bold">Название задания</p>
+          <input class="m-1 p-3 col-12 text-center" formControlName="taskName" placeholder="Введите название"
+                 [ngClass]="{'is-invalid': invalid('taskName')}">
+          <div class="invalid-feedback col-4">Название обязательно</div>
+        </div>
 
-
-        <div ngbDropdown class="d-inline-block col-3">
-          <button type="button" class="drop-btn btn-primary p-2 col-12"
+        <div class="col-7 col-md-4 col-lg-3">
+        <p class="mb-1 text-uppercase fw-bold">Тип</p>
+        <div ngbDropdown class="col-12 d-inline-block">
+          <button type="button" class="drop-btn btn-primary m-1 p-3 col-12"
                   (focusout)="taskForm.controls['answerType'].markAsTouched()"
                   [ngClass]="{'is-invalid': invalid('answerType')}" ngbDropdownToggle>
             {{answerTypes[taskForm.controls['answerType'].value]
@@ -27,23 +28,23 @@
           </div>
           <div *ngIf="invalid('answerType')" class="invalid-feedback col-4">Тип проверки обязателен</div>
         </div>
-        <div class="invalid-feedback col-4">Название обязательно</div>
+        </div>
       </div>
     </div>
 
     <div class="container mb-3">
       <div class="row mb-1 justify-content-center text-center">
-        <p class="mb-0 text-uppercase fw-bold col-3">Текст задания</p>
+        <p class="mb-0 text-uppercase fw-bold col-7 col-md-4 col-lg-3">Текст задания</p>
       </div>
       <div class="row justify-content-center text-center">
-        <textarea formControlName="taskText" class="col-3 m-1" style="resize: both" rows="4"
+        <textarea formControlName="taskText" class="col-7 col-md-5 col-lg-4 m-1" style="resize: both" rows="4"
                   placeholder="Введите текст задания" [ngClass]="{'is-invalid': invalid('taskText')}"></textarea>
 
         <div *ngIf="invalid('taskText')" class="invalid-feedback col-3">Текст задания обязателен</div>
       </div>
     </div>
 
-    <div *ngIf="taskForm.controls['answerType'].value == 'CODE'" class="container mb-3 col-6">
+    <div *ngIf="taskForm.controls['answerType'].value == 'CODE'" class="container mb-3 col-7">
       <div class="row mb-1 justify-content-center text-center">
         <p class="mb-0 text-uppercase fw-bold col-4">Код</p>
       </div>
@@ -59,22 +60,22 @@
       </div>
     </div>
 
-    <div *ngIf="taskForm.controls['answerType'].value == 'VARIANTS'" class="container mb-3 col-8">
+    <div *ngIf="taskForm.controls['answerType'].value == 'VARIANTS'" class="container mb-3 col-12 col-md-10 col-lg-8">
       <div class="row mb-1 justify-content-center text-center">
-        <p class="mb-0 text-uppercase fw-bold col-4">Варианты ответов</p>
+        <p class="mb-0 text-uppercase fw-bold col-12">Варианты ответов</p>
       </div>
 
       <div class="row justify-content-center text-center">
         <div formArrayName="taskAns">
           <div *ngFor="let answer of taskAns.controls; let i = index">
-            <input class="col-4 m-1 text-center" [formControlName]="i" placeholder="Введите вариант ответа"
+            <input class="col-7 col-md-5 col-lg-4 m-1 text-center" [formControlName]="i" placeholder="Введите вариант ответа"
                    [ngClass]="{'is-invalid': invalidAnswer(taskAns.controls[i])}">
-            <button class="btn btn-primary col-1 m-1" (click)="deleteAns(i)">-</button>
+            <button class="btn btn-primary col-2 col-lg-1 m-1" (click)="deleteAns(i)">-</button>
             <div class="invalid-feedback">Ответ обязателен</div>
           </div>
         </div>
 
-        <button class="btn btn-primary col-3 m-1" (click)="addAns()">Добавит вариант</button>
+        <button class="btn btn-primary p-2 col-7 col-md-4 col-lg-3 m-1" (click)="addAns()">Добавит вариант</button>
       </div>
 
 
@@ -82,13 +83,13 @@
 
     <div *ngIf="taskForm.controls['answerType'].value == 'VALUE'" class="container mb-3">
       <div class="row mb-1 justify-content-center text-center">
-        <p class="mb-0 text-uppercase fw-bold col-4">Ответ</p>
+        <p class="mb-0 text-uppercase fw-bold col-7 col-md-5 col-lg-4">Ответ</p>
       </div>
 
       <div class="row justify-content-center text-center">
         <div formArrayName="taskAns">
           <div *ngFor="let answer of taskAns.controls; let i = index">
-            <textarea [formControlName]="i" class="col-3 m-1" style="resize: both" rows="4"
+            <textarea [formControlName]="i" class="col-7 col-md-5 col-lg-4 m-1" style="resize: both" rows="4"
                       placeholder="Введите ответ" [ngClass]="{'is-invalid': invalidAnswer(taskAns.controls[i])}"></textarea>
             <div class="invalid-feedback">Ответ обязателен</div>
           </div>
@@ -96,13 +97,13 @@
       </div>
     </div>
 
-    <div class="container mb-5">
+    <div class="container mb-3">
       <div class="row mb-1 justify-content-center text-center">
-        <p class="mb-1 text-uppercase fw-bold col-3">Предмет</p>
+        <p class="mb-1 text-uppercase fw-bold col-7 col-md-4 col-lg-3">Предмет</p>
       </div>
 
       <div class="row mb-1 justify-content-center text-center">
-        <div ngbDropdown class="d-inline-block col-3">
+        <div ngbDropdown class="d-inline-block col-7 col-md-4 col-lg-3">
           <button type="button" class="drop-btn btn-primary drop-btn p-2 col-12"
                   (focusout)="taskForm.controls['selectedSubject'].markAsTouched()"
                   [ngClass]="{'is-invalid': invalid('selectedSubject')}" ngbDropdownToggle>
@@ -111,7 +112,7 @@
           <div class="invalid-feedback col-4">Предмет обязателен</div>
           <div ngbDropdownMenu class="text-center col-12">
             <button ngbDropdownItem class="nav-btn col-12" *ngFor="let subject of subjects"
-                    (click)="this.taskForm.controls['selectedSubject'].setValue(subject.subjectName)">{{ subject.subjectName }}</button>
+                    (click)="this.taskForm.controls['selectedSubject'].setValue(subject.subjectName); this.pageUnload();">{{ subject.subjectName }}</button>
           </div>
         </div>
       </div>
@@ -119,71 +120,90 @@
 
     <div class="container mb-3">
       <div class="row mb-1 justify-content-center text-center">
-        <p class="mb-0 text-uppercase fw-bold col-3 ">Ссылка на разбор</p>
-        <p class="mb-0 text-uppercase fw-bold col-3">Баллы за задание</p>
-      </div>
-
-      <div class="row mb-1 justify-content-center text-center">
-        <input class="col-3 m-1 text-center" formControlName="analysis" placeholder="Введите ссылку">
-        <input type="number" class="col-3 m-1 text-center" formControlName="cost" placeholder="Введите балл">
+        <div class="col-7 col-md-4 col-lg-3 mb-3">
+          <p class="mb-1 text-uppercase fw-bold ">Ссылка на разбор</p>
+          <input class=" col-12 m-1 text-center" formControlName="analysis" placeholder="Введите ссылку">
+        </div>
+        <div class="col-7 col-md-4 col-lg-3">
+          <p class="mb-1 text-uppercase fw-bold">Баллы за задание</p>
+          <input type="number" class="col-12 m-1 text-center" formControlName="cost" placeholder="Введите балл">
+        </div>
       </div>
     </div>
 
     <div class="container mb-3">
       <div class="row mb-1 justify-content-center text-center">
-        <p class="mb-0 text-uppercase fw-bold col-3">Тема первого уровня</p>
-        <p class="mb-0 text-uppercase fw-bold col-3">Тема второго уровня</p>
-      </div>
-
-      <div class="row mb-1 justify-content-center text-center">
-        <input class="col-3 m-1 text-center" formControlName="level1" placeholder="Введите тему"
-               [ngClass]="{'is-invalid': invalid('level1')}">
-        <input class="col-3 m-1 text-center" formControlName="level2" placeholder="Введите тему">
-        <div class="invalid-feedback">Тема первого уровня обязательна</div>
+        <div class="col-7 col-md-4 col-lg-3 mb-3">
+          <p class="mb-1 text-uppercase fw-bold ">Тема первого уровня</p>
+          <input class=" col-12 m-1 text-center" formControlName="level1" placeholder="Введите тему"
+                 [ngClass]="{'is-invalid': invalid('level1')}">
+          <div class="invalid-feedback">Тема первого уровня обязательна</div>
+        </div>
+        <div class="col-7 col-md-4 col-lg-3">
+          <p class="mb-1 text-uppercase fw-bold">Тема второго уровня</p>
+          <input class="col-12 m-1 text-center" formControlName="level2" placeholder="Введите тему">
+        </div>
       </div>
     </div>
 
-
-    
     <div class="row mb-3 justify-content-center text-center">
-      <input type="file" multiple class="col-3 m-1" (change)="saveFile($event)">
+      <input type="file" multiple class="col-7 col-md-4 col-lg-3" (change)="saveFile($event)">
     </div>
     <div class="row">
-    <div *ngFor="let file of task?.files" class="d-inline-block mb-3 justify-content-center text-center">
-      <img *ngIf="isImage(file)" [src]="env.filesPath + file" width="10%" height="auto">
-      <a *ngIf="!isImage(file)" [href]="env.filesPath + file" download>
-        <svg fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 30 30" width="50px" height="50px">    <path d="M24.707,8.793l-6.5-6.5C18.019,2.105,17.765,2,17.5,2H7C5.895,2,5,2.895,5,4v22c0,1.105,0.895,2,2,2h16c1.105,0,2-0.895,2-2 V9.5C25,9.235,24.895,8.981,24.707,8.793z M18,21h-8c-0.552,0-1-0.448-1-1c0-0.552,0.448-1,1-1h8c0.552,0,1,0.448,1,1 C19,20.552,18.552,21,18,21z M20,17H10c-0.552,0-1-0.448-1-1c0-0.552,0.448-1,1-1h10c0.552,0,1,0.448,1,1C21,16.552,20.552,17,20,17 z M18,10c-0.552,0-1-0.448-1-1V3.904L23.096,10H18z"/></svg>
-      </a>
-      <figcaption><button class="btn btn-primary" type="button" (click)="deleteFile(file)">Удалить файл</button></figcaption>
+
+    <div *ngIf="lightboxGallery.length > 0" class="container text-center mb-2">
+      <p class="mb-0 text-uppercase fw-bold col-3 mx-auto mb-2">Картинки</p>
+      <div *ngFor="let image of lightboxGallery; let i = index" class="lb-images d-inline-block mx-1 mt-1">
+        <img class="top-0" [src]="image.thumb" width="200px"
+             height="auto" (click)="open(i)" alt="image">
+        <figcaption>{{image.caption}}</figcaption>
+        <button class="btn btn-primary" type="button" (click)="deleteFile(image)">Удалить файл</button>
+      </div>
+    </div>
+    <div *ngIf="otherFiles.length > 0" class="container justify-content-center text-center mb-2">
+      <p class="mb-0 text-uppercase fw-bold col-3 mx-auto mb-2">Файлы</p>
+      <div *ngFor="let file of otherFiles; let i = index" class="lb-images mx-1 mt-1">
+        <a [href]="env.filesPath + file" download>
+          <svg fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 30 30" width="50px" height="50px">    <path d="M24.707,8.793l-6.5-6.5C18.019,2.105,17.765,2,17.5,2H7C5.895,2,5,2.895,5,4v22c0,1.105,0.895,2,2,2h16c1.105,0,2-0.895,2-2 V9.5C25,9.235,24.895,8.981,24.707,8.793z M18,21h-8c-0.552,0-1-0.448-1-1c0-0.552,0.448-1,1-1h8c0.552,0,1,0.448,1,1 C19,20.552,18.552,21,18,21z M20,17H10c-0.552,0-1-0.448-1-1c0-0.552,0.448-1,1-1h10c0.552,0,1,0.448,1,1C21,16.552,20.552,17,20,17 z M18,10c-0.552,0-1-0.448-1-1V3.904L23.096,10H18z"/></svg>
+        </a>
+        <figcaption>{{file}}</figcaption>
+        <figcaption><button class="btn btn-primary" type="button" (click)="deleteFile(file)">Удалить файл</button></figcaption>
+      </div>
     </div>
   </div>
 
-    <div class="container mx-auto mb-4">
-      <div class="row mb-1 justify-content-center text-center">
-        <p class="mb-0 text-uppercase fw-bold col-3">Таблица</p>
+    <div class="container mb-4">
+      <div class="mx-auto mb-4 col-8 col-md-6 col-lg-4">
+        <div class="row mb-1 justify-content-center text-center">
+          <p class="mb-0 text-uppercase fw-bold col-7 col-md-4 col-lg-3">Таблица</p>
+        </div>
+
+        <div class="row mb-1 justify-content-center mx-auto text-center ">
+          <input class="col-3 mx-1 text-center p-1 mb-1" formControlName="tableRows" placeholder="Строки">
+          <input class="col-3 mx-1 text-center mb-1" formControlName="tableCols" placeholder="Колонки">
+          <button class="btn btn-primary col-4 p-1 mx-1" (click)="renderTable()">Применить</button>
+        </div>
       </div>
 
-      <div class="row mb-1 justify-content-center text-center">
-        <input class="col-2 mx-1" formControlName="tableRows" placeholder="Строки">
-        <input class="col-2 mx-1" formControlName="tableCols" placeholder="Колонки">
-        <button class="btn btn-primary col-2 mx-1" (click)="renderTable()">Применить</button>
+      <div class="justify-content-center">
+        <div class="table-responsive mx-auto">
+          <table class="table">
+            <tbody class="overflow-scroll" *ngFor="let row of table.value; let i = index">
+              <tr>
+                <td *ngFor="let element of row; let j = index">
+                    <input class="m-1" [formControl]="element" placeholder="Значение">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-
-      <table class="mt-3 mx-auto">
-        <tbody *ngFor="let row of table.value; let i = index">
-        <tr>
-          <td *ngFor="let element of row; let j = index">
-              <input class="m-1" [formControl]="element" placeholder="Значение">
-          </td>
-        </tr>
-        </tbody>
-      </table>
     </div>
 
 
 
     <div class="row mb-1 justify-content-center text-center">
-      <button class="btn btn-primary col-3 m-1" (click)="goBack()">Отмена</button>
+      <button class="btn btn-primary col-3 m-1" (click)="goBack()">Назад</button>
       <button class="btn btn-primary col-3 m-1" [disabled]="taskForm.invalid" (click)="submit()">Сохранить</button>
     </div>
 
