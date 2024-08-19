@@ -34,6 +34,7 @@ import { TaskCardComponent } from './modules/task/card/task.card.component/task.
 import {LightboxModule} from "ngx-lightbox";
 import {TaskTableComponent} from "./modules/task/task-table/task-table.component";
 import {TablesConstructorComponent} from "./modules/task/tables-constructor/tables-constructor.component";
+import {CKEditorModule} from "@ckeditor/ckeditor5-angular";
 
 @NgModule({
   declarations: [
@@ -70,7 +71,8 @@ import {TablesConstructorComponent} from "./modules/task/tables-constructor/tabl
     CdkDrag,
     LightboxModule,
     TaskTableComponent,
-    TablesConstructorComponent
+    TablesConstructorComponent,
+    CKEditorModule
   ],
   providers: [
     authInterceptorProviders,

@@ -21,7 +21,7 @@
     <div class="card">
         <div class="card-body"><b>Номер: </b>{{ task.id.toString() }}</div>
         <div class="card-body"><b>Название: </b>{{ task.name }}</div>
-        <div class="card-body"><b>Текст: </b>{{ task.taskText }}</div>
+        <div class="card-body" [innerHTML]="'<b>Текст: </b>' + task.taskText"></div>
         <div class="card-body"><b>Тип ответа: </b>{{ answerTypes[task.answerType] }}</div>
         <div class="card-body"><b>Ссылка на разбор: </b><a target="_blank" href="{{task.analysis}}">{{task.analysis}}</a></div>
         <div class="card-body"><b>Баллы: </b>{{ task.cost }}</div>

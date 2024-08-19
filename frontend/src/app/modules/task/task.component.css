@@ -11,3 +11,7 @@ figcaption {
 .lb-images:hover {
   cursor: pointer;
 }
+
+.ckeditor {
+  color: black;
+}

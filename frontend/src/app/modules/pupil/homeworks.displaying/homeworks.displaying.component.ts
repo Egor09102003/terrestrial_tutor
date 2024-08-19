@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { PupilDataService } from '../services/pupil.data.service';
 import { Router } from '@angular/router';
 import { PupilService } from '../services/pupil.service';
@@ -15,7 +15,7 @@ import { EnvironmentService } from 'src/environments/environment.service';
     templateUrl: './homeworks.displaying.component.html',
     styleUrls: ['./homeworks.displaying.component.css']
 })
-export class HomeworksDisplayingComponent {
+export class HomeworksDisplayingComponent implements OnInit {
 
   pupil: Pupil | null = null;
   homework: Homework | null = null;
@@ -45,7 +45,9 @@ export class HomeworksDisplayingComponent {
       this.pupilService.getCurrentUser().subscribe(pupil => {
         this.pupil = pupil;
         this.pupilDataService.setPupil(pupil);
-        let homework = this.pupil?.homeworks.find(homework => {
+        let homework;
+        if (this.pupil && 'homeworks' in this.pupil)
+        homework = this.pupil.homeworks.find(homework => {
           return homework.id == Number(sessionStorage.getItem('currentHomework'));
         });
 
@@ -83,14 +85,14 @@ export class HomeworksDisplayingComponent {
   }
 
   submit() {
-    if (this.homework?.id) {
+    if (this.homework && 'id' in this.homework && this.homework.id) {
       if (this.homework.lastAttempt == 0) this.homework.lastAttempt = 1;
-      this.pupilService.sendAnswers(this.createCheckRequest(), this.homework?.id, this.homework.lastAttempt).subscribe((homework) => {
+      this.pupilService.sendAnswers(this.createCheckRequest(), this.homework.id, this.homework.lastAttempt).subscribe((homework) => {
         if (homework) {
           this.statistic = <HomeworkAnswers>homework;
         }
         sessionStorage.setItem('tryNumber', String(this.statistic.attemptCount));
-        this.router.navigate([`/pupil/${this.pupil?.id}/homework/${this.homework?.id}/statistic`]);
+        this.router.navigate([`/pupil/${this.pupil?.id}/homework/${this.homework?.id}/statistic`]).then();
       });
     }
   }
@@ -112,21 +114,43 @@ export class HomeworksDisplayingComponent {
     return file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.jpeg');
   }
 
-  momentCheck(taskId: number) {
-    this.tasksStatus[taskId.toString()] = 0;
-    if (this.homework?.id) {
+  momentCheck(task: Task) {
+    this.tasksStatus[task.id.toString()] = 0;
+    if (this.homework && 'id' in this.homework && this.homework.id) {
       if (this.homework.lastAttempt == 0) this.homework.lastAttempt = 1;
-      // @ts-ignore
-      this.pupilService.sendAnswers(this.createCheckRequest(taskId), this.homework?.id, this.homework.lastAttempt).subscribe((homework) => {
+      this.pupilService.sendAnswers(this.createCheckRequest(task.id), this.homework?.id, this.homework.lastAttempt).subscribe((homework) => {
         if (homework) {
           this.statistic = <HomeworkAnswers>homework;
-          let currentTaskStatistic = this.statistic.checkingAnswers[taskId.toString()];
+          let currentTaskStatistic = this.statistic.checkingAnswers[task.id.toString()];
           if (currentTaskStatistic) {
-            this.tasksStatus[taskId.toString()] = currentTaskStatistic.pupilAnswer == currentTaskStatistic.rightAnswer ? 1 : 2;
+            if (task.answerType === 'TABLE') {
+              this.tasksStatus[task.id.toString()] = this.checkTableAnswer(currentTaskStatistic.pupilAnswer ?? '', currentTaskStatistic.rightAnswer) ? 1 : 2;
+            }
+            this.tasksStatus[task.id.toString()] = currentTaskStatistic.pupilAnswer == currentTaskStatistic.rightAnswer ? 1 : 2;
           }
         }
       });
     }
+  }
+
+  checkTableAnswer (pupilAnswer: string, rightAnswer:string): boolean {
+    try {
+      let pupilTable = JSON.parse(pupilAnswer);
+      let rightTable = JSON.parse(rightAnswer);
+      for (let i in pupilTable) {
+        for (let j in pupilTable[i]) {
+          if (pupilTable[i][j] && rightTable[i][j] && pupilTable[i][j] !== rightTable[i][j]) {
+            return false;
+          }
+          if (pupilTable[i][j] && !rightTable[i][j] && pupilTable[i][j].trim() !== '') {
+            return false
+          }
+        }
+      }
+    } catch (e) {
+      return false;
+    }
+    return true;
   }
 
   checkChecking(taskId: number) {
@@ -136,8 +160,9 @@ export class HomeworksDisplayingComponent {
     return false;
   }
 
-  autoLink(value: string): string {
-    const urlRegex = /(https?:\/\/\S+)/g;
-    return value.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
+  updateTable(table: string, taskId: number) {
+    if (taskId) {
+        this.tasksAnswers.controls[taskId.toString()].setValue(table);
+    }
   }
 }

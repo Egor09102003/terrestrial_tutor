@@ -7,10 +7,11 @@
   }
 
   td {
-    width: 60px;
+    width: 70px;
   }
   input {
-    width: 60px;
+    width: 70px;
+    padding: 10px;
   }
 
   tbody, td, tfoot, th, thead, tr {
@@ -24,10 +25,10 @@
 
   @media only screen and (min-width: 568px) {
     td {
-      width: 100px;
+      width: 70px;
     }
     input {
-      width: 100px;
+      width: 70px;
     }
     max-width: 500px;
   }

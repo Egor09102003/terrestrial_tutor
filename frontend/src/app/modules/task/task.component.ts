@@ -16,12 +16,29 @@ import {TaskService} from "./services/task.service";
 import {answerTypes} from "../../models/AnswerTypes";
 import {EnvironmentService} from 'src/environments/environment.service';
 import {Lightbox} from "ngx-lightbox";
+import {
+  ClassicEditor,
+  Link,
+  Image,
+  Font,
+  Bold,
+  Essentials,
+  Italic,
+  Mention,
+  Paragraph,
+  Undo,
+  Table,
+  TableToolbar,
+  Base64UploadAdapter, ImageUpload, ImageInsert, ImageInsertViaUrl,
+} from 'ckeditor5';
+import {ChangeEvent} from "@ckeditor/ckeditor5-angular";
+import Math from '@isaul32/ckeditor5-math/src/math';
 
 
 @Component({
   selector: 'app-task',
   templateUrl: './task.component.html',
-  styleUrls: ['./task.component.css']
+  styleUrls: ['./task.component.css'],
 })
 export class TaskComponent implements OnInit {
 
@@ -41,6 +58,27 @@ export class TaskComponent implements OnInit {
   otherFiles: string[] = [];
   lightboxGallery: Array<any> = [];
   pageLoaded = false;
+  public Editor = ClassicEditor;
+  public config = {
+    toolbar: [ 'undo', 'redo', 'fontColor', '|', 'bold', 'italic', 'insertTable', 'link', 'insertImage', ],
+    plugins: [
+      Bold, Essentials, Italic, Mention, Paragraph, Undo, Table, TableToolbar, Font, Link, Image
+      , ImageUpload, ImageInsert,  ImageInsertViaUrl, Base64UploadAdapter,
+
+    ],
+    fontColor: {
+      default: 'hsl(0, 0%, 0%)',
+      colors: [
+        {
+          color: 'hsl(0, 0%, 0%)',
+          label: 'default'
+        }
+      ]
+    },
+    link: {
+      addTargetToExternalLinks: true
+    },
+  }
 
   constructor(private fb: UntypedFormBuilder,
               private subjectsService: SubjectsService,
@@ -159,7 +197,9 @@ export class TaskComponent implements OnInit {
     }
     let supportId = this.route.snapshot.paramMap.get('id');
     this.supportService.addTask(task).subscribe(data => {
-      this.supportService.addFiles(this.files, data).subscribe(() => window.location.reload());
+      this.supportService.addFiles(this.files, data).subscribe(() => {
+        window.location.reload();
+      });
     })
   }
 
@@ -287,6 +327,12 @@ export class TaskComponent implements OnInit {
       return {taskAns: false};
     } catch (e) {
       return {taskAns: false};
+    }
+  }
+
+  updateRTE({ editor }: ChangeEvent) {
+    if (editor) {
+      this.taskForm.controls['taskText'].setValue(editor.getData());
     }
   }
 
