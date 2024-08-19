@@ -50,7 +50,6 @@ export class TablesConstructorComponent {
     } catch (e) {
       table = [[new FormControl(''), new FormControl(''), new FormControl('')]];
     }
-    console.log(table)
     this.tableForm.controls['table'].setValue(table);
   }
 
@@ -82,14 +81,12 @@ export class TablesConstructorComponent {
     for (let i = 0; i < table.length; i++) {
       tableArray.push([])
       for (let col of table[i]) {
-        console.log(col.value)
         tableArray[i].push(col.value);
         if (col.value !== '') {
           isEmpty = false;
         }
       }
     }
-    console.log(tableArray)
     return !isEmpty ? JSON.stringify(tableArray) : '';
   }
 }

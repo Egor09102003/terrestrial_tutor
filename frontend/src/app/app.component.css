@@ -116,3 +116,11 @@ textarea {
   white-space: pre-wrap;
 }
 
+.ck-editor__editable_inline:not(.ck-comment__input *) {
+  height: 500px;
+}
+
+.ck.ck-editor__main > .ck-editor__editable {
+  background-color: #1E1E1E;
+}
+

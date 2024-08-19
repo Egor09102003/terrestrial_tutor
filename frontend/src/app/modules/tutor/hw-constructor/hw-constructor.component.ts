@@ -40,6 +40,7 @@ export class HwConstructorComponent implements OnInit {
   pageLoaded: boolean = false;
   errorMessage = "";
   tutorId: number|null = null;
+  dragItems: CdkDragDrop<Task[]>;
 
   ngOnInit(): void {
     let hwId = Number(this.route.snapshot.paramMap.get('hwId'));
@@ -154,7 +155,7 @@ export class HwConstructorComponent implements OnInit {
     if (!this.taskCollapse.get(i)?.isCollapsed) {
       if (currentDrag?.draggable) {
         currentDrag.draggable = false;
-      }      
+      }
     } else {
       currentDrag.draggable = true;
     }

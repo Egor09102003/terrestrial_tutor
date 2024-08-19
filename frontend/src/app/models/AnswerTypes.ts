@@ -3,5 +3,5 @@ export const answerTypes: { [key: string]: string } = {
   'VALUE': 'Текст или значение',
   'CODE': 'Код',
   'DETAILED': 'Развёрнутый',
-  'TABLE': 'Таблица'
+  'TABLE': 'Таблица',
 }
