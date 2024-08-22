@@ -152,7 +152,7 @@ export class TaskComponent implements OnInit {
       level1: new FormControl(this.task?.level1 ? this.task?.level1 : '', Validators.compose([Validators.required])),
       level2: new FormControl(this.task?.level2 ? this.task?.level2 : ''),
       files: new FormControl(this.task?.files ?? ['']),
-      table: new FormControl(),
+      table: new FormControl(this.task?.table ?? ''),
       analysis: new FormControl(this.task?.analysis ? this.task?.analysis : ''),
       cost: new FormControl(this.task?.cost ? this.task?.cost : 1),
     });
@@ -175,22 +175,16 @@ export class TaskComponent implements OnInit {
       name: this.taskForm.controls['taskName'].value,
       answerType: this.taskForm.controls['answerType'].value,
       taskText: this.taskForm.controls['taskText'].value,
-      answers: [],
+      answers: this.taskForm.controls['taskAns'].value,
       checking: 1,
       subject: this.taskForm.controls['selectedSubject'].value,
       level1: this.taskForm.controls['level1'].value,
       level2: this.taskForm.controls['level2'].value,
-      table: this.task && 'table' in this.task ? this.task.table : '',
+      table: this.taskForm.controls['table'].value,
       files: this.taskForm.controls['files'].value,
       analysis: this.formatLink(this.taskForm.controls['analysis'].value),
       cost: this.taskForm.controls['cost'].value,
     };
-
-    if (task.answerType === 'TABLE') {
-      task.answers = this.task?.answers ?? [''];
-    } else {
-      task.answers = this.taskForm.controls['taskAns'].value;
-    }
 
     if (this.task) {
       task.id = this.task.id;
@@ -198,7 +192,11 @@ export class TaskComponent implements OnInit {
     let supportId = this.route.snapshot.paramMap.get('id');
     this.supportService.addTask(task).subscribe(data => {
       this.supportService.addFiles(this.files, data).subscribe(() => {
-        window.location.reload();
+        if (!this.task) {
+          this.router.navigate([`/support/${supportId}/task/${data}`])
+        } else {
+          window.location.reload();
+        }
       });
     })
   }
@@ -245,18 +243,20 @@ export class TaskComponent implements OnInit {
 
   typeChange(answerType: any) {
     if (answerType !== 'TABLE') {
-      let fieldValue = [''];
+      let fieldValue = '';
       if (this.taskForm.controls['answerType'].value !== 'TABLE') {
-        fieldValue = [this.taskForm.controls['taskAns'].value[0]];
+        fieldValue = this.taskForm.controls['taskAns'].value[0];
       }
-      this.taskForm.controls['taskAns'].setValue(fieldValue ?? [''])
-      this.taskForm.controls['taskAns'].removeValidators([this.validateTable]);
+      this.taskForm.controls['taskAns'] = new FormArray([
+        new FormControl(fieldValue, Validators.compose([Validators.required])),
+      ]);
+      // this.taskForm.controls['taskAns'].removeValidators([this.validateTable]);
     } else {
       this.taskForm.controls['taskAns'].addValidators([this.validateTable]);
     }
     this.taskForm.controls['taskAns'].updateValueAndValidity();
+    this.taskForm.updateValueAndValidity();
     this.pageUnload();
-    this.taskForm.removeValidators(Validators.required);
     this.taskForm.controls['answerType'].setValue(answerType);
   }
 
@@ -286,6 +286,7 @@ export class TaskComponent implements OnInit {
   }
 
   pageUnload() {
+    this.taskForm.updateValueAndValidity();
     window.addEventListener('beforeunload', this.reloadPage);
   }
 
@@ -294,19 +295,18 @@ export class TaskComponent implements OnInit {
   }
 
   updateTable(table: string, property: string) {
-    if (this.task && property in this.task) {
-      switch (property) {
-        case 'table':
-          this.task.table = table;
-          break;
-        case 'answers':
-          this.task.answers = [table];
-          this.taskForm.controls['taskAns'].setValue([table]);
-          this.taskForm.controls['taskAns'].updateValueAndValidity();
-          break;
-        default:
-          break;
-      }
+    switch (property) {
+      case 'table':
+        this.taskForm.controls['table'].setValue(table);
+        break;
+      case 'answers':
+        this.taskForm.controls['taskAns'] = new FormArray([
+          new FormControl(table, Validators.compose([Validators.required])),
+        ], this.validateTable);
+        this.taskForm.controls['taskAns'].updateValueAndValidity();
+        break;
+      default:
+        break;
     }
   }
 
