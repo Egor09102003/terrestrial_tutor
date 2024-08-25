@@ -98,13 +98,13 @@ export class TaskComponent implements OnInit {
         this.task = task;
         if (task && 'files' in task) {
           for (let file of task.files) {
-            if (this.isImage(file)) {
+            if (file && this.isImage(file)) {
               this.lightboxGallery.push({
                 src: this.env.filesPath + file,
-                caption: file,
+                caption: file.substring(file.indexOf('$') + 1),
                 thumb: this.env.filesPath + file,
               })
-            } else {
+            } else if (file) {
               this.otherFiles.push(file);
             }
           }
@@ -151,7 +151,7 @@ export class TaskComponent implements OnInit {
       }])),
       level1: new FormControl(this.task?.level1 ? this.task?.level1 : '', Validators.compose([Validators.required])),
       level2: new FormControl(this.task?.level2 ? this.task?.level2 : ''),
-      files: new FormControl(this.task?.files ?? ['']),
+      files: new FormControl(['']),
       table: new FormControl(this.task?.table ?? ''),
       analysis: new FormControl(this.task?.analysis ? this.task?.analysis : ''),
       cost: new FormControl(this.task?.cost ? this.task?.cost : 1),
@@ -181,7 +181,7 @@ export class TaskComponent implements OnInit {
       level1: this.taskForm.controls['level1'].value,
       level2: this.taskForm.controls['level2'].value,
       table: this.taskForm.controls['table'].value,
-      files: this.taskForm.controls['files'].value,
+      files: this.task?.files ?? [],
       analysis: this.formatLink(this.taskForm.controls['analysis'].value),
       cost: this.taskForm.controls['cost'].value,
     };
@@ -190,10 +190,10 @@ export class TaskComponent implements OnInit {
       task.id = this.task.id;
     }
     let supportId = this.route.snapshot.paramMap.get('id');
-    this.supportService.addTask(task).subscribe(data => {
-      this.supportService.addFiles(this.files, data).subscribe(() => {
+    this.supportService.addTask(task).subscribe(taskId => {
+      this.supportService.addFiles(this.files, taskId).subscribe(() => {
         if (!this.task) {
-          this.router.navigate([`/support/${supportId}/task/${data}`])
+          this.router.navigate([`/support/${supportId}/task/${taskId}`])
         } else {
           window.location.reload();
         }

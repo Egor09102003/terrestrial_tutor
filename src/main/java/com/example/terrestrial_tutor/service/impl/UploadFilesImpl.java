@@ -1,7 +1,5 @@
 package com.example.terrestrial_tutor.service.impl;
 
-import com.example.terrestrial_tutor.entity.TaskEntity;
-import com.example.terrestrial_tutor.payload.response.FilesResponse;
 import com.example.terrestrial_tutor.service.UploadFilesService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -24,7 +22,7 @@ public class UploadFilesImpl implements UploadFilesService {
     @Value("${upload.path}")
     private String uploadPath;
 
-    public Set<String> uploadFiles(Set<MultipartFile> files) throws IOException {
+    public Set<String> uploadFiles(Set<MultipartFile> files) {
         Set<String> filesList = new HashSet<>();
         for (MultipartFile file : files) {
             if (file != null) {
@@ -35,15 +33,15 @@ public class UploadFilesImpl implements UploadFilesService {
                 }
 
                 String fileName = file.getOriginalFilename();
+                String fileUID = UUID.randomUUID().toString();
 
                 try {
-                    File newFile = new File(uploadDir + "/" + fileName);
-                    if (!newFile.exists()) {
-                        file.transferTo(newFile.toPath());
-                    }
-                    filesList.add(fileName);
+                    File newFile = new File(uploadDir + "/" + fileUID + "$" + fileName);
+                    file.transferTo(newFile.toPath());
+                    filesList.add(fileUID + "$" + fileName);
                 } catch (IOException e) {
-                    throw new IOException("Error while saving file '" + fileName + "': " + e.getMessage());
+                    log.error("Error while saving file '{}': {}", fileName, e.getMessage());
+                    return new HashSet<>();
                 }
             }
         }
@@ -51,19 +49,22 @@ public class UploadFilesImpl implements UploadFilesService {
         return filesList;
     }
 
-    public Set<FilesResponse> getFilesByPaths(Set<String> filesList) throws IOException {
-        Set<FilesResponse> files = new HashSet<>();
+    public byte[] getFilesByPaths(String fileName) {
+        byte[] resultFile = new byte[0];
         try {
-            for (String savedFile : filesList) {
-                File file = new File(uploadPath + savedFile);
-                if (file.exists()) {
-                    MultipartFile curFile = new MockMultipartFile(savedFile, "", null, Files.readAllBytes(Paths.get(uploadPath + savedFile)));
-                    files.add(new FilesResponse(savedFile, curFile.getBytes()));
-                }
+            File file = new File(uploadPath + fileName);
+            if (file.exists()) {
+                MultipartFile curFile = new MockMultipartFile(
+                        fileName,
+                        "",
+                        null,
+                        Files.readAllBytes(Paths.get(uploadPath + fileName))
+                );
+                resultFile = curFile.getBytes();
             }
         } catch (IOException e) {
-            throw new IOException("Error while get file: " + e.getMessage());
+            log.error("Error while get file: {}", e.getMessage());
         }
-        return files;
+        return resultFile;
     }
 }

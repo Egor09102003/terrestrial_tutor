@@ -1,7 +1,5 @@
 package com.example.terrestrial_tutor.service;
 
-import com.example.terrestrial_tutor.entity.TaskEntity;
-import com.example.terrestrial_tutor.payload.response.FilesResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -16,8 +14,7 @@ public interface UploadFilesService {
     *
     * @param file лист файлов
     * @return статус операции
-    * @throws IOException
     */
     Set<String> uploadFiles(Set<MultipartFile> file) throws IOException;
-    Set<FilesResponse> getFilesByPaths(Set<String> paths) throws IOException;
+    byte[] getFilesByPaths(String path) throws IOException;
 }
