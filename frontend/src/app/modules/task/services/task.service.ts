@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {EnvironmentService} from "../../../../environments/environment.service";
 import {Observable} from "rxjs";
-import {Task} from "../../../models/Task";
 
 @Injectable({
   providedIn: 'root'
@@ -26,8 +25,8 @@ export class TaskService {
     return this.http.get(this.apiService.apiUrl + `task/${id}`);
   }
 
-  getTaskFiles(id: number): Observable<any> {
-    return this.http.get(this.TASK_API + `${id}/files`);
+  getFiles(fileName: string): Observable<any> {
+    return this.http.get(this.TASK_API + `files/${fileName}`);
   }
 
   deleteTask(id: number) {

@@ -5,7 +5,6 @@ import com.example.terrestrial_tutor.dto.TaskDTO;
 import com.example.terrestrial_tutor.dto.facade.TaskFacade;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TaskEntity;
-import com.example.terrestrial_tutor.payload.response.FilesResponse;
 import com.example.terrestrial_tutor.service.SubjectService;
 import com.example.terrestrial_tutor.service.TaskService;
 import com.example.terrestrial_tutor.service.UploadFilesService;
@@ -103,15 +102,12 @@ public class TaskController {
 
     /**
      * Получение файлов задания
-     * 
-     * @param id
-     * @return
-     * @throws IOException
+     *
+     * @param fileName - Set of the file names
      */
-    @GetMapping("/tasks/{id}/files")
-    public ResponseEntity<Set<FilesResponse>> getTaskFile(@PathVariable Long id) throws IOException {
-        TaskEntity task = taskService.getTaskById(id);
-        return new ResponseEntity<>(uploadFilesService.getFilesByPaths(task.getFiles()), HttpStatus.OK);
+    @GetMapping("/tasks/files/{fileName}")
+    public ResponseEntity<byte[]> getTaskFile(@PathVariable String fileName) throws IOException {
+        return new ResponseEntity<>(uploadFilesService.getFilesByPaths(fileName), HttpStatus.OK);
     }
 
     public List<TaskDTO> getSortedDto(List<TaskEntity> tasksList) {
