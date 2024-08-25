@@ -25,7 +25,7 @@
           <div class="d-inline" *ngFor="let subject of currentSubjects">
             <h2>{{ subject.subjectName }}</h2>
             <div class="row">
-              <div class="m-2 p-0 col-2" *ngFor="let homework of homeworks">
+              <div class="m-2 p-0 col-2" *ngFor="let homework of filterHomeworks(subject.subjectName)">
                 <button *ngIf="homework.subject == subject.subjectName" class="col-12 btn btn-primary" (click)="addPupils(homework)">
                   <h3>{{ homework.name }}</h3>
                 </button>

@@ -50,7 +50,9 @@ export class TutorComponent implements OnInit {
   }
 
   getHomeworks() {
-    this.tutorService.getHomeworks().subscribe(homeworks => this.homeworks = homeworks);
+    this.tutorService.getHomeworks().subscribe(homeworks => {
+      this.homeworks = homeworks.filter((homework: Homework)=> homework.name)
+    });
   }
 
   addPupils(homework: Homework) {
@@ -63,4 +65,10 @@ export class TutorComponent implements OnInit {
   setTab(tab: number) {
     this.activeTab = tab;
   }
+
+  filterHomeworks(subject: string) {
+    return this.homeworks.filter(homework => homework.subject === subject);
+  }
+
+  protected readonly Homework = Homework;
 }
