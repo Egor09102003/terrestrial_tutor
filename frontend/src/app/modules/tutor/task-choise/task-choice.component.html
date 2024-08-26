@@ -10,7 +10,13 @@
 <!--    <button type="button" class="btn btn-primary m-2 col-10" (click)="search()">Найти</button>-->
   </div>
   <div *ngFor="let task of filteredTasks let i = index">
-    <input class="m-2" style="transform:scale(2);" type="checkbox" [(ngModel)]="getFromAllTasksById(task.task.id).isSelected" />
-    <task-card [task]="task.task"></task-card>
+    <div class="row mb-2">
+      <div class="col-1 checkbox">
+        <input class="mx-auto" style="transform:scale(2);" type="checkbox" [(ngModel)]="getFromAllTasksById(task.task.id).isSelected" />
+      </div>
+      
+      <task-card class="col-11" [task]="task.task"></task-card>
+    </div>
+    
   </div>
 </div>
