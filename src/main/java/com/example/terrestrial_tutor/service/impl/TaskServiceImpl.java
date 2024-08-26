@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -117,10 +118,9 @@ public class TaskServiceImpl implements TaskService {
     public TaskEntity addNewTask(TaskDTO dto, SupportEntity support) {
         TaskEntity task = taskFacade.taskDTOToTask(dto, support);
         if (task.getId() != null && dto.getId() != 0) {
-            TaskEntity savedTask = taskRepository.findTaskEntityById(dto.getId());
             return taskRepository.saveAndFlush(task);
         }
-
+        task.setCrdate(new Date().toInstant().toEpochMilli());
         return taskRepository.saveAndFlush(task);
     }
 

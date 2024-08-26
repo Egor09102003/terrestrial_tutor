@@ -42,7 +42,6 @@ import Math from '@isaul32/ckeditor5-math/src/math';
 })
 export class TaskComponent implements OnInit {
 
-  // @ts-ignore
   taskForm: FormGroup;
   subjects: Subject[] | undefined;
   options = {

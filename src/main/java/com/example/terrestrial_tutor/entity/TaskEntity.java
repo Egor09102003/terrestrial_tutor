@@ -71,4 +71,7 @@ public class TaskEntity {
 
     @Column(name = "cost")
     Integer cost;
+
+    @Column(name = "crdate")
+    Long crdate;
 }
