@@ -1,28 +1,33 @@
-import {Component, OnInit} from '@angular/core';
-import {UntypedFormBuilder, UntypedFormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {Component} from '@angular/core';
+import {UntypedFormBuilder, Validators, FormGroup} from "@angular/forms";
 import {AuthService} from "../../../security/auth.service";
-import {RouterLink} from "@angular/router";
+import {Router} from "@angular/router";
+import {ErrorsService} from "../helper/errors.service";
 
 @Component({
   selector: 'app-registration',
   templateUrl: './registration.component.html',
   styleUrls: ['./registration.component.css']
 })
-export class RegistrationComponent implements OnInit {
-  // @ts-ignore
-  public registrationForm: UntypedFormGroup;
+export class RegistrationComponent {
+
+  registrationForm: FormGroup;
+  errors: any[] = [];
 
   constructor(
     private authService: AuthService,
-    private fb: UntypedFormBuilder) {
+    private fb: UntypedFormBuilder,
+    private router: Router,
+    public errorsService: ErrorsService,
+    ) {
   }
 
   ngOnInit(): void {
-    this.registrationForm = this.createRegisterForm();
+    this.createRegisterForm();
   }
 
   private createRegisterForm() {
-    return this.fb.group({
+    this.registrationForm = this.fb.group({
       name: ['', Validators.compose([Validators.required])],
       surname: ['', Validators.compose([Validators.required])],
       patronymic: ['', Validators.compose([Validators.required])],
@@ -36,10 +41,32 @@ export class RegistrationComponent implements OnInit {
           return null;
         }
       }])],
-    })
+    });
+
+    this.registrationForm.controls['confirmPassword'].addValidators([
+      (password) => {
+        if (this.registrationForm.controls['password'].value !== password.value) {
+          return {confirmPassword: false};
+        } else {
+          return null;
+        }
+      }
+    ]);
+    this.registrationForm.controls['confirmPassword'].updateValueAndValidity();
   }
 
   submit(): void {
-    this.authService.register(this.registrationForm.value).subscribe();
+    this.authService.register(this.registrationForm.value).subscribe({
+      next: () => this.router.navigate(['/login'])
+    });
+  }
+
+  invalid(controlName: string) {
+    return this.registrationForm.controls[controlName].invalid
+      && this.registrationForm.controls[controlName].touched;
+  }
+
+  revalidatePassword() {
+    this.registrationForm.controls['confirmPassword'].updateValueAndValidity()
   }
 }
