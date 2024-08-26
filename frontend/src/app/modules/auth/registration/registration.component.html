@@ -1,31 +1,55 @@
 <div class="container text-center">
-  <h2 class="text-center">Регистрация</h2>
+  @if (errorsService.error.length > 0) {
+    @for(error of errorsService.error; track error) {
+      <ngb-alert type="danger">Ошибка регистрации</ngb-alert>
+    }
+  }
+
+  <h2 class="text-center mb-4">Регистрация</h2>
+
   <form [formGroup]="registrationForm" (ngSubmit)="submit()">
-    <div class="justify-content-center row">
-      <input placeholder="Фамилия" class="col-4" formControlName="surname">
+    <div class="mb-4 justify-content-center row">
+      <input placeholder="Фамилия" class="col-4" formControlName="surname"
+             [ngClass]="{'is-invalid': invalid('surname')}">
+      <div class="invalid-feedback">Фамилия обязательна</div>
     </div>
 
-    <div class="justify-content-center row">
-      <input placeholder="Имя" class="col-4" formControlName="name">
+    <div class="mb-4 justify-content-center row">
+      <input placeholder="Имя" class="col-4" formControlName="name"
+             [ngClass]="{'is-invalid': invalid('name')}"
+      >
+      <div class="invalid-feedback">Имя обязательно</div>
     </div>
 
-    <div class="justify-content-center row">
-      <input placeholder="Отчество" class="col-4" formControlName="patronymic">
+    <div class="mb-4 justify-content-center row">
+      <input placeholder="Отчество" class="col-4" formControlName="patronymic"
+             [ngClass]="{'is-invalid': invalid('patronymic')}"
+      >
+      <div class="invalid-feedback">Отчество обязательно</div>
     </div>
 
-    <div class="justify-content-center row">
-      <input placeholder="E-mail" class="col-4" formControlName="email">
+    <div class="mb-4 justify-content-center row">
+      <input placeholder="E-mail" class="col-4" formControlName="email"
+             [ngClass]="{'is-invalid': invalid('email')}"
+      >
+      <div class="invalid-feedback">Введите корректный email</div>
     </div>
 
-    <div class="justify-content-center row">
-      <input type="password" placeholder="Пароль" class="col-4" formControlName="password">
+    <div class="mb-4 justify-content-center row">
+      <input (input)="revalidatePassword()" type="password" placeholder="Пароль" class="col-4" formControlName="password"
+             [ngClass]="{'is-invalid': invalid('password')}"
+      >
+      <div class="invalid-feedback">Пароль обязателен</div>
     </div>
 
-    <div class="justify-content-center row">
-      <input type="password" placeholder="Подтверждение пароля" class="col-4" formControlName="confirmPassword">
+    <div class="mb-4 justify-content-center row">
+      <input type="password" placeholder="Подтверждение пароля" class="col-4" formControlName="confirmPassword"
+             [ngClass]="{'is-invalid': invalid('confirmPassword')}"
+      >
+      <div class="invalid-feedback">Пароли должны совпадать</div>
     </div>
 
-    <div class="text-center pb-4">
+    <div class="mb-4 text-center">
       <div ngbDropdown class="d-inline-block col-3">
         <button type="button" class="drop-btn btn-primary drop-btn p-2 col-12" id="dropdownBasic1" ngbDropdownToggle>
           {{ registrationForm.controls['role'].value}}
