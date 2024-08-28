@@ -20,7 +20,7 @@ export class PupilComponent {
 
   ngOnInit(): void {
     sessionStorage.clear();
-    this.pupilDataService.setCurrentSubject(null);
+    this.pupilDataService.setCurrentSubject('');
     if (!this.pupilDataService.getPupil()) {
       this.pupilService.getCurrentUser().subscribe(pupil => {
         this.pupil = pupil;

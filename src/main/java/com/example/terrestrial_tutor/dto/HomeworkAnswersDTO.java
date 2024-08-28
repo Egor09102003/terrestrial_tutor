@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,15 +18,17 @@ import java.util.Map;
 @NoArgsConstructor
 public class HomeworkAnswersDTO {
 
-    Map<Long, DetailsAnswer> checkingAnswers;
+    HashMap<Long, Status> answersStatuses = new HashMap<>();
     Integer attemptCount;
+
 
     @Getter
     @Setter
-    @AllArgsConstructor
-    public static class DetailsAnswer {
-        String pupilAnswer;
-        String rightAnswer;
+    @NoArgsConstructor
+    public static class Status {
+        Boolean status;
+        String currentAnswer;        
     }
-
 }
+
+

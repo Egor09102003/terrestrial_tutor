@@ -166,7 +166,6 @@ export class HwConstructorComponent implements OnInit {
 
   updateDrag(state: boolean, index: number) {
     this.state[index] = state;
-    console.log(this.state);
   }
 
   public readonly Object = Object;

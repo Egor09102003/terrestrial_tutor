@@ -179,7 +179,6 @@
       <div *ngFor="let image of lightboxGallery; let i = index" class="lb-images d-inline-block mx-1 mt-1">
         <img class="top-0" [src]="image.src" width="200px"
              height="auto" (click)="open(i)" alt="image">
-             // todo: Decide question with caption charset
         <figcaption [innerHtml]="image.caption"></figcaption>
         <button class="btn btn-primary" type="button" (click)="deleteFile(image)">Удалить файл</button>
       </div>

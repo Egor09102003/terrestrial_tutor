@@ -31,7 +31,7 @@ public class PupilEntity implements User {
     @Column(name = "balance")
     Double balance;
 
-    @ManyToMany(mappedBy = "pupils", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "pupils", fetch = FetchType.LAZY)
     List<HomeworkEntity> homeworkList;
 
     @Column(name = "price")

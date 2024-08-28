@@ -4,6 +4,7 @@ import com.example.terrestrial_tutor.entity.AttemptEntity;
 import com.example.terrestrial_tutor.entity.HomeworkEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 
 /**
@@ -19,4 +20,12 @@ public interface AttemptRepository extends JpaRepository<AttemptEntity, Long> {
      * @return сущность попытки
      */
     AttemptEntity findAttemptEntityByPupilAndHomeworkAndAttemptNumber(PupilEntity pupil, HomeworkEntity homework, int number);
+
+    /**
+     * Find las
+     * 
+     * @return
+     */
+    @Query(value = "SELECT * FROM homework_solutions WHERE attempt_number=(SELECT MAX(attempt_number) FROM homework_solutions WHERE homework=3073 AND pupil=?2) AND homework=?1  AND pupil=?2", nativeQuery = true)
+    AttemptEntity findLastAttempt(Long homework, Long pupil);
 }

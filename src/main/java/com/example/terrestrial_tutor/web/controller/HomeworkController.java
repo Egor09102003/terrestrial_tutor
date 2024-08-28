@@ -23,8 +23,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+
+
 
 /**
  * Контроллер для работы с дз
@@ -83,12 +88,12 @@ public class HomeworkController {
      * @param attempt    попытка
      * @return дз с добавленной попыткой
      */
-    @PostMapping("/pupil/homework/{homeworkId}/{attempt}")
+    @PutMapping("/homework/save/{homeworkId}")
     @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
     public ResponseEntity<HomeworkAnswersDTO> getCheckingAnswers(@RequestBody Map<Long, String> answers,
-                                                                 @PathVariable Long homeworkId,
-                                                                 @PathVariable int attempt) {
-        HomeworkAnswersDTO homeworkAnswersDTO = homeworkService.checkingAndSaveAnswers(answers, homeworkId, attempt);
+                                                                 @PathVariable Long homeworkId
+                                                                 ) {
+        HomeworkAnswersDTO homeworkAnswersDTO = homeworkService.checkingAndSaveAnswers(answers, homeworkId);
         return new ResponseEntity<>(homeworkAnswersDTO, HttpStatus.OK);
     }
 
@@ -111,7 +116,7 @@ public class HomeworkController {
      * @return список выполненных дз ученика
      */
     @GetMapping("/pupil/{id}/homework/completed")
-    public ResponseEntity<Map<Long, Integer>> getCompletedHomework(@PathVariable Long id) {
+    public ResponseEntity<Map<Long, Long>> getCompletedHomework(@PathVariable Long id) {
         return new ResponseEntity<>(homeworkService.getCompletedHomework(id), HttpStatus.OK);
     }
 
@@ -123,11 +128,16 @@ public class HomeworkController {
      * @param attempt - номер попытки
      * @return - результаты дз по определенной попытке
      */
-    @GetMapping("/pupil/homework/{id}/answers/{idPupil}/{attempt}")
-    public ResponseEntity<HomeworkAnswersDTO> getHomeworkAnswers(@PathVariable Long id, @PathVariable Long idPupil,
-                                                                 @PathVariable int attempt) {
-        HomeworkAnswersDTO homeworkAnswersDTO = homeworkService.getPupilAnswers(id, idPupil, attempt);
-        return new ResponseEntity<>(homeworkAnswersDTO, HttpStatus.OK);
+    @GetMapping(value = {"/homework/{id}/init/{attempt}", "/homework/{id}/init"})
+    public ResponseEntity<HomeworkAnswersDTO> initHomework(@PathVariable Long id,
+                                                                 @PathVariable Optional<Integer> attempt) {
+        return new ResponseEntity<>(homeworkService.initHomework(id, attempt), HttpStatus.OK);
+    }
+
+    @GetMapping(value = {"/homework/{id}/answers/{attempt}", "/homework/{id}/answers"})
+    public ResponseEntity<HomeworkAnswersDTO> getPupilAttempts(@PathVariable Long id,
+                                                                 @PathVariable Optional<Integer> attempt) {
+        return new ResponseEntity<>(homeworkService.getPupilAnswers(id, attempt), HttpStatus.OK);
     }
 
     /**
@@ -159,4 +169,48 @@ public class HomeworkController {
         }
         return new ResponseEntity<>(allHomeworksDto, HttpStatus.OK);
     }
+
+    /**
+     * Get homeworks by pupil and subject
+     * 
+     * @param pupilId
+     * @param subject
+     * @return
+     */
+    @GetMapping("/homeworks/{pupilId}/{subject}")
+    public ResponseEntity<List<HomeworkDTO>> getHomeworksByPupilAndSubject(@PathVariable Long pupilId, @PathVariable String subject) {
+        List<HomeworkEntity> homeworks = homeworkService.getHomeworksByPupilAndSubject(pupilId, subject);
+        List<HomeworkDTO> homeworkDTOs = new ArrayList<>();
+        for (HomeworkEntity homeworkEntity : homeworks) {
+            homeworkDTOs.add(homeworkFacade.homeworkToHomeworkDTO(homeworkEntity));
+        }
+        return new ResponseEntity<>(homeworkDTOs, HttpStatus.OK);
+    }
+    
+    /**
+     * Set finish status for homework
+     * 
+     * @param homeworkId
+     * @param answers
+     * @return
+     */
+    @PutMapping("homework/finish/{homeworkId}")
+    public ResponseEntity<HomeworkAnswersDTO> putMethodName(@PathVariable Long homeworkId, @RequestBody Map<Long, String> answers) {        
+        return new ResponseEntity<HomeworkAnswersDTO>(homeworkService.checkAndFinish(answers, homeworkId), HttpStatus.OK);
+    }
+
+    @GetMapping("homework/{homeworkId}/answers/right")
+    public ResponseEntity<HashMap<Long, String>> getHomeworkRightAnswers(@PathVariable Long homeworkId) {
+        return new ResponseEntity<HashMap<Long, String>>(homeworkService.getHomeworkAnswers(homeworkId), HttpStatus.OK);
+    }
+
+    
+    @GetMapping("/homework/pupil/{id}")
+    public ResponseEntity<HomeworkDTO> getMethodName(@PathVariable Long id) {
+        return new ResponseEntity<HomeworkDTO>(
+            homeworkFacade.homeworkToHomeworkDTO(homeworkService.getHomeworkByIdForCurrentPupil(id)),
+            HttpStatus.OK
+        );
+    }
+    
 }

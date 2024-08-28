@@ -57,7 +57,10 @@ public class HomeworkFacade {
         for (Map.Entry<Long, String> task : tasksCheckingTypes.entrySet()) {
             homework.getSubject().getTasks().stream().filter(currentTask
                             -> Objects.equals(currentTask.getId(), task.getKey())).findFirst().
-                    ifPresent(taskEntity -> tasks.add(taskFacade.taskToTaskDTO(taskEntity)));
+                    ifPresent(taskEntity -> {
+                        taskEntity.setAnswer("");
+                        tasks.add(taskFacade.taskToTaskDTO(taskEntity));
+                    });
         }
 
         homeworkDTO.setTasks(tasks);

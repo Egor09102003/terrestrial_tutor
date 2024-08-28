@@ -1,19 +1,19 @@
 <div class="container-fluid px-3 pb-3">
   <div *ngIf="pageLoaded" [formGroup]="tasksAnswers" class="container-fluid mx-auto p-3  min-vh-100 border-opacity-25 rounded-4 border border-2 col-12 plate text-le">
     <div class="row mx-0 mb-5">
-      <h1>{{ homework?.name }}</h1>
-      <button type="button" class="btn btn-primary col-3" (click)="submit()">Отправить</button>
+      <h1>{{ homework.name }}</h1>
+      <button type="button" class="btn btn-primary col-7 col-md-4 col-lg-3" (click)="submit()">Отправить</button>
     </div>
     <div class="d-inline" *ngFor="let task of homework?.tasks">
 
-      <h2>{{ task?.name }}</h2>
+      <h3><u>Название: {{ task?.name }}</u></h3>
       <h3><u>Тема: {{ task.level1 }}</u></h3>
       <h3><u>Подтема: {{ task.level2 }}</u></h3>
       <h3><u>Номер: {{ task.id }}</u></h3>
       <h3><u>Баллы: {{ task.cost }}</u></h3>
 
       <div class="container-fluid mx-auto p-3 mb-5 min-vh-70 border-opacity-25 rounded-4 border border-2 col-12 plate text-le">
-        <h3 style="white-space: pre-line" [innerHTML]="task.taskText"></h3>
+        <p style="white-space: pre-line" [innerHTML]="task.taskText"></p>
 
         <div class="d-inline-block mb-3" *ngFor="let image of task.files">
           <img *ngIf="checkImage(image)" class="m-2 border-opacity-25 border border-2"
@@ -25,28 +25,28 @@
         <div class="mt-5" *ngIf="task.answerType == 'VARIANTS'">
           <div *ngFor="let answer of task.answers">
             <div class="form-check form-check-inline align-content-center align-items-center">
-              <input [ngClass]="{'is-invalid': tasksStatus[task.id.toString()] == 2,
-            'is-valid': tasksStatus[task.id.toString()] == 1}" class="form-check-input m-0 align-middle" type="radio" name="{{task.id.toString()}}" value="{{answer}}" formControlName = "{{task.id.toString()}}" id="{{answer}}">
+              <input (change)="!checkChecking(task.id) ? momentCheck(task) : ''" [ngClass]="{'is-invalid': tasksStatus[task.id] == 2 && checkChecking(task.id),
+            'is-valid': tasksStatus[task.id] == 1 && checkChecking(task.id)}" class="form-check-input m-0 align-middle" type="radio" name="{{task.id.toString()}}" value="{{answer}}" formControlName = "{{task.id.toString()}}" id="{{answer}}">
               <label class="form-check-label px-2 align-middle fs-4" for="{{answer}}">{{answer}}</label>
             </div>
           </div>
         </div>
 
         <div class="mt-5" *ngIf="task.answerType == 'VALUE'">
-          <input [ngClass]="{'is-invalid': tasksStatus[task.id.toString()] == 2,
-            'is-valid': tasksStatus[task.id.toString()] == 1}"
+          <input (change)="!checkChecking(task.id) ? momentCheck(task) : ''" (change)="!checkChecking(task.id) ? momentCheck(task) : ''" [ngClass]="{'is-invalid': tasksStatus[task.id] == 2 && checkChecking(task.id),
+            'is-valid': tasksStatus[task.id] == 1 && checkChecking(task.id)}"
                  formControlName = "{{task.id.toString()}}" placeholder="Введите ответ">
         </div>
 
         <div class="mt-5" *ngIf="task.answerType == 'DETAILED'">
           <textarea class="ocl-7 col-md-5 col-lg-4" [formControlName]="task.id.toString()" style="resize: both" rows="4"
-                    placeholder="Введите ответ" [ngClass]="{'is-invalid': tasksStatus[task.id.toString()] == 2,
-            'is-valid': tasksStatus[task.id.toString()] == 1}"></textarea>
+                    placeholder="Введите ответ" (change)="!checkChecking(task.id) ? momentCheck(task) : ''" [ngClass]="{'is-invalid': tasksStatus[task.id] == 2 && checkChecking(task.id),
+            'is-valid': tasksStatus[task.id] == 1 && checkChecking(task.id)}"></textarea>
         </div>
 
         <div class="mt-5" *ngIf="task.answerType == 'TABLE'">
-          <tables-constructor [ngClass]="{'is-invalid': tasksStatus[task.id.toString()] == 2,
-            'is-valid': tasksStatus[task.id.toString()] == 1}" (resultTable)="updateTable($event, task.id)"></tables-constructor>
+          <tables-constructor (change)="!checkChecking(task.id) ? momentCheck(task) : ''" [ngClass]="{'is-invalid': tasksStatus[task.id] == 2 && checkChecking(task.id),
+            'is-valid': tasksStatus[task.id] == 1 && checkChecking(task.id)}" [initTable]="initTable(task.id)" (resultTable)="updateTable($event, task.id)"></tables-constructor>
           <div class="invalid-feedback">Неверный ответ</div>
           <div class="valid-feedback">Верный ответ</div>
         </div>
@@ -61,13 +61,7 @@
               overflow-wrap: anywhere">{{file}}</figcaption>
         </div>
 
-        <div class="row mt-4" *ngIf="checkChecking(task.id)">
-          <button [disabled]="tasksStatus[task.id] == 0" type="button" class="btn btn-primary col-3" (click)="momentCheck(task)">Проверить</button>
-<!--          <div *ngIf="!taskChecked" class="row m-3 col-12 spinner-border" role="status"></div>-->
-<!--          <i style="font-size: 30px" *ngIf="taskChecked && statistic.checkingAnswers[task.id] && statistic.checkingAnswers[task.id].pupilAnswer == statistic.checkingAnswers[task.id].rightAnswer" class="col-2 bi bi-check-circle-fill text-success bi-lg"></i>-->
-<!--          <i style="font-size: 30px" *ngIf="taskChecked && statistic.checkingAnswers[task.id] && statistic.checkingAnswers[task.id].pupilAnswer != statistic.checkingAnswers[task.id].rightAnswer" class="col-2 bi bi-x-circle-fill text-danger"></i>-->
-<!--        </div>-->
-        </div>
+          <button *ngIf="checkChecking(task.id)" [disabled]="tasksStatus[task.id] == 0" type="button" class="mt-3 btn btn-primary col-7 col-md-4 col-lg-3" (click)="momentCheck(task)">Проверить</button>
       </div>
     </div>
   </div>

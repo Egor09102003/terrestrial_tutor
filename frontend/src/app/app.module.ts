@@ -35,6 +35,7 @@ import {LightboxModule} from "ngx-lightbox";
 import {TaskTableComponent} from "./modules/task/task-table/task-table.component";
 import {TablesConstructorComponent} from "./modules/task/tables-constructor/tables-constructor.component";
 import {CKEditorModule} from "@ckeditor/ckeditor5-angular";
+import { HomeworkComponent } from './modules/homework/homework.component';
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import {CKEditorModule} from "@ckeditor/ckeditor5-angular";
     TaskChoiceComponent,
     BrowseNotificationsComponent,
     PupilsAddHomeworkComponent,
-    TaskCardComponent
+    TaskCardComponent,
+    HomeworkComponent,
   ],
   imports: [
     BrowserModule,
@@ -72,7 +74,8 @@ import {CKEditorModule} from "@ckeditor/ckeditor5-angular";
     LightboxModule,
     TaskTableComponent,
     TablesConstructorComponent,
-    CKEditorModule
+    CKEditorModule,
+  
   ],
   providers: [
     authInterceptorProviders,
