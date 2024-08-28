@@ -5,7 +5,6 @@ import com.example.terrestrial_tutor.dto.facade.HomeworkFacade;
 import com.example.terrestrial_tutor.entity.*;
 import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
-import com.example.terrestrial_tutor.exceptions.CustomException;
 import com.example.terrestrial_tutor.repository.*;
 import com.example.terrestrial_tutor.service.*;
 import com.google.gson.Gson;
@@ -83,7 +82,7 @@ public class HomeworkServiceImpl implements HomeworkService {
         AttemptEntity attempt = this.getCurrentAttempt(pupil, homeworkId, attemptNumber);
 
         if (attempt == null || attempt.getStatus() == HomeworkStatus.FINISHED) {
-            this.checkingAndSaveAnswers(new HashMap<Long, String>(), homeworkId);
+            this.checkingAndSaveAnswers(new HashMap<>(), homeworkId);
             attempt = attemptRepository.findLastAttempt(homeworkId, pupil.getId());
         }
         
@@ -99,10 +98,10 @@ public class HomeworkServiceImpl implements HomeworkService {
     private AttemptEntity getCurrentAttempt(PupilEntity pupil, Long homeworkId, Optional<Integer> attemptNumber) {
         HomeworkEntity homework = homeworkRepository.findHomeworkEntityById(homeworkId);
         AttemptEntity attempt;
-        if (!attemptNumber.isPresent()) {
+        if (attemptNumber.isEmpty()) {
             attempt = attemptRepository.findLastAttempt(homework.getId(), pupil.getId());
         } else {
-            attempt = attemptRepository.findAttemptEntityByPupilAndHomeworkAndAttemptNumber(
+            attempt = attemptRepository.findFirstByPupilAndHomeworkAndAttemptNumber(
                 pupil,
                 homework,
                 attemptNumber.get());
@@ -132,8 +131,8 @@ public class HomeworkServiceImpl implements HomeworkService {
         Map<Long, Long> result = new HashMap<>();
         for (HomeworkEntity homework : pupil.getHomeworkList()) {
             List<AttemptEntity> attempts = homework.getAnswerEntities();
-            Long pupilAttemtsAmount = attempts.stream().filter(attempt -> attempt.getPupil().getId() == pupil.getId()).count();
-            result.put(homework.getId(), pupilAttemtsAmount);
+            Long pupilAttemptsAmount = attempts.stream().filter(attempt -> Objects.equals(attempt.getPupil().getId(), pupil.getId())).count();
+            result.put(homework.getId(), pupilAttemptsAmount);
         }
         return result;
     }
@@ -155,7 +154,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     public HomeworkAnswersDTO checkingAndSaveAnswers(Map<Long, String> answers, Long homeworkId) {
         PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         AttemptEntity lastAttempt = attemptRepository.findLastAttempt(homeworkId, pupil.getId());
-        Integer lastAttemptNumber = lastAttempt != null ? lastAttempt.getAttemptNumber() : 0;
+        int lastAttemptNumber = lastAttempt != null ? lastAttempt.getAttemptNumber() : 0;
         if (lastAttempt == null || lastAttempt.getStatus() == HomeworkStatus.FINISHED) {
             lastAttempt = new AttemptEntity();
             lastAttempt.setAttemptNumber(lastAttemptNumber + 1);
@@ -230,7 +229,7 @@ public class HomeworkServiceImpl implements HomeworkService {
                 return false;
             }
             for (int j = 0; j < pupilTable[i].length; j++) {
-                if ((pupilTable[i][j].trim().length() != 0 && j >= answerTable[i].length)
+                if ((!pupilTable[i][j].trim().isEmpty() && j >= answerTable[i].length)
                 || (answerTable[i].length > j 
                 && !answerTable[i][j].trim().equals(pupilTable[i][j].trim()))) 
                 {

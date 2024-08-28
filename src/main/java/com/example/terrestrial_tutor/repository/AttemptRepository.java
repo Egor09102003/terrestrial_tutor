@@ -19,13 +19,12 @@ public interface AttemptRepository extends JpaRepository<AttemptEntity, Long> {
      * @param number   номер попытки
      * @return сущность попытки
      */
-    AttemptEntity findAttemptEntityByPupilAndHomeworkAndAttemptNumber(PupilEntity pupil, HomeworkEntity homework, int number);
+    AttemptEntity findFirstByPupilAndHomeworkAndAttemptNumber(PupilEntity pupil, HomeworkEntity homework, int number);
 
     /**
-     * Find las
-     * 
-     * @return
+     * Find last pupil attempt in homework
+     *
      */
-    @Query(value = "SELECT * FROM homework_solutions WHERE attempt_number=(SELECT MAX(attempt_number) FROM homework_solutions WHERE homework=3073 AND pupil=?2) AND homework=?1  AND pupil=?2", nativeQuery = true)
+    @Query(value = "SELECT * FROM homework_solutions WHERE attempt_number=(SELECT MAX(attempt_number) FROM homework_solutions WHERE homework=?1 AND pupil=?2) AND homework=?1  AND pupil=?2 LIMIT 1", nativeQuery = true)
     AttemptEntity findLastAttempt(Long homework, Long pupil);
 }
