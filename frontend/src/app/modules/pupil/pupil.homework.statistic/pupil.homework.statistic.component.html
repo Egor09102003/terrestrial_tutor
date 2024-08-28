@@ -40,9 +40,9 @@
           </div>
 
           <h3 class="row"
-              style="background-color: {{ pupilAnswers.answersStatuses[task.id].status ? 'green' : 'red' }}">
+              [ngStyle]="{'background-color': pupilAnswers.answersStatuses[task.id].status ? 'green' : 'red' }">
               <div *ngIf="task.answerType == 'TABLE'">
-                Ответ ученика: <task-table class="row" [table]="pupilAnswers.answersStatuses[task.id].currentAnswer"></task-table>
+                <h3 class="answer">Ответ ученика: <task-table class="row" [table]="pupilAnswers.answersStatuses[task.id].currentAnswer"></task-table></h3>
                 <h3 class="answer">Верный ответ: <task-table class="row" [table]="rightAnswers[task.id]"></task-table></h3>
               </div>
               <div *ngIf="task.answerType != 'TABLE'">
@@ -50,7 +50,7 @@
                 <h3 class="answer">Верный ответ: {{rightAnswers[task.id] }}</h3>
               </div>
           </h3>
-        
+
 
           <h2 class="mt-3" *ngIf="checkFilesAvailability(getTaskForPrint(task.id))">Файлы</h2>
           <div class="d-inline-block mt-1 mx-1" *ngFor="let file of task.files">

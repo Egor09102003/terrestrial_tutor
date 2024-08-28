@@ -85,7 +85,6 @@ public class HomeworkController {
      *
      * @param answers    ответы
      * @param homeworkId id дз
-     * @param attempt    попытка
      * @return дз с добавленной попыткой
      */
     @PutMapping("/homework/save/{homeworkId}")
@@ -124,7 +123,6 @@ public class HomeworkController {
      * Контроллер для отдачи результатов дз по определенной попытке
      *
      * @param id      - id дз
-     * @param idPupil - id ученика
      * @param attempt - номер попытки
      * @return - результаты дз по определенной попытке
      */
@@ -146,7 +144,6 @@ public class HomeworkController {
      * @param id id дз
      * @return статус операции
      */
-
     @DeleteMapping("/homework/delete/{id}")
     @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
     public HttpStatus deleteHomeworkById(@PathVariable Long id) {
@@ -172,10 +169,10 @@ public class HomeworkController {
 
     /**
      * Get homeworks by pupil and subject
-     * 
-     * @param pupilId
-     * @param subject
-     * @return
+     *
+     * @param pupilId - pupil id
+     * @param subject - pupil subject
+     * @return - list of homework DTO
      */
     @GetMapping("/homeworks/{pupilId}/{subject}")
     public ResponseEntity<List<HomeworkDTO>> getHomeworksByPupilAndSubject(@PathVariable Long pupilId, @PathVariable String subject) {
@@ -190,24 +187,35 @@ public class HomeworkController {
     /**
      * Set finish status for homework
      * 
-     * @param homeworkId
-     * @param answers
-     * @return
+     * @param homeworkId - homework id
+     * @param answers - pupil answers
+     * @return answers DTO
      */
     @PutMapping("homework/finish/{homeworkId}")
     public ResponseEntity<HomeworkAnswersDTO> putMethodName(@PathVariable Long homeworkId, @RequestBody Map<Long, String> answers) {        
-        return new ResponseEntity<HomeworkAnswersDTO>(homeworkService.checkAndFinish(answers, homeworkId), HttpStatus.OK);
+        return new ResponseEntity<>(homeworkService.checkAndFinish(answers, homeworkId), HttpStatus.OK);
     }
 
+    /**
+     * Get homeworks answers (only if homework solution exists)
+     *
+     * @param homeworkId - homework id
+     * @return - answers map
+     */
     @GetMapping("homework/{homeworkId}/answers/right")
     public ResponseEntity<HashMap<Long, String>> getHomeworkRightAnswers(@PathVariable Long homeworkId) {
-        return new ResponseEntity<HashMap<Long, String>>(homeworkService.getHomeworkAnswers(homeworkId), HttpStatus.OK);
+        return new ResponseEntity<>(homeworkService.getHomeworkAnswers(homeworkId), HttpStatus.OK);
     }
 
-    
+    /**
+     * Get homework by id
+     *
+     * @param id - homework id
+     * @return homework DTO
+     */
     @GetMapping("/homework/pupil/{id}")
-    public ResponseEntity<HomeworkDTO> getMethodName(@PathVariable Long id) {
-        return new ResponseEntity<HomeworkDTO>(
+    public ResponseEntity<HomeworkDTO> getHomework(@PathVariable Long id) {
+        return new ResponseEntity<>(
             homeworkFacade.homeworkToHomeworkDTO(homeworkService.getHomeworkByIdForCurrentPupil(id)),
             HttpStatus.OK
         );
