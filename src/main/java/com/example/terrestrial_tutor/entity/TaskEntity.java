@@ -1,6 +1,8 @@
 package com.example.terrestrial_tutor.entity;
 
 import com.example.terrestrial_tutor.entity.enums.AnswerTypes;
+import com.google.gson.Gson;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -74,4 +76,8 @@ public class TaskEntity {
 
     @Column(name = "crdate")
     Long crdate;
+
+    public String getRightAnswer() {
+        return new Gson().fromJson(this.answer, String[].class)[0];
+    }
 }

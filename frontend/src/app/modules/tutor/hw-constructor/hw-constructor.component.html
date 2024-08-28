@@ -44,8 +44,8 @@
     </form>
 
     <div class="container col-12 mx-auto mt-4" cdkDropList (cdkDropListDropped)="onDrop($event)">
-      <div *ngFor="let task of currentTasks let i = index" cdkDrag>
-        <div class="row col-12 m-3">
+      <div *ngFor="let task of currentTasks let i = index">
+        <div class="row col-12 m-3" cdkDrag [cdkDragDisabled]="!state[i]">
           <h3 class="text-end col-1">{{i + 1}}.</h3>
           <div ngbDropdown class="col-3">
             <button type="button" class="drop-btn btn-primary drop-btn p-2 col-12" ngbDropdownToggle>
@@ -55,7 +55,7 @@
               <button *ngFor="let checkingType of checkingTypes | keyvalue" class="nav-btn col-12" type="button" ngbDropdownItem (click)="setChecking(task.id, checkingType.key)">{{checkingType.value}}</button>
             </div>
           </div>
-          <task-card [task]="task"></task-card>
+          <task-card (state)="updateDrag($event, i)" class="col-8" [task]="task"></task-card>
         </div>
       </div>
     </div>

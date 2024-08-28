@@ -36,11 +36,11 @@ export class HwConstructorComponent implements OnInit {
   homework: Homework | null = null;
   //@ts-ignore
   hwForm: UntypedFormGroup;
-  currentTasks: Task[]|null = null;
+  currentTasks: Task[] = [];
   pageLoaded: boolean = false;
   errorMessage = "";
   tutorId: number|null = null;
-  dragItems: CdkDragDrop<Task[]>;
+  state: boolean[] = [];
 
   ngOnInit(): void {
     let hwId = Number(this.route.snapshot.paramMap.get('hwId'));
@@ -60,6 +60,9 @@ export class HwConstructorComponent implements OnInit {
   initFields() {
     if (this.homework) {
       this.currentTasks = this.homework.tasks;
+      for (let i in this.currentTasks) {
+        this.state.push(true);
+      }
     }
   }
 
@@ -159,6 +162,10 @@ export class HwConstructorComponent implements OnInit {
     } else {
       currentDrag.draggable = true;
     }
+  }
+
+  updateDrag(state: boolean, index: number) {
+    this.state[index] = state;
   }
 
   public readonly Object = Object;

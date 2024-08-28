@@ -10,7 +10,7 @@ import { Homework } from 'src/app/models/Homework';
 export class PupilDataService {
 
   private pupil: Pupil | null = null;
-  private currentSubject: string | null = null;
+  private currentSubject: string = '';
   private currentHomework: Homework | null = null;
 
   public getPupil(): Pupil|null {
@@ -21,11 +21,11 @@ export class PupilDataService {
     this.pupil = pupil;
   }
 
-  public getCurrentSubject(): string|null {
+  public getCurrentSubject(): string {
     return this.currentSubject;
   }
 
-  public setCurrentSubject(currentSubject: string|null) {
+  public setCurrentSubject(currentSubject: string) {
     this.currentSubject = currentSubject;
   }
 
