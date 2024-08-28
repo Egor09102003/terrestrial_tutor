@@ -120,5 +120,5 @@ public interface HomeworkService {
      * @param attemptNumber
      * @return
      */
-    HomeworkAnswersDTO getPupilAnswers(Long homeworkId, Optional<Integer> attemptNumber)
+    HomeworkAnswersDTO getPupilAnswers(Long homeworkId, Optional<Integer> attemptNumber);
 }
