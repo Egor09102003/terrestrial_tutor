@@ -33,7 +33,7 @@
         </div>
 
         <div class="mt-5" *ngIf="task.answerType == 'VALUE'">
-          <input (change)="!checkChecking(task.id) ? momentCheck(task) : ''" (change)="!checkChecking(task.id) ? momentCheck(task) : ''" [ngClass]="{'is-invalid': tasksStatus[task.id] == 2 && checkChecking(task.id),
+          <input (change)="!checkChecking(task.id) ? momentCheck(task) : ''" [ngClass]="{'is-invalid': tasksStatus[task.id] == 2 && checkChecking(task.id),
             'is-valid': tasksStatus[task.id] == 1 && checkChecking(task.id)}"
                  formControlName = "{{task.id.toString()}}" placeholder="Введите ответ">
         </div>

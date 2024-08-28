@@ -1,14 +1,14 @@
 td, th {
-    font-size: 20px;
-    border: 2px solid white;
-    padding: 8px;
-    background-color: #2c2c2c;
-    overflow-wrap: anywhere;
-    /*width: fit-content;*/
-    color: white;
-  }
-  
-  table {
-    border-collapse: collapse;
-    /*width: 70%;*/
-  }
+  font-size: 20px;
+  border: 2px solid white;
+  padding: 8px;
+  background-color: #2c2c2c;
+  overflow-wrap: anywhere;
+  width: fit-content;
+  color: white;
+}
+
+table {
+  border-collapse: collapse;
+  /*width: 70%;*/
+}
