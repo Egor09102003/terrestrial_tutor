@@ -2,6 +2,7 @@ package com.example.terrestrial_tutor.repository;
 
 import com.example.terrestrial_tutor.entity.HomeworkEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
+import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TutorEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -37,4 +38,22 @@ public interface HomeworkRepository extends JpaRepository<HomeworkEntity, Long> 
      */
 
     List<HomeworkEntity> findHomeworkEntitiesByPupilsIn(Set<PupilEntity> pupils);
+
+    /**
+     * Serch by pupil and subject
+     * 
+     * @param pupil
+     * @param subject
+     * @return
+     */
+    List<HomeworkEntity> findHomeworkEntitiesByPupilsAndSubject(PupilEntity pupil, SubjectEntity subject);
+
+    /**
+     * Find hw only for current pupil
+     * 
+     * @param id
+     * @param pupil
+     * @return
+     */
+    HomeworkEntity findHEntityByIdAndPupils(Long id, PupilEntity pupil);
 }

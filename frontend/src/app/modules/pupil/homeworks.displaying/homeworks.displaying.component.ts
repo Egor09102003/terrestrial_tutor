@@ -1,14 +1,13 @@
 import {Component, OnInit} from '@angular/core';
 import { PupilDataService } from '../services/pupil.data.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PupilService } from '../services/pupil.service';
-import { Pupil } from 'src/app/models/Pupil';
 import { Homework } from 'src/app/models/Homework';
-import { TutorService } from '../../tutor/services/tutor.service';
 import {FormBuilder, FormGroup } from "@angular/forms";
 import {HomeworkAnswers} from "../../../models/HomeworkAnswers";
 import {Task} from "../../../models/Task";
 import { EnvironmentService } from 'src/environments/environment.service';
+import { HomeworkService } from '../../homework/services/homework.service.';
 
 @Component({
     selector: 'app-homeworks.displaying',
@@ -17,58 +16,48 @@ import { EnvironmentService } from 'src/environments/environment.service';
 })
 export class HomeworksDisplayingComponent implements OnInit {
 
-  pupil: Pupil | null = null;
-  homework: Homework | null = null;
-  // @ts-ignore
+  pupilId: number;
+  homework: Homework = new Homework;
   tasksAnswers: FormGroup = this.fb.group({});
   pageLoaded = false;
-  statistic: HomeworkAnswers = {checkingAnswers: {}, attemptCount: 1};
-  tasksStatus: {[key: string]: number} = {};
+  statistic: HomeworkAnswers = {answersStatuses: {}, attemptCount: 1};
+  tasksStatus: {[key: number]: number} = {};
 
   constructor(private pupilDataService: PupilDataService,
       private pupilService: PupilService,
-      private homeworkService: TutorService,
+      private homeworkService: HomeworkService,
       private router: Router,
       private fb: FormBuilder,
       public env: EnvironmentService,
+      private route: ActivatedRoute,
     ) {}
 
   ngOnInit(): void {
-    this.pupil = this.pupilDataService.getPupil();
-    if (this.pupil) {
-      this.homework = this.pupilDataService.getCurrentHomework();
-      if (this.homework) {
+      let hwId = Number(this.route.snapshot.paramMap.get('hwId'));
+      this.pupilId = Number(this.route.snapshot.paramMap.get('id'));
+      this.homeworkService.getHomeworkByIdForPupil(hwId).subscribe(homework => {
+        this.homework = homework;
         this.formFill();
-        this.pageLoaded = true;
-      }
-    } else {
-      this.pupilService.getCurrentUser().subscribe(pupil => {
-        this.pupil = pupil;
-        this.pupilDataService.setPupil(pupil);
-        let homework;
-        if (this.pupil && 'homeworks' in this.pupil)
-        homework = this.pupil.homeworks.find(homework => {
-          return homework.id == Number(sessionStorage.getItem('currentHomework'));
-        });
-
-        if (homework) {
-          this.pupilDataService.setCurrentHomework(homework);
-          this.homework = homework;
-          this.formFill();
-          this.pageLoaded = true;
-        }
       });
-    }
+      window.addEventListener('beforeunload', event => {
+        event.preventDefault();
+      });
   }
 
   formFill() {
-    // @ts-ignore
-    for (let task of this.homework?.tasks) {
-      let key = task.id.toString();
-      this.tasksAnswers?.addControl(
-        key,
-        this.fb.control('', [])
-      );
+    if ('id' in this.homework && this.homework.id) {
+      this.homeworkService.initLastAttempt(this.homework.id).subscribe(answers => {
+        let answersMap = <HomeworkAnswers> answers
+        for (let task of this.homework.tasks) {
+          let key = task.id.toString();
+          let value = answersMap.answersStatuses[task.id].currentAnswer ?? '';
+          this.tasksAnswers.addControl(
+            key,
+            this.fb.control(value, [])
+          );
+        }
+        this.pageLoaded = true;
+      })
     }
   }
 
@@ -85,14 +74,12 @@ export class HomeworksDisplayingComponent implements OnInit {
   }
 
   submit() {
-    if (this.homework && 'id' in this.homework && this.homework.id) {
-      if (this.homework.lastAttempt == 0) this.homework.lastAttempt = 1;
-      this.pupilService.sendAnswers(this.createCheckRequest(), this.homework.id, this.homework.lastAttempt).subscribe((homework) => {
-        if (homework) {
-          this.statistic = <HomeworkAnswers>homework;
+    if ('id' in this.homework && this.homework.id) {
+      this.homeworkService.finishHomework(this.createCheckRequest(), this.homework.id).subscribe(answers => {
+        if (answers) {
+          this.statistic = <HomeworkAnswers> answers;
+          this.router.navigate([`/pupil/${this.pupilId}/homework/${this.homework?.id}/statistic`]).then();
         }
-        sessionStorage.setItem('tryNumber', String(this.statistic.attemptCount));
-        this.router.navigate([`/pupil/${this.pupil?.id}/homework/${this.homework?.id}/statistic`]).then();
       });
     }
   }
@@ -115,19 +102,12 @@ export class HomeworksDisplayingComponent implements OnInit {
   }
 
   momentCheck(task: Task) {
-    this.tasksStatus[task.id.toString()] = 0;
-    if (this.homework && 'id' in this.homework && this.homework.id) {
-      if (this.homework.lastAttempt == 0) this.homework.lastAttempt = 1;
-      this.pupilService.sendAnswers(this.createCheckRequest(task.id), this.homework?.id, this.homework.lastAttempt).subscribe((homework) => {
-        if (homework) {
-          this.statistic = <HomeworkAnswers>homework;
-          let currentTaskStatistic = this.statistic.checkingAnswers[task.id.toString()];
-          if (currentTaskStatistic) {
-            if (task.answerType === 'TABLE') {
-              this.tasksStatus[task.id.toString()] = this.checkTableAnswer(currentTaskStatistic.pupilAnswer ?? '', currentTaskStatistic.rightAnswer) ? 1 : 2;
-            }
-            this.tasksStatus[task.id.toString()] = currentTaskStatistic.pupilAnswer == currentTaskStatistic.rightAnswer ? 1 : 2;
-          }
+    this.tasksStatus[task.id] = 0;
+    if ('id' in this.homework && this.homework.id) {
+      this.homeworkService.saveHomework(this.createCheckRequest(task.id), this.homework.id).subscribe((statuses) => {
+        let statusMap = <HomeworkAnswers> statuses;
+        for (let status in statusMap.answersStatuses) {
+          this.tasksStatus[task.id] = statusMap.answersStatuses[task.id].status ? 1 : 2;
         }
       });
     }
@@ -164,5 +144,9 @@ export class HomeworksDisplayingComponent implements OnInit {
     if (taskId) {
         this.tasksAnswers.controls[taskId.toString()].setValue(table);
     }
+  }
+
+  initTable(taskId: number) {
+    return this.tasksAnswers.controls[taskId.toString()].value;
   }
 }

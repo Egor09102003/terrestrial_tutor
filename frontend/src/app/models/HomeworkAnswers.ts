@@ -1,11 +1,11 @@
 import {Homework} from "./Homework";
 
 export interface HomeworkAnswers {
-  checkingAnswers: {[key: string]: DetailsAnswer};
+  answersStatuses: {[key: number]: Status};
   attemptCount: number;
 }
 
-export class DetailsAnswer {
-  pupilAnswer: string | null = null;
-  rightAnswer: string = "";
+export class Status {
+  status: boolean
+  currentAnswer: string
 }

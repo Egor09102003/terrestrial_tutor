@@ -3,6 +3,7 @@ package com.example.terrestrial_tutor.service.impl;
 import com.example.terrestrial_tutor.dto.HomeworkAnswersDTO;
 import com.example.terrestrial_tutor.dto.facade.HomeworkFacade;
 import com.example.terrestrial_tutor.entity.*;
+import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
 import com.example.terrestrial_tutor.exceptions.CustomException;
 import com.example.terrestrial_tutor.repository.*;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import java.lang.reflect.Type;
 
 import java.util.*;
 
@@ -75,124 +77,168 @@ public class HomeworkServiceImpl implements HomeworkService {
         homeworkRepository.delete(homeworkRepository.findHomeworkEntityById(id));
     }
 
-    public HomeworkEntity save(HomeworkEntity homework) {
-        return homeworkRepository.save(homework);
-    }
+    public HomeworkAnswersDTO initHomework(Long homeworkId, Optional<Integer> attemptNumber) {
+        PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-    public HomeworkAnswersDTO getPupilAnswers(Long homeworkId, Long pupilId, int attempt) {
-        PupilEntity pupilEntity = pupilService.findPupilById(pupilId);
-        HomeworkEntity homework = getHomeworkById(homeworkId);
-        AttemptEntity currentAttempt = attemptRepository.findAttemptEntityByPupilAndHomeworkAndAttemptNumber(pupilEntity, homework, attempt);
-        int attempts = getLastAttempt(homework, pupilEntity);
-        Map<Long, HomeworkAnswersDTO.DetailsAnswer> checkingAnswers = new HashMap<>();
-        Map<Long, String> currentAttemptAnswers = new Gson().fromJson(currentAttempt.getAnswers(), (new TypeToken<Map<Long, String>>() {}.getType()));
-        if (attempts >= attempt) {
-            for (Map.Entry<Long, String> answer : currentAttemptAnswers.entrySet()) {
-                String rightAnswer = getTaskAnswerFromJson(homework.getSubject().getTasks().stream().filter(task ->
-                        task.getId().equals(answer.getKey())).toList().get(0).getAnswer());
-                checkingAnswers.put(answer.getKey(), new HomeworkAnswersDTO.DetailsAnswer(answer.getValue(), rightAnswer));
-            }
-        } else {
-            throw new CustomException("Attempt number not found");
+        AttemptEntity attempt = this.getCurrentAttempt(pupil, homeworkId, attemptNumber);
+
+        if (attempt == null || attempt.getStatus() == HomeworkStatus.FINISHED) {
+            this.checkingAndSaveAnswers(new HashMap<Long, String>(), homeworkId);
+            attempt = attemptRepository.findLastAttempt(homeworkId, pupil.getId());
         }
-        return new HomeworkAnswersDTO(checkingAnswers, attempt);
-
+        
+        return this.getAttemptAnswers(attempt);
     }
 
-    private String getTaskAnswerFromJson(String json) {
-        return new Gson().fromJson(json, LinkedList.class).get(0).toString();
+    public HomeworkAnswersDTO getPupilAnswers(Long homeworkId, Optional<Integer> attemptNumber) {
+        PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        AttemptEntity attempt = this.getCurrentAttempt(pupil, homeworkId, attemptNumber);
+        return this.getAttemptAnswers(attempt);
     }
 
-    public Map<Long, Integer> getCompletedHomework(Long id) {
+    private AttemptEntity getCurrentAttempt(PupilEntity pupil, Long homeworkId, Optional<Integer> attemptNumber) {
+        HomeworkEntity homework = homeworkRepository.findHomeworkEntityById(homeworkId);
+        AttemptEntity attempt;
+        if (!attemptNumber.isPresent()) {
+            attempt = attemptRepository.findLastAttempt(homework.getId(), pupil.getId());
+        } else {
+            attempt = attemptRepository.findAttemptEntityByPupilAndHomeworkAndAttemptNumber(
+                pupil,
+                homework,
+                attemptNumber.get());
+        }
+        return attempt;
+    }
+
+    private HomeworkAnswersDTO getAttemptAnswers(AttemptEntity attempt) {
+        List<TaskEntity> tasks = taskRepository.findAllById(attempt.getAnswers().keySet());
+        
+        HomeworkAnswersDTO response = new HomeworkAnswersDTO();
+        response.setAttemptCount(attempt.getAttemptNumber());
+        HashMap<Long, String> answers = attempt.getAnswers();
+        HashMap<Long, TaskCheckingType> taskCheckingTypes = this.getHomeworkCheckingTypes(attempt.getHomework().getTaskCheckingTypes());
+        for (TaskEntity task : tasks) {
+            response.getAnswersStatuses().put(
+                task.getId(),
+                this.checkAnswer(task, answers.get(task.getId()), taskCheckingTypes.get(task.getId()))
+            );
+        }
+
+        return response;
+    }
+
+    public Map<Long, Long> getCompletedHomework(Long id) {
         PupilEntity pupil = pupilService.findPupilById(id);
-        Set<PupilEntity> pupilEntities = new HashSet<>();
-        pupilEntities.add(pupil);
-        List<HomeworkEntity> homeworkEntities = homeworkRepository.findHomeworkEntitiesByPupilsIn(pupilEntities);
-        Map<Long, Integer> result = new HashMap<>();
-        for (HomeworkEntity he : homeworkEntities) {
-            int attempts = getLastAttempt(he, pupil);
-            if (attempts > 0) {
-                result.put(he.getId(), attempts);
-            }
+        Map<Long, Long> result = new HashMap<>();
+        for (HomeworkEntity homework : pupil.getHomeworkList()) {
+            List<AttemptEntity> attempts = homework.getAnswerEntities();
+            Long pupilAttemtsAmount = attempts.stream().filter(attempt -> attempt.getPupil().getId() == pupil.getId()).count();
+            result.put(homework.getId(), pupilAttemtsAmount);
         }
         return result;
     }
 
-    public int getLastAttempt(HomeworkEntity homework, PupilEntity pupil) {
-        List<AttemptEntity> answers = homework.getAnswerEntities().stream().filter(answerEntity -> Objects.equals(answerEntity.getPupil().getId(), pupil.getId())).toList();
-        if (answers.isEmpty()) {
-            return 0;
-        } else {
-            int lastAttempt = 0;
-            for (AttemptEntity answer : answers) {
-                if (answer.getAttemptNumber() > lastAttempt) {
-                    lastAttempt = answer.getAttemptNumber();
-                }
-            }
-            return lastAttempt;
-        }
+    private HashMap<Long, TaskCheckingType> getHomeworkCheckingTypes(String json) {
+        Type type = new TypeToken<HashMap<Long, TaskCheckingType>>(){}.getType();
+        return new Gson().fromJson(json, type);
     }
 
-    public HomeworkAnswersDTO checkingAndSaveAnswers(Map<Long, String> answers, Long idHomework, int attempt) {
-        HomeworkEntity homework = getHomeworkById(idHomework);
-        Map<Long, HomeworkAnswersDTO.DetailsAnswer> checkingAnswers = new HashMap<>();
+    public HomeworkAnswersDTO checkAndFinish(Map<Long, String> answers, Long homeworkId) {
         PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        AttemptEntity currentAttempt = new AttemptEntity();
-        currentAttempt.setPupil(pupil);
-        currentAttempt.setAttemptNumber(attempt);
-        currentAttempt.setHomework(homework);
-        currentAttempt.setAnswers(new Gson().toJson(answers));
+        HomeworkAnswersDTO response = checkingAndSaveAnswers(answers, homeworkId);
+        AttemptEntity lastAttempt = attemptRepository.findLastAttempt(homeworkId, pupil.getId());
+        lastAttempt.setStatus(HomeworkStatus.FINISHED);
+        attemptRepository.save(lastAttempt);
+        return response;
+    }
 
-        AttemptEntity attemptEntity = attemptRepository.findAttemptEntityByPupilAndHomeworkAndAttemptNumber(pupil, homework, attempt);
-        Map<Long, String> currentAttemptAnswers = answers;
-        if (attemptEntity != null) {
-            currentAttempt.setId(attemptEntity.getId());
-            currentAttemptAnswers = new Gson().fromJson(attemptEntity.getAnswers(), (new TypeToken<Map<Long, String>>() {}.getType()));
+    public HomeworkAnswersDTO checkingAndSaveAnswers(Map<Long, String> answers, Long homeworkId) {
+        PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        AttemptEntity lastAttempt = attemptRepository.findLastAttempt(homeworkId, pupil.getId());
+        Integer lastAttemptNumber = lastAttempt != null ? lastAttempt.getAttemptNumber() : 0;
+        if (lastAttempt == null || lastAttempt.getStatus() == HomeworkStatus.FINISHED) {
+            lastAttempt = new AttemptEntity();
+            lastAttempt.setAttemptNumber(lastAttemptNumber + 1);
+            lastAttempt.setSolutionDate(new Date().toInstant().toEpochMilli());
+            lastAttempt.setAnswers(new HashMap<>());
         }
+        HomeworkEntity homework = homeworkRepository.findHomeworkEntityById(homeworkId);
+        HashMap<Long, TaskCheckingType> checkingTypes = getHomeworkCheckingTypes(homework.getTaskCheckingTypes());
+        List<TaskEntity> currentTasks = taskRepository.findAllById(checkingTypes.keySet());
+        HashMap<Long, String> savedAnswers = lastAttempt.getAnswers();
+        
+        HomeworkAnswersDTO response = new HomeworkAnswersDTO();
+        response.setAttemptCount(lastAttempt.getAttemptNumber());
+        
+        for (TaskEntity task : currentTasks) {
+            Long taskId = task.getId();
+            if (answers.get(taskId) != null) {
+                savedAnswers.put(taskId, answers.get(taskId));
+                response.getAnswersStatuses().put(
+                    taskId, 
+                    this.checkAnswer(
+                        task, 
+                        answers.get(taskId),
+                        checkingTypes.get(taskId)));
+            }
 
-        for (Map.Entry<Long, String> entry : answers.entrySet()) {
-            Map<Long, String> checkingTypes = new Gson().fromJson(homework.getTaskCheckingTypes(), (new TypeToken<Map<Long, String>>() {}.getType()));
-            TaskCheckingType check = TaskCheckingType.valueOf(checkingTypes.get(entry.getKey()));
-            TaskEntity task = homework.getSubject().getTasks().stream().filter(taskEntity ->
-                    taskEntity.getId().equals(entry.getKey())).findFirst().get();
-            String rightAnswer = getTaskAnswerFromJson(task.getAnswer());
-            switch (check.name()) {
-                case "AUTO":
-                    switch (task.getAnswerType()) {
-                        case VARIANTS, VALUE, DETAILED, TABLE:
-                            currentAttemptAnswers.put(task.getId(), entry.getValue());
-                            checkingAnswers.put(entry.getKey(), new HomeworkAnswersDTO.DetailsAnswer(entry.getValue(), rightAnswer));
-                            break;
-                        default:
-                            throw new CustomException("Task does not have a answer type");
-                    }
-                    break;
-                case "INSTANCE":
-                    switch (task.getAnswerType()) {
-                        case VARIANTS, VALUE, DETAILED, TABLE:
-                            checkingAnswers.put(entry.getKey(), new HomeworkAnswersDTO.DetailsAnswer(entry.getValue(), rightAnswer));
-                            if (attemptEntity != null && rightAnswer.equals(currentAttemptAnswers.get(task.getId()))) {
-                                break;
-                            }
-                            currentAttemptAnswers.put(task.getId(), entry.getValue());
-                            break;
-                        default:
-                            throw new CustomException("Task does not have a answer type");
-                    }
-                    break;
-                //todo сделать другие типы проверок
-                case "MANUALLY":
-                default:
-                    throw new CustomException("Task does not have a review type");
+            if (!savedAnswers.containsKey(taskId)) {
+                savedAnswers.put(taskId, "");
             }
         }
-        currentAttempt.setAnswers(new Gson().toJson(currentAttemptAnswers));
-        attemptRepository.saveAndFlush(currentAttempt);
 
-        HomeworkAnswersDTO homeworkAnswersDTO = new HomeworkAnswersDTO();
-        homeworkAnswersDTO.setCheckingAnswers(checkingAnswers);
-        homeworkAnswersDTO.setAttemptCount(attempt);
-        return homeworkAnswersDTO;
+        lastAttempt.setHomework(homework);
+        lastAttempt.setPupil(pupil);
+        lastAttempt.setAnswers(savedAnswers);
+        attemptRepository.save(lastAttempt);
+
+        return response;
+    }
+
+    public HomeworkAnswersDTO.Status checkAnswer(TaskEntity task, String answer, TaskCheckingType taskCheckingType) {
+        HomeworkAnswersDTO.Status taskStatus = new HomeworkAnswersDTO.Status();
+        switch (taskCheckingType) {
+            case AUTO, INSTANCE:
+                switch (task.getAnswerType()) {
+                    case VALUE, VARIANTS, CODE, DETAILED:
+                        taskStatus.setStatus(answer != null && task.getRightAnswer().trim().equals(answer.trim()));
+                        taskStatus.setCurrentAnswer(answer);
+                        break;
+                    case TABLE:
+                        taskStatus.setStatus(checkTable(task.getRightAnswer(),answer));
+                        taskStatus.setCurrentAnswer(answer);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+        
+            default:
+                break;
+        }
+        return taskStatus;
+    }
+
+    public Boolean checkTable(String taskAnswer, String pupilAnswer) {
+        String[][] answerTable = new Gson().fromJson(taskAnswer, String[][].class);
+        String[][] pupilTable = new Gson().fromJson(pupilAnswer, String[][].class);
+        if (pupilTable == null || answerTable == null || pupilTable.length < answerTable.length) {
+            return false;
+        }
+        for (int i = 0; i < pupilTable.length; i++) {
+            if (pupilTable[i].length < answerTable[i].length) {
+                return false;
+            }
+            for (int j = 0; j < pupilTable[i].length; j++) {
+                if ((pupilTable[i][j].trim().length() != 0 && j >= answerTable[i].length)
+                || (answerTable[i].length > j 
+                && !answerTable[i][j].trim().equals(pupilTable[i][j].trim()))) 
+                {
+                    return false;
+                }
+            } 
+        }
+        return true;
     }
 
     public List<HomeworkEntity> getAllHomeworksTutor() {
@@ -202,5 +248,31 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     public List<HomeworkEntity> getAllHomeworks() {
         return homeworkRepository.findAll();
+    }
+
+    public List<HomeworkEntity> getHomeworksByPupilAndSubject(Long pupilId, String subjectName) {
+        PupilEntity pupil = pupilService.findPupilById(pupilId);
+        SubjectEntity subject = subjectService.findSubjectByName(subjectName);
+        return homeworkRepository.findHomeworkEntitiesByPupilsAndSubject(pupil, subject);
+    }
+
+    public HomeworkEntity getHomeworkByIdForCurrentPupil(Long id) {
+        PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return homeworkRepository.findHEntityByIdAndPupils(id, pupil);
+    }
+
+    public HashMap<Long, String> getHomeworkAnswers(Long homeworkId) {
+        PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (attemptRepository.findLastAttempt(homeworkId, pupil.getId()) == null) {
+            return new HashMap<>();
+        }
+
+        HomeworkEntity homework = homeworkRepository.findHomeworkEntityById(homeworkId);
+        HashMap<Long, String> answers = new HashMap<>();
+        List<TaskEntity> tasks = taskRepository.findAllById(this.getHomeworkCheckingTypes(homework.getTaskCheckingTypes()).keySet());
+        for (TaskEntity task : tasks) {
+            answers.put(task.getId(), task.getAnswer());
+        }
+        return answers;
     }
 }

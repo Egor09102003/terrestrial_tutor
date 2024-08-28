@@ -4,6 +4,9 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
+
+import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
+
 import java.time.LocalDate;
 import java.util.*;
 
