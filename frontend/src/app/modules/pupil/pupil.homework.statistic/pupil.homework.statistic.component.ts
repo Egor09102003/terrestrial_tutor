@@ -1,13 +1,12 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {PupilService} from "../services/pupil.service";
 import {ActivatedRoute, Router} from "@angular/router";
-import {PupilDataService} from "../services/pupil.data.service";
 import {Pupil} from "../../../models/Pupil";
-import { HomeworkAnswers} from "../../../models/HomeworkAnswers";
+import {HomeworkAnswers} from "../../../models/HomeworkAnswers";
 import {Task} from "../../../models/Task";
-import { EnvironmentService } from 'src/environments/environment.service';
-import { Homework } from 'src/app/models/Homework';
-import { HomeworkService } from '../../homework/services/homework.service.';
+import {EnvironmentService} from 'src/environments/environment.service';
+import {Homework} from 'src/app/models/Homework';
+import {HomeworkService} from '../../homework/services/homework.service.';
 
 @Component({
   selector: 'app-pupil.homework.statistic',
@@ -53,6 +52,7 @@ export class PupilHomeworkStatisticComponent {
           for (let i = 1; i <= pupilAnswersMap.attemptCount; i++) {
             this.attempts.push(i);
           }
+          this.getResultProgress();
           this.pageLoaded = true;
         });
       })
@@ -78,7 +78,7 @@ export class PupilHomeworkStatisticComponent {
 
     for (let taskId in this.pupilAnswers.answersStatuses) {
       let task = this.tasks.find((curTask: Task) => curTask.id.toString() === taskId);
-      if (this.pupilAnswers.answersStatuses[taskId].status) {
+      if (this.pupilAnswers.answersStatuses[taskId].status === 'RIGHT') {
         percent += 1;
         if (task) {
           points += task.cost ?? 1;
@@ -102,8 +102,7 @@ export class PupilHomeworkStatisticComponent {
     this.pageLoaded = false;
     if ('id' in this.homework && this.homework.id) {
       this.homeworkService.getAttemptAnswers(this.homework.id, attempt).subscribe(pupilAnswers => {
-        let pupilAnswersMap = <HomeworkAnswers> pupilAnswers;
-        this.pupilAnswers = pupilAnswersMap;
+        this.pupilAnswers = <HomeworkAnswers>pupilAnswers;
         this.getResultProgress();
         this.pageLoaded = true;
       });
@@ -138,7 +137,7 @@ export class PupilHomeworkStatisticComponent {
 
   checkAnswer(task: Task) {
     if (this.pupilAnswers.answersStatuses[task.id]) {
-      return this.pupilAnswers.answersStatuses[task.id].status ? task.cost : 0;
+      return this.pupilAnswers.answersStatuses[task.id].status === 'RIGHT' ? task.cost : 0;
     }
     return 0;
   }

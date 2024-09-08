@@ -12,3 +12,7 @@ table {
   border-collapse: collapse;
   /*width: 70%;*/
 }
+
+checking {
+  background-color: #ffc700;
+}

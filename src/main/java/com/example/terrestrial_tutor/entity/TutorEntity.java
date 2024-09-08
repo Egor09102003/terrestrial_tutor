@@ -26,17 +26,17 @@ public class TutorEntity implements User {
     private Long id;
 
     @Column(name = "subjects")
-    @ManyToMany(mappedBy = "tutors", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "tutors", fetch = FetchType.LAZY)
     List<SubjectEntity> subjects;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "pupils")
     List<PupilEntity> pupils;
 
     @Column(name = "payment_data")
     String paymentData;
 
-    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
     Set<HomeworkEntity> homeworkList = new HashSet<>();
 
     @NonNull

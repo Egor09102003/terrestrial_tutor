@@ -120,18 +120,23 @@ public class HomeworkController {
     }
 
     /**
-     * Контроллер для отдачи результатов дз по определенной попытке
+     * Get last not finished attempt or create new
      *
-     * @param id      - id дз
-     * @param attempt - номер попытки
-     * @return - результаты дз по определенной попытке
+     * @param id - homework id
+     * @return - current attempt
      */
-    @GetMapping(value = {"/homework/{id}/init/{attempt}", "/homework/{id}/init"})
-    public ResponseEntity<HomeworkAnswersDTO> initHomework(@PathVariable Long id,
-                                                                 @PathVariable Optional<Integer> attempt) {
-        return new ResponseEntity<>(homeworkService.initHomework(id, attempt), HttpStatus.OK);
+    @GetMapping(value = {"/homework/{id}/init"})
+    public ResponseEntity<HomeworkAnswersDTO> initHomework(@PathVariable Long id) {
+        return new ResponseEntity<>(homeworkService.initHomework(id), HttpStatus.OK);
     }
 
+    /**
+     * Get attempt results
+     *
+     * @param id - homework id
+     * @param attempt - attempt id, if skipped, will be returned last attempt
+     * @return - attempt answers and statuses
+     */
     @GetMapping(value = {"/homework/{id}/answers/{attempt}", "/homework/{id}/answers"})
     public ResponseEntity<HomeworkAnswersDTO> getPupilAttempts(@PathVariable Long id,
                                                                  @PathVariable Optional<Integer> attempt) {
@@ -192,8 +197,12 @@ public class HomeworkController {
      * @return answers DTO
      */
     @PutMapping("homework/finish/{homeworkId}")
-    public ResponseEntity<HomeworkAnswersDTO> putMethodName(@PathVariable Long homeworkId, @RequestBody Map<Long, String> answers) {        
-        return new ResponseEntity<>(homeworkService.checkAndFinish(answers, homeworkId), HttpStatus.OK);
+    public ResponseEntity<HomeworkAnswersDTO> finishHomework(@PathVariable Long homeworkId, @RequestBody Map<Long, String> answers) {
+        try {
+            return new ResponseEntity<>(homeworkService.checkAndFinish(answers, homeworkId), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new HomeworkAnswersDTO(), HttpStatus.UNPROCESSABLE_ENTITY);
+        }
     }
 
     /**
@@ -220,5 +229,29 @@ public class HomeworkController {
             HttpStatus.OK
         );
     }
-    
+
+    @GetMapping("/homeworks/repair")
+    public ResponseEntity<String> getRepairHomeworks() {
+        try {
+            homeworkService.repairHomeworks();
+            return new ResponseEntity<>("All attempts repaired", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+    }
+
+    @PatchMapping("homework/{pupilId}/pupil/{homeworkId}")
+    public ResponseEntity<HomeworkAnswersDTO> patchPupilAttempt(
+            @PathVariable Long homeworkId,
+            @PathVariable Long pupilId,
+            @RequestBody HomeworkAnswersDTO updatedAnswers) {
+        try {
+            return new ResponseEntity<>(
+                    homeworkService.manuallyChecking(updatedAnswers, pupilId, homeworkId),
+                    HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(new HomeworkAnswersDTO(), HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+    }
 }

@@ -24,7 +24,7 @@
         <h3><u>Тема: {{ task.level1 }}</u></h3>
         <h3><u>Подтема: {{ task.level2 }}</u></h3>
         <h3><u>Номер: {{ task.id }}</u></h3>
-        <h3><u>Баллы: {{ checkAnswer(task) }} из {{ task.cost }}</u></h3>
+        <h3><u>Баллы: {{ pupilAnswers.answersStatuses[task.id].points }} из {{ task.cost }}</u></h3>
         <h3 *ngIf="task.analysis"><u>Ссылка: <a target="_blank" href="{{task.analysis}}">{{task.analysis}}</a></u></h3>
 
         <div class="container-fluid mx-auto p-3 mb-5 min-vh-70 border-opacity-25 rounded-4 border border-2 col-12 plate text-le">
@@ -40,7 +40,10 @@
           </div>
 
           <h3 class="row"
-              [ngStyle]="{'background-color': pupilAnswers.answersStatuses[task.id].status ? 'green' : 'red' }">
+              [ngClass]="{'bg-success': pupilAnswers.answersStatuses[task.id].status === 'RIGHT',
+                'bg-danger': pupilAnswers.answersStatuses[task.id].status === 'WRONG',
+                'bg-warning': pupilAnswers.answersStatuses[task.id].status === 'ON_CHECKING'
+                }">
               <div *ngIf="task.answerType == 'TABLE'">
                 <h3 class="answer">Ответ ученика: <task-table class="row" [table]="pupilAnswers.answersStatuses[task.id].currentAnswer"></task-table></h3>
                 <h3 class="answer">Верный ответ: <task-table class="row" [table]="rightAnswers[task.id]"></task-table></h3>

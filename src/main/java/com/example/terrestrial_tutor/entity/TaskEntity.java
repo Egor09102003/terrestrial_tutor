@@ -38,7 +38,7 @@ public class TaskEntity {
     @Column(name = "answer_type")
     AnswerTypes answerType;
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "task_files", joinColumns = @JoinColumn(name = "entity_id"))
     @Column(name = "files")
     Set<String> files;
@@ -64,7 +64,7 @@ public class TaskEntity {
     @Column(name = "tables")
     String table;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "support")
     SupportEntity support;
 

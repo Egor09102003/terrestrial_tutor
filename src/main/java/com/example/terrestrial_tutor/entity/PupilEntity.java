@@ -37,7 +37,7 @@ public class PupilEntity implements User {
     @Column(name = "price")
     Integer price;
 
-    @ManyToMany(mappedBy = "pupils", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "pupils", fetch = FetchType.LAZY)
     List<SubjectEntity> subjects = new ArrayList<>();
 
     @ManyToOne()
@@ -50,7 +50,7 @@ public class PupilEntity implements User {
     @OneToMany(mappedBy = "pupil", fetch = FetchType.LAZY)
     List<PaymentEntity> payments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "pupil", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "pupil", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<AttemptEntity> answers = new ArrayList<>();
 
     @NonNull

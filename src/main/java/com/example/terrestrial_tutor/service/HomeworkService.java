@@ -1,8 +1,8 @@
 package com.example.terrestrial_tutor.service;
 
 import com.example.terrestrial_tutor.dto.HomeworkAnswersDTO;
+import com.example.terrestrial_tutor.entity.AttemptEntity;
 import com.example.terrestrial_tutor.entity.HomeworkEntity;
-import com.example.terrestrial_tutor.entity.PupilEntity;
 
 import java.util.HashMap;
 import java.util.List;
@@ -40,11 +40,9 @@ public interface HomeworkService {
      * Get last pupil answers and create attempt if doesnt exist
      *
      * @param homeworkId id дз
-     * @param pupilId    id ученика
-     * @param attempt    номер попытки
      * @return дз DTO
      */
-    HomeworkAnswersDTO initHomework(Long homeworkId, Optional<Integer> attempt);
+    HomeworkAnswersDTO initHomework(Long homeworkId);
 
     /**
      * Поиск дз по id
@@ -66,7 +64,6 @@ public interface HomeworkService {
      *
      * @param answers    ответы ученика
      * @param idHomework id дз
-     * @param attempt    номер попытки прохождения дз
      * @return дз DTO
      */
     HomeworkAnswersDTO checkingAndSaveAnswers(Map<Long, String> answers, Long idHomework);
@@ -121,4 +118,38 @@ public interface HomeworkService {
      * @return
      */
     HomeworkAnswersDTO getPupilAnswers(Long homeworkId, Optional<Integer> attemptNumber);
+
+    /**
+     * Get all attempts
+     *
+     * @return - all saved attempts
+     */
+    List<AttemptEntity> getAllAttempts();
+
+    /**
+     * Save attempt
+     *
+     * @param attemptEntity attempt
+     */
+    void saveAttempt(AttemptEntity attemptEntity);
+
+    /**
+     * Set checked statuses for attempt
+     *
+     * @param updatedAnswers HomeworkAnswersDTO typed answers statuses
+     * @param pupilId pupil id
+     * @param homeworkId homework id
+     * @return HomeworkAnswersDTO typed updated statuses
+     * @throws Exception if attempt doesnt exists
+     */
+    HomeworkAnswersDTO manuallyChecking(
+            HomeworkAnswersDTO updatedAnswers,
+            Long pupilId,
+            Long homeworkId
+    ) throws Exception;
+
+    /**
+     * Repair homework
+     */
+    void repairHomeworks();
 }
