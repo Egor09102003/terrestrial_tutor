@@ -13,6 +13,7 @@ import {catchError} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
 import {checkingTypes} from "../../../models/CheckingTypes";
 import { TaskCardComponent } from '../../task/card/task.card.component/task.card.component';
+import { waitForAsync } from '@angular/core/testing';
 
 @Component({
   selector: 'app-hw-constructor',
@@ -41,6 +42,7 @@ export class HwConstructorComponent implements OnInit {
   errorMessage = "";
   tutorId: number|null = null;
   state: boolean[] = [];
+  homeworkUpdate: any;
 
   ngOnInit(): void {
     let hwId = Number(this.route.snapshot.paramMap.get('hwId'));
@@ -51,10 +53,10 @@ export class HwConstructorComponent implements OnInit {
       this.initForm();
     });
 
-    setInterval(() => {
+    this.homeworkUpdate = setInterval(() => {
       this.saveHomework();
       this.tutorService.saveHomework(this.homework).subscribe();
-    }, 60000);
+    }, 10000);
   }
 
   initFields() {
@@ -101,7 +103,11 @@ export class HwConstructorComponent implements OnInit {
         this.pageLoaded = true;
         this.tutorDataService.setHomework(null);
         sessionStorage.removeItem("homeworkId");
-        this.router.navigate([`/tutor/${this.tutorId}`]);
+        clearInterval(this.homeworkUpdate);
+        this.router.navigate([`tutor/${this.tutorId}`], {
+          queryParams: {tab: 2},
+          queryParamsHandling: 'merge'
+        });
       });
     }
   }
@@ -148,9 +154,14 @@ export class HwConstructorComponent implements OnInit {
   }
 
   deleteHomework() {
-    this.tutorService.deleteHomeworkById(this.homework?.id).subscribe();
-    sessionStorage.setItem('tab', '2');
-    this.router.navigate([`tutor/${this.tutorId}`]);
+    this.tutorService.deleteHomeworkById(this.homework?.id).subscribe(() => {
+      clearInterval(this.homeworkUpdate);
+      this.router.navigate([`tutor/${this.tutorId}`], {
+        queryParams: {tab: 2},
+        queryParamsHandling: 'merge'
+      });
+    });
+    
   }
 
   checkCollapse(i: number) {
@@ -166,6 +177,10 @@ export class HwConstructorComponent implements OnInit {
 
   updateDrag(state: boolean, index: number) {
     this.state[index] = state;
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.homeworkUpdate);
   }
 
   public readonly Object = Object;

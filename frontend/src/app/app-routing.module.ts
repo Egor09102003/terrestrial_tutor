@@ -14,6 +14,7 @@ import {PupilsAddHomeworkComponent} from "./modules/tutor/pupils-add-homework/pu
 import { HomeworksListComponent } from './modules/pupil/homeworks.list/homeworks.list.component';
 import { HomeworksDisplayingComponent } from './modules/pupil/homeworks.displaying/homeworks.displaying.component';
 import { PupilHomeworkStatisticComponent } from './modules/pupil/pupil.homework.statistic/pupil.homework.statistic.component';
+import { CheckHomeworksComponent } from './modules/tutor/check.homeworks/check.homeworks.component';
 
 const routes: Routes = [
   {path: 'login', component: LoginComponent, canActivate: [AuthGuardService]},
@@ -35,6 +36,7 @@ const routes: Routes = [
   {path: 'tutor/:id/constructor/:hwId', component: HwConstructorComponent, canActivate: [AuthGuardService]},
   {path: 'tutor/:id/constructor/:hwId/hw/add/task', component: TaskChoiceComponent, canActivate: [AuthGuardService]},
   {path: 'tutor/:id/constructor/:hwId/add/pup', component: PupilsAddHomeworkComponent, canActivate: [AuthGuardService]},
+  {path: 'tutor/:id/homework/checking', component: CheckHomeworksComponent, canActivate: [AuthGuardService]},
   {path: '', redirectTo: 'login', pathMatch: 'full'},
 ];
 

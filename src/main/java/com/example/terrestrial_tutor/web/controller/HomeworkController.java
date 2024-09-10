@@ -6,6 +6,7 @@ import com.example.terrestrial_tutor.dto.HomeworkAnswersDTO;
 import com.example.terrestrial_tutor.dto.SelectionDTO;
 import com.example.terrestrial_tutor.dto.facade.HomeworkFacade;
 import com.example.terrestrial_tutor.entity.HomeworkEntity;
+import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TaskEntity;
 import com.example.terrestrial_tutor.dto.HomeworkDTO;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -137,10 +139,22 @@ public class HomeworkController {
      * @param attempt - attempt id, if skipped, will be returned last attempt
      * @return - attempt answers and statuses
      */
-    @GetMapping(value = {"/homework/{id}/answers/{attempt}", "/homework/{id}/answers"})
-    public ResponseEntity<HomeworkAnswersDTO> getPupilAttempts(@PathVariable Long id,
-                                                                 @PathVariable Optional<Integer> attempt) {
-        return new ResponseEntity<>(homeworkService.getPupilAnswers(id, attempt), HttpStatus.OK);
+    @GetMapping(value = {"/homework/{homeworkId}/answers/{attempt}", "/homework/{homeworkId}/answers"})
+    public ResponseEntity<HomeworkAnswersDTO> getPupilAttempts(@PathVariable Long homeworkId,
+                                                                 @PathVariable Optional<Integer> attempt,
+                                                                 @RequestParam Optional<Long> pupilId) {
+        Long id;
+        if (!pupilId.isPresent()) {
+            try {
+                PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                id = pupil.getId();
+            } catch(Exception e) {
+                return new ResponseEntity<>(new HomeworkAnswersDTO(), HttpStatus.NOT_FOUND);
+            }
+        } else {
+            id = pupilId.get();
+        }
+        return new ResponseEntity<>(homeworkService.getPupilAnswers(homeworkId, id, attempt), HttpStatus.OK);
     }
 
     /**
@@ -151,9 +165,8 @@ public class HomeworkController {
      */
     @DeleteMapping("/homework/delete/{id}")
     @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
-    public HttpStatus deleteHomeworkById(@PathVariable Long id) {
-        homeworkService.deleteHomeworkById(id);
-        return HttpStatus.OK;
+    public ResponseEntity<Long> deleteHomeworkById(@PathVariable Long id) {
+        return new ResponseEntity<>(homeworkService.deleteHomeworkById(id), HttpStatus.OK);
     }
 
     /**
@@ -240,7 +253,7 @@ public class HomeworkController {
         }
     }
 
-    @PatchMapping("homework/{pupilId}/pupil/{homeworkId}")
+    @PatchMapping("homework/{homeworkId}/pupil/{pupilId}")
     public ResponseEntity<HomeworkAnswersDTO> patchPupilAttempt(
             @PathVariable Long homeworkId,
             @PathVariable Long pupilId,

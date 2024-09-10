@@ -3,6 +3,7 @@ package com.example.terrestrial_tutor.service.impl;
 import com.example.terrestrial_tutor.dto.HomeworkAnswersDTO;
 import com.example.terrestrial_tutor.dto.facade.HomeworkFacade;
 import com.example.terrestrial_tutor.entity.*;
+import com.example.terrestrial_tutor.entity.enums.ERole;
 import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
 import com.example.terrestrial_tutor.entity.enums.TaskStatuses;
@@ -52,7 +53,9 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     public HomeworkEntity saveHomework(HomeworkEntity homework) {
         homework = homeworkRepository.save(homework);
-        tutorService.updateTutor(homework.getTutor());
+        for (TutorEntity tutor : homework.getTutors()) {
+            tutorService.updateTutor(tutor);
+        }
         return homework;
     }
 
@@ -60,17 +63,9 @@ public class HomeworkServiceImpl implements HomeworkService {
         return homeworkRepository.findHomeworkEntityById(id);
     }
 
-    public void deleteHomeworkById(Long id) {
-        HomeworkEntity homework = getHomeworkById(id);
-        List<AttemptEntity> attempts = homework.getAnswerEntities();
-        for (AttemptEntity attempt : attempts) {
-            attempt.setHomework(null);
-            attemptRepository.save(attempt);
-        }
-        TutorEntity tutor = homework.getTutor();
-        tutor.getHomeworkList().remove(homework);
-        tutorService.updateTutor(tutor);
-        homeworkRepository.delete(homeworkRepository.findHomeworkEntityById(id));
+    public Long deleteHomeworkById(Long id) {
+        homeworkRepository.deleteById(id);
+        return id;
     }
 
     public HomeworkAnswersDTO initHomework(Long homeworkId) {
@@ -88,9 +83,13 @@ public class HomeworkServiceImpl implements HomeworkService {
         return attemptAnswers;
     }
 
-    public HomeworkAnswersDTO getPupilAnswers(Long homeworkId, Optional<Integer> attemptNumber) {
-        PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        AttemptEntity attempt = this.attemptRepository.findLastFinishedAttempt(homeworkId, pupil.getId());
+    public HomeworkAnswersDTO getPupilAnswers(Long homeworkId, Long pupilId, Optional<Integer> attemptNumber) {
+        AttemptEntity attempt;
+        if (attemptNumber.isPresent()) {
+            attempt = this.attemptRepository.findFirstByPupilIdAndHomeworkIdAndAttemptNumber(pupilId, homeworkId, attemptNumber.get());
+        } else {
+            attempt = this.attemptRepository.findLastFinishedAttempt(homeworkId, pupilId);
+        }
         if (attempt == null) {
             return new HomeworkAnswersDTO();
         }
@@ -258,7 +257,7 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     public List<HomeworkEntity> getAllHomeworksTutor() {
         TutorEntity tutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return homeworkRepository.findHomeworkEntitiesByTutor(tutor);
+        return homeworkRepository.findHomeworkEntitiesByTutors(tutor);
     }
 
     public List<HomeworkEntity> getAllHomeworks() {
@@ -277,9 +276,12 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     public HashMap<Long, String> getHomeworkAnswers(Long homeworkId) {
-        PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (attemptRepository.findLastAttempt(homeworkId, pupil.getId()) == null) {
-            return new HashMap<>();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (user.getRole() == ERole.PUPIL) {
+            PupilEntity pupil = (PupilEntity) user;
+            if (attemptRepository.findLastAttempt(homeworkId, pupil.getId()) == null) {
+                return new HashMap<>();
+            }
         }
 
         HomeworkEntity homework = homeworkRepository.findHomeworkEntityById(homeworkId);

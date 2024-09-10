@@ -57,7 +57,7 @@ public interface HomeworkService {
      *
      * @param id id
      */
-    void deleteHomeworkById(Long id);
+    Long deleteHomeworkById(Long id);
 
     /**
      * Сохранение ответов на дз
@@ -117,7 +117,7 @@ public interface HomeworkService {
      * @param attemptNumber
      * @return
      */
-    HomeworkAnswersDTO getPupilAnswers(Long homeworkId, Optional<Integer> attemptNumber);
+    HomeworkAnswersDTO getPupilAnswers(Long homeworkId, Long pupilId, Optional<Integer> attemptNumber);
 
     /**
      * Get all attempts

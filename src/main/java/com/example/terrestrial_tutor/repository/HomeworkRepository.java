@@ -28,7 +28,7 @@ public interface HomeworkRepository extends JpaRepository<HomeworkEntity, Long> 
      * @param tutor репетитор
      * @return лист сущностей дз
      */
-    List<HomeworkEntity> findHomeworkEntitiesByTutor(TutorEntity tutor);
+    List<HomeworkEntity> findHomeworkEntitiesByTutors(TutorEntity tutor);
 
     /**
      * Поиск дз по ученикам

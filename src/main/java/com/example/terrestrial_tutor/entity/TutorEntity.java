@@ -36,8 +36,8 @@ public class TutorEntity implements User {
     @Column(name = "payment_data")
     String paymentData;
 
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
-    Set<HomeworkEntity> homeworkList = new HashSet<>();
+    @ManyToMany(mappedBy = "tutors", fetch = FetchType.LAZY)
+    Set<HomeworkEntity> homeworkList;
 
     @NonNull
     @Column(name = "username")

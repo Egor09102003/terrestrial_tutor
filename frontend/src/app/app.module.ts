@@ -12,7 +12,7 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {SubjectsComponent} from './modules/subjects/subjects.component';
-import {NgbAlertModule, NgbModule} from "@ng-bootstrap/ng-bootstrap";
+import {NgbAccordionModule, NgbAlertModule, NgbModule} from "@ng-bootstrap/ng-bootstrap";
 import { SupportComponent } from './modules/support/support.component';
 import { TaskComponent } from './modules/task/task.component';
 import {CodemirrorModule} from "@ctrl/ngx-codemirror";
@@ -36,6 +36,10 @@ import {TaskTableComponent} from "./modules/task/task-table/task-table.component
 import {TablesConstructorComponent} from "./modules/task/tables-constructor/tables-constructor.component";
 import {CKEditorModule} from "@ckeditor/ckeditor5-angular";
 import { HomeworkComponent } from './modules/homework/homework.component';
+import { StatisticContainerComponent } from './modules/homework/statistic.container/statistic.container.component';
+import { CheckTaskCardComponent } from './modules/homework/check.task.card/check.task.card.component';
+import { PupilsModalComponent } from './modules/tutor/pupils.modal/pupils.modal.component';
+import { CheckHomeworksComponent } from './modules/tutor/check.homeworks/check.homeworks.component';
 
 @NgModule({
   declarations: [
@@ -57,6 +61,10 @@ import { HomeworkComponent } from './modules/homework/homework.component';
     PupilsAddHomeworkComponent,
     TaskCardComponent,
     HomeworkComponent,
+    StatisticContainerComponent,
+    CheckTaskCardComponent,
+    PupilsModalComponent,
+    CheckHomeworksComponent,
   ],
   imports: [
     BrowserModule,
@@ -75,7 +83,7 @@ import { HomeworkComponent } from './modules/homework/homework.component';
     TaskTableComponent,
     TablesConstructorComponent,
     CKEditorModule,
-  
+    NgbAccordionModule,
   ],
   providers: [
     authInterceptorProviders,

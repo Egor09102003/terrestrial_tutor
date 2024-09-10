@@ -43,14 +43,14 @@ public class HomeworkEntity {
     @JoinColumn(name = "pupils")
     Set<PupilEntity> pupils;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "tutor")
-    TutorEntity tutor;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "tutors")
+    Set<TutorEntity> tutors = new HashSet<>();
 
     @Column(name = "task_checking_types", columnDefinition="text")
     String taskCheckingTypes;
 
-    @OneToMany(mappedBy = "homework", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "homework", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<AttemptEntity> answerEntities;
 
     LocalDate deadLine;
