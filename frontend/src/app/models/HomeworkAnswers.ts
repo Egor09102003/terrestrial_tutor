@@ -1,4 +1,3 @@
-import {Homework} from "./Homework";
 
 export interface HomeworkAnswers {
   answersStatuses: {[key: number]: Status};
@@ -6,6 +5,7 @@ export interface HomeworkAnswers {
 }
 
 export class Status {
-  status: boolean
+  status: string
+  points: number
   currentAnswer: string
 }

@@ -13,6 +13,7 @@ export class PupilService {
               private apiService: EnvironmentService) { }
 
   private PUPIL_API = this.apiService.apiUrl + 'pupil/';
+  private PUPILS_API = this.apiService.apiUrl + 'pupils/';
 
   getCurrentUser(): Observable<any> {
     return this.http.get(this.PUPIL_API);
@@ -40,6 +41,14 @@ export class PupilService {
 
   getCompletedHomeworks(pupilId: number) {
     return this.http.get(this.PUPIL_API + `${pupilId}/homework/completed`);
+  }
+
+  getPupilByIds(ids: number[]): Observable<any> {
+    return this.http.get(this.PUPILS_API, {
+      params: {
+        pupilIds: ids
+      }
+    });
   }
 
 }

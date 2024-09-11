@@ -107,7 +107,7 @@ export class HomeworksDisplayingComponent implements OnInit {
       this.homeworkService.saveHomework(this.createCheckRequest(task.id), this.homework.id).subscribe((statuses) => {
         let statusMap = <HomeworkAnswers> statuses;
         for (let status in statusMap.answersStatuses) {
-          this.tasksStatus[task.id] = statusMap.answersStatuses[task.id].status ? 1 : 2;
+          this.tasksStatus[task.id] = statusMap.answersStatuses[task.id].status === 'RIGHT' ? 1 : 2;
         }
       });
     }

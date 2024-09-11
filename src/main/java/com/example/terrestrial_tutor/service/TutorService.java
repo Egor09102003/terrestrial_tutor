@@ -73,4 +73,19 @@ public interface TutorService {
      * @return репетитор
      */
     TutorEntity addTutorSubject(TutorEntity tutor, SubjectEntity subject);
+
+    /**
+     * Find all tutors
+     * 
+     * @return
+     */
+    public List<TutorEntity> getAllTutors();
+
+    /**
+     * Get all tutor by ids
+     * 
+     * @param tutorIds tutor ids
+     * @return tutor entities
+     */
+    public List<TutorEntity> getTutorByIds(List<Long> tutorIds);
 }

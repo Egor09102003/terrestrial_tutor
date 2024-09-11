@@ -5,7 +5,6 @@ import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 
-import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -31,7 +30,7 @@ public class HomeworkEntity {
     String name;
 
     @NonNull
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "subject")
     SubjectEntity subject;
 
@@ -40,21 +39,18 @@ public class HomeworkEntity {
 
     Long targetTime;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "pupils")
     Set<PupilEntity> pupils;
 
-//    todo
-//    Добавить теоритические материалы
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tutor")
-    TutorEntity tutor;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "tutors")
+    Set<TutorEntity> tutors = new HashSet<>();
 
     @Column(name = "task_checking_types", columnDefinition="text")
     String taskCheckingTypes;
 
-    @OneToMany(mappedBy = "homework", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "homework", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<AttemptEntity> answerEntities;
 
     LocalDate deadLine;

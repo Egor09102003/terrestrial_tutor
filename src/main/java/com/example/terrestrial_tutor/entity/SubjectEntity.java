@@ -34,11 +34,11 @@ public class SubjectEntity {
     @Column(name = "count_level")
     Integer countLevel;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "tutors")
     List<TutorEntity> tutors;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "pupils")
     List<PupilEntity> pupils;
 

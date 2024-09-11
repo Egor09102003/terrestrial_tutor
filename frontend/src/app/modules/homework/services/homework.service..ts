@@ -1,6 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
+import { HomeworkAnswers } from "src/app/models/HomeworkAnswers";
 import { EnvironmentService } from "src/environments/environment.service";
 
 @Injectable({
@@ -46,11 +47,35 @@ export class HomeworkService {
     return this.http.get(this.HOMEWORK_API + homeworkId);
   }
 
-  public getLastAttemptAnswers(hwId: number): Observable<any> {
-    return this.http.get(this.HOMEWORK_API + `${hwId}/answers`);
+  public getLastAttemptAnswers(hwId: number, pupilId?: number): Observable<any> {
+    return this.http.get(this.HOMEWORK_API + `${hwId}/answers`, {
+      params: {
+        pupilId: pupilId ?? ''
+      }
+    });
   }
 
-  public getAttemptAnswers(hwId: number, attempt: number): Observable<any> {
-    return this.http.get(this.HOMEWORK_API + `${hwId}/answers/${attempt}`);
+  public getAttemptAnswers(hwId: number, attempt: number, pupilId?: number): Observable<any> {
+    return this.http.get(this.HOMEWORK_API + `${hwId}/answers/${attempt}`, {
+      params: {
+        pupilId: pupilId ?? ''
+      }
+    });
+  }
+
+  public updateAttemptStat(homeworkId: number, pupilId: number, updatedStatuses: HomeworkAnswers): Observable<any> {
+    return this.http.patch(this.HOMEWORK_API + `${homeworkId}/pupil/${pupilId}`, updatedStatuses);
+  }
+
+  public getAllHomeworks(): Observable<any> {
+    return this.http.get(this.HOMEWORK_API + 'all');
+  }
+
+  public getHomeworkTutors(homeworkId: number): Observable<any> {
+    return this.http.get(this.HOMEWORK_API + `${homeworkId}/tutors`);
+  }
+
+  public addHomeworkTutors(homeworkId: number, tutorIds: number[]) {
+    return this.http.patch(this.HOMEWORK_API + `${homeworkId}/set/tutors`, tutorIds);
   }
 }
