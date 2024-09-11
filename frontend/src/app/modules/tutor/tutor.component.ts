@@ -4,6 +4,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {dataService} from "./services/data.service";
 import {Homework} from "../../models/Homework";
 import {TutorDataService} from "./storage/tutor.data.service";
+import { homeworkProps } from 'src/app/models/HomeworkProps';
 
 @Component({
   selector: 'app-tutor',
@@ -23,15 +24,16 @@ export class TutorComponent implements OnInit {
   activeTab = 1;
   pageLoaded: boolean =  true;
   homeworks: Homework[] = [];
-  tutorId: string | null = null;
+  tutorId: number;
+  checkingHomeworks: Homework[];
+  homeworkProps = homeworkProps;
 
   ngOnInit(): void {
-    this.tutorId = this.route.snapshot.paramMap.get('id');
+    this.tutorId = Number(this.route.snapshot.paramMap.get('id'));
 
-    let tab = sessionStorage.getItem('tab')
-    if (tab == '2') {
-      this.activeTab = 2;
-      this.getHomeworks();
+    this.activeTab = Number(this.route.snapshot.queryParamMap.get('tab')) === 0 ? 1 : Number(this.route.snapshot.queryParamMap.get('tab'));
+    if (this.activeTab !== 1) {
+      this.getCheckingHomeworks();
     }
 
     this.tutorService.getTutorSubjects().subscribe(subjects =>
@@ -70,5 +72,18 @@ export class TutorComponent implements OnInit {
     return this.homeworks.filter(homework => homework.subject === subject);
   }
 
-  protected readonly Homework = Homework;
+  getCheckingHomeworks() {
+    this.tutorService.getTutorHomeworks().subscribe(homeworks => this.homeworks = homeworks.filter((homework: Homework)=> homework.name));
+  }
+
+  navigate(tab: number) {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {tab: tab},
+      queryParamsHandling: 'merge'
+    })
+  }
+
+  public readonly Object = Object;
+  public readonly Homework = Homework;
 }

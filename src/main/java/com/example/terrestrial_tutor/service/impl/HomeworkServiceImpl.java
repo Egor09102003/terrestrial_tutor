@@ -3,11 +3,14 @@ package com.example.terrestrial_tutor.service.impl;
 import com.example.terrestrial_tutor.dto.HomeworkAnswersDTO;
 import com.example.terrestrial_tutor.dto.facade.HomeworkFacade;
 import com.example.terrestrial_tutor.entity.*;
+import com.example.terrestrial_tutor.entity.enums.ERole;
 import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
+import com.example.terrestrial_tutor.entity.enums.TaskStatuses;
 import com.example.terrestrial_tutor.repository.*;
 import com.example.terrestrial_tutor.service.*;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,13 +52,10 @@ public class HomeworkServiceImpl implements HomeworkService {
     HomeworkFacade homeworkFacade;
 
     public HomeworkEntity saveHomework(HomeworkEntity homework) {
-        if (!homework.getTutor().getHomeworkList().contains(homework)) {
-            Set<HomeworkEntity> currentTutorHomeworks = homework.getTutor().getHomeworkList();
-            currentTutorHomeworks.add(homework);
-            homework.getTutor().setHomeworkList(currentTutorHomeworks);
-        }
         homework = homeworkRepository.save(homework);
-        tutorService.updateTutor(homework.getTutor());
+        for (TutorEntity tutor : homework.getTutors()) {
+            tutorService.updateTutor(tutor);
+        }
         return homework;
     }
 
@@ -63,67 +63,70 @@ public class HomeworkServiceImpl implements HomeworkService {
         return homeworkRepository.findHomeworkEntityById(id);
     }
 
-    public void deleteHomeworkById(Long id) {
-        HomeworkEntity homework = getHomeworkById(id);
-        List<AttemptEntity> attempts = homework.getAnswerEntities();
-        for (AttemptEntity attempt : attempts) {
-            attempt.setHomework(null);
-            attemptRepository.save(attempt);
-        }
-        TutorEntity tutor = homework.getTutor();
-        tutor.getHomeworkList().remove(homework);
-        tutorService.updateTutor(tutor);
-        homeworkRepository.delete(homeworkRepository.findHomeworkEntityById(id));
+    public Long deleteHomeworkById(Long id) {
+        homeworkRepository.deleteById(id);
+        return id;
     }
 
-    public HomeworkAnswersDTO initHomework(Long homeworkId, Optional<Integer> attemptNumber) {
+    public HomeworkAnswersDTO initHomework(Long homeworkId) {
         PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        AttemptEntity attempt = this.getCurrentAttempt(pupil, homeworkId, attemptNumber);
+        AttemptEntity attempt = this.getCurrentAttempt(pupil.getId(), homeworkId, Optional.empty());
+        HomeworkAnswersDTO attemptAnswers;
 
         if (attempt == null || attempt.getStatus() == HomeworkStatus.FINISHED) {
-            this.checkingAndSaveAnswers(new HashMap<>(), homeworkId);
-            attempt = attemptRepository.findLastAttempt(homeworkId, pupil.getId());
+            attemptAnswers = this.checkingAndSaveAnswers(new HashMap<>(), homeworkId);
+        } else {
+            attemptAnswers = attempt.getAnswers();
         }
         
-        return this.getAttemptAnswers(attempt);
+        return attemptAnswers;
     }
 
-    public HomeworkAnswersDTO getPupilAnswers(Long homeworkId, Optional<Integer> attemptNumber) {
-        PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        AttemptEntity attempt = this.getCurrentAttempt(pupil, homeworkId, attemptNumber);
-        return this.getAttemptAnswers(attempt);
+    public HomeworkAnswersDTO getPupilAnswers(Long homeworkId, Long pupilId, Optional<Integer> attemptNumber) {
+        AttemptEntity attempt;
+        if (attemptNumber.isPresent()) {
+            attempt = this.attemptRepository.findFirstByPupilIdAndHomeworkIdAndAttemptNumber(pupilId, homeworkId, attemptNumber.get());
+        } else {
+            attempt = this.attemptRepository.findLastFinishedAttempt(homeworkId, pupilId);
+        }
+        if (attempt == null) {
+            return new HomeworkAnswersDTO();
+        }
+        HomeworkAnswersDTO answers = attempt.getAnswers();
+        if (answers.getAttemptCount() == -1) {
+            for (Long taskId : answers.getAnswersStatuses().keySet()) {
+                TaskCheckingType taskCheckingType = getHomeworkCheckingTypes(
+                        attempt.getHomework().getTaskCheckingTypes()
+                ).get(taskId);
+                answers.getAnswersStatuses().put(
+                        taskId,
+                        checkAnswer(
+                            taskService.getTaskById(taskId),
+                            answers.getAnswersStatuses().get(taskId).getCurrentAnswer(),
+                            taskCheckingType
+                        )
+                );
+            }
+            answers.setAttemptCount(attempt.getAttemptNumber());
+            attempt.setAnswers(answers);
+            this.saveAttempt(attempt);
+        }
+        return attempt.getAnswers();
     }
 
-    private AttemptEntity getCurrentAttempt(PupilEntity pupil, Long homeworkId, Optional<Integer> attemptNumber) {
+    private AttemptEntity getCurrentAttempt(Long pupilId, Long homeworkId, Optional<Integer> attemptNumber) {
         HomeworkEntity homework = homeworkRepository.findHomeworkEntityById(homeworkId);
         AttemptEntity attempt;
         if (attemptNumber.isEmpty()) {
-            attempt = attemptRepository.findLastAttempt(homework.getId(), pupil.getId());
+            attempt = attemptRepository.findLastAttempt(homework.getId(), pupilId);
         } else {
-            attempt = attemptRepository.findFirstByPupilAndHomeworkAndAttemptNumber(
-                pupil,
-                homework,
-                attemptNumber.get());
+            attempt = attemptRepository.findFirstByPupilIdAndHomeworkIdAndAttemptNumber(
+                    pupilId,
+                    homework.getId(),
+                    attemptNumber.get());
         }
         return attempt;
-    }
-
-    private HomeworkAnswersDTO getAttemptAnswers(AttemptEntity attempt) {
-        List<TaskEntity> tasks = taskRepository.findAllById(attempt.getAnswers().keySet());
-        
-        HomeworkAnswersDTO response = new HomeworkAnswersDTO();
-        response.setAttemptCount(attempt.getAttemptNumber());
-        HashMap<Long, String> answers = attempt.getAnswers();
-        HashMap<Long, TaskCheckingType> taskCheckingTypes = this.getHomeworkCheckingTypes(attempt.getHomework().getTaskCheckingTypes());
-        for (TaskEntity task : tasks) {
-            response.getAnswersStatuses().put(
-                task.getId(),
-                this.checkAnswer(task, answers.get(task.getId()), taskCheckingTypes.get(task.getId()))
-            );
-        }
-
-        return response;
     }
 
     public Map<Long, Long> getCompletedHomework(Long id) {
@@ -144,11 +147,11 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     public HomeworkAnswersDTO checkAndFinish(Map<Long, String> answers, Long homeworkId) {
         PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        HomeworkAnswersDTO response = checkingAndSaveAnswers(answers, homeworkId);
+        checkingAndSaveAnswers(answers, homeworkId);
         AttemptEntity lastAttempt = attemptRepository.findLastAttempt(homeworkId, pupil.getId());
         lastAttempt.setStatus(HomeworkStatus.FINISHED);
         attemptRepository.save(lastAttempt);
-        return response;
+        return lastAttempt.getAnswers();
     }
 
     public HomeworkAnswersDTO checkingAndSaveAnswers(Map<Long, String> answers, Long homeworkId) {
@@ -159,39 +162,42 @@ public class HomeworkServiceImpl implements HomeworkService {
             lastAttempt = new AttemptEntity();
             lastAttempt.setAttemptNumber(lastAttemptNumber + 1);
             lastAttempt.setSolutionDate(new Date().toInstant().toEpochMilli());
-            lastAttempt.setAnswers(new HashMap<>());
-        }
-        HomeworkEntity homework = homeworkRepository.findHomeworkEntityById(homeworkId);
-        HashMap<Long, TaskCheckingType> checkingTypes = getHomeworkCheckingTypes(homework.getTaskCheckingTypes());
-        List<TaskEntity> currentTasks = taskRepository.findAllById(checkingTypes.keySet());
-        HashMap<Long, String> savedAnswers = lastAttempt.getAnswers();
-        
-        HomeworkAnswersDTO response = new HomeworkAnswersDTO();
-        response.setAttemptCount(lastAttempt.getAttemptNumber());
-        
-        for (TaskEntity task : currentTasks) {
-            Long taskId = task.getId();
-            if (answers.get(taskId) != null) {
-                savedAnswers.put(taskId, answers.get(taskId));
-                response.getAnswersStatuses().put(
-                    taskId, 
-                    this.checkAnswer(
-                        task, 
-                        answers.get(taskId),
-                        checkingTypes.get(taskId)));
-            }
-
-            if (!savedAnswers.containsKey(taskId)) {
-                savedAnswers.put(taskId, "");
-            }
+            HomeworkAnswersDTO newAnswers = new HomeworkAnswersDTO();
+            newAnswers.setAttemptCount(lastAttemptNumber + 1);
+            lastAttempt.setAnswers(newAnswers);
         }
 
-        lastAttempt.setHomework(homework);
-        lastAttempt.setPupil(pupil);
-        lastAttempt.setAnswers(savedAnswers);
-        attemptRepository.save(lastAttempt);
+        try {
+            HomeworkEntity homework = homeworkRepository.findHomeworkEntityById(homeworkId);
+            HashMap<Long, TaskCheckingType> checkingTypes = getHomeworkCheckingTypes(homework.getTaskCheckingTypes());
+            List<TaskEntity> currentTasks = taskRepository.findAllById(checkingTypes.keySet());
+            HomeworkAnswersDTO savedAnswers = lastAttempt.getAnswers();
 
-        return response;
+            for (TaskEntity task : currentTasks) {
+                Long taskId = task.getId();
+                if (answers.get(taskId) != null) {
+                    HomeworkAnswersDTO.Status status = this.checkAnswer(
+                            task,
+                            answers.get(taskId),
+                            checkingTypes.get(taskId)
+                    );
+                    savedAnswers.getAnswersStatuses().put(taskId, status);
+                }
+
+                if (!savedAnswers.getAnswersStatuses().containsKey(taskId)) {
+                    savedAnswers.getAnswersStatuses().put(taskId, new HomeworkAnswersDTO.Status());
+                }
+            }
+
+            lastAttempt.setHomework(homework);
+            lastAttempt.setPupil(pupil);
+            lastAttempt.setAnswers(savedAnswers);
+            attemptRepository.save(lastAttempt);
+
+            return savedAnswers;
+        } catch (Exception e) {
+            throw new NoSuchElementException("Save and get homework answers failed");
+        }
     }
 
     public HomeworkAnswersDTO.Status checkAnswer(TaskEntity task, String answer, TaskCheckingType taskCheckingType) {
@@ -200,21 +206,30 @@ public class HomeworkServiceImpl implements HomeworkService {
             case AUTO, INSTANCE:
                 switch (task.getAnswerType()) {
                     case VALUE, VARIANTS, CODE, DETAILED:
-                        taskStatus.setStatus(answer != null && task.getRightAnswer().trim().equals(answer.trim()));
-                        taskStatus.setCurrentAnswer(answer);
+                        taskStatus.setStatus(
+                                answer != null && task.getRightAnswer().trim().equals(answer.trim())
+                                ? TaskStatuses.RIGHT : TaskStatuses.WRONG
+                        );
                         break;
                     case TABLE:
-                        taskStatus.setStatus(checkTable(task.getRightAnswer(),answer));
-                        taskStatus.setCurrentAnswer(answer);
+                        taskStatus.setStatus(
+                                checkTable(task.getRightAnswer(),answer)
+                                ? TaskStatuses.RIGHT : TaskStatuses.WRONG
+                        );
                         break;
                     default:
                         break;
                 }
                 break;
-        
+            case MANUALLY:
+                taskStatus.setStatus(TaskStatuses.ON_CHECKING);
             default:
                 break;
         }
+        if (taskStatus.getStatus() == TaskStatuses.RIGHT) {
+            taskStatus.setPoints(task.getCost());
+        }
+        taskStatus.setCurrentAnswer(answer);
         return taskStatus;
     }
 
@@ -242,7 +257,7 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     public List<HomeworkEntity> getAllHomeworksTutor() {
         TutorEntity tutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return homeworkRepository.findHomeworkEntitiesByTutor(tutor);
+        return homeworkRepository.findHomeworkEntitiesByTutors(tutor);
     }
 
     public List<HomeworkEntity> getAllHomeworks() {
@@ -261,9 +276,12 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     public HashMap<Long, String> getHomeworkAnswers(Long homeworkId) {
-        PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (attemptRepository.findLastAttempt(homeworkId, pupil.getId()) == null) {
-            return new HashMap<>();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (user.getRole() == ERole.PUPIL) {
+            PupilEntity pupil = (PupilEntity) user;
+            if (attemptRepository.findLastAttempt(homeworkId, pupil.getId()) == null) {
+                return new HashMap<>();
+            }
         }
 
         HomeworkEntity homework = homeworkRepository.findHomeworkEntityById(homeworkId);
@@ -273,5 +291,80 @@ public class HomeworkServiceImpl implements HomeworkService {
             answers.put(task.getId(), task.getAnswer());
         }
         return answers;
+    }
+
+    public void saveAttempt(AttemptEntity attemptEntity) {
+        attemptRepository.save(attemptEntity);
+    }
+
+    public List<AttemptEntity> getAllAttempts() {
+        return attemptRepository.findAll();
+    }
+
+    public HomeworkAnswersDTO manuallyChecking(
+            HomeworkAnswersDTO updatedAnswers,
+            Long pupilId,
+            Long homeworkId
+    ) throws Exception {
+        try {
+            AttemptEntity attempt = attemptRepository.findFirstByPupilIdAndHomeworkIdAndAttemptNumber(
+                    pupilId,
+                    homeworkId,
+                    updatedAnswers.getAttemptCount()
+            );
+
+            if (attempt == null) {
+                throw new NoSuchElementException("Attempt not found");
+            }
+
+            HomeworkAnswersDTO attemptAnswers = attempt.getAnswers();
+            HomeworkEntity homework = homeworkRepository.findHomeworkEntityById(homeworkId);
+            if (homework == null) {
+                throw new NoSuchElementException("Homework not found");
+            }
+            HashMap<Long, TaskCheckingType> taskCheckingTypes = this.getHomeworkCheckingTypes(homework.getTaskCheckingTypes());
+            for (Map.Entry<Long,HomeworkAnswersDTO.Status> status : updatedAnswers.getAnswersStatuses().entrySet()) {
+                if(attemptAnswers.getAnswersStatuses().containsKey(status.getKey())
+                        && taskCheckingTypes.containsKey(status.getKey())
+                        && taskCheckingTypes.get(status.getKey()) == TaskCheckingType.MANUALLY
+                ) {
+                    HomeworkAnswersDTO.Status updatedStatus = attemptAnswers.getAnswersStatuses().get(status.getKey());
+                    updatedStatus.setPoints(status.getValue().getPoints());
+                    updatedStatus.setStatus(status.getValue().getStatus());
+                    attemptAnswers.getAnswersStatuses().put(status.getKey(), updatedStatus);
+                }
+            }
+            attempt.setAnswers(attemptAnswers);
+            attemptRepository.save(attempt);
+            return attemptAnswers;
+        } catch (Exception e) {
+            throw new Exception("Tasks status update failed: " +  e.getMessage());
+        }
+    }
+
+    public void repairHomeworks() {
+        List<AttemptEntity> allAttempts = attemptRepository.findAll();
+        for(AttemptEntity attempt : allAttempts) {
+            try {
+                Type type = new TypeToken<HashMap<Long, String>>(){}.getType();
+                HashMap<Long, String> answers = new Gson().fromJson(attempt.getJSONAnswers(), type);
+                HomeworkAnswersDTO formatedAnswers = new HomeworkAnswersDTO();
+                List<TaskEntity> tasks = taskRepository.findAllById(answers.keySet());
+                for (Long taskId : answers.keySet()) {
+                    HomeworkAnswersDTO.Status status = new HomeworkAnswersDTO.Status();
+                    status.setCurrentAnswer(answers.get(taskId));
+                    TaskEntity currentTask = tasks.stream().filter(task -> task.getId().equals(taskId)).findFirst().get();
+                    if (status.getCurrentAnswer().equals(currentTask.getAnswer())) {
+                        status.setStatus(TaskStatuses.RIGHT);
+                        status.setPoints(currentTask.getCost());
+                    }
+                    formatedAnswers.getAnswersStatuses().put(taskId, status);
+                }
+                attempt.setAnswers(formatedAnswers);
+                attemptRepository.save(attempt);
+            } catch (JsonSyntaxException e1) {
+                throw new JsonSyntaxException("Invalid answers JSON format");
+            }
+        }
     }
 }

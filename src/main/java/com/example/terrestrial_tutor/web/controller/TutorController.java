@@ -1,9 +1,13 @@
 package com.example.terrestrial_tutor.web.controller;
 
 import com.example.terrestrial_tutor.annotations.Api;
+import com.example.terrestrial_tutor.dto.HomeworkDTO;
 import com.example.terrestrial_tutor.dto.PupilDTO;
 import com.example.terrestrial_tutor.dto.SubjectDTO;
+import com.example.terrestrial_tutor.dto.TutorListDTO;
+import com.example.terrestrial_tutor.dto.facade.HomeworkFacade;
 import com.example.terrestrial_tutor.dto.facade.PupilFacade;
+import com.example.terrestrial_tutor.dto.facade.TutorListFacade;
 import com.example.terrestrial_tutor.entity.*;
 import com.example.terrestrial_tutor.service.HomeworkService;
 import com.example.terrestrial_tutor.service.PupilService;
@@ -19,6 +23,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 /**
  * Контроллер для работы с репетиторами
@@ -41,6 +48,10 @@ public class TutorController {
     TutorService tutorService;
     @Autowired
     private PupilFacade pupilFacade;
+    @Autowired
+    private HomeworkFacade homeworkFacade;
+    @Autowired
+    private TutorListFacade tutorListFacade;
 
     /**
      * Поиск учеников репетитора по предмету
@@ -89,9 +100,20 @@ public class TutorController {
      *
      * @return лист дз
      */
-    @GetMapping("/tutor/homework/all")
-    public ResponseEntity<List<HomeworkEntity>> getAllHomework() {
-        return new ResponseEntity<>(homeworkService.getAllHomeworksTutor(), HttpStatus.OK);
+    @GetMapping("/tutor/homeworks")
+    public ResponseEntity<List<HomeworkDTO>> getAllHomework() {
+        List<HomeworkDTO> homeworkDTOs = new ArrayList<>();
+        List<HomeworkEntity> homeworks = homeworkService.getAllHomeworksTutor();
+        for (HomeworkEntity homework : homeworks) {
+            homeworkDTOs.add(homeworkFacade.homeworkToHomeworkDTO(homework));
+        }
+        return new ResponseEntity<>(homeworkDTOs, HttpStatus.OK);
     }
+
+    @GetMapping("/tutors")
+    public ResponseEntity<List<TutorListDTO>> getAllTutors() {
+        return new ResponseEntity<>(tutorListFacade.tutorListToDTO(tutorService.getAllTutors()), HttpStatus.OK);
+    }
+    
 
 }

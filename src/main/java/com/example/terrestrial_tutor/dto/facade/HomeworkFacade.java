@@ -81,7 +81,7 @@ public class HomeworkFacade {
         homework.setDeadLine(homeworkDTO.getDeadLine());
         homework.setSubject(subjectService.findSubjectByName(homeworkDTO.getSubject()));
         TutorEntity tutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        homework.setTutor(tutor);
+        homework.getTutors().add(tutor);
         homework.setPupils(homeworkDTO.getPupilIds().stream()
                 .map(id -> pupilService.findPupilById(id)).collect(Collectors.toSet()));
 

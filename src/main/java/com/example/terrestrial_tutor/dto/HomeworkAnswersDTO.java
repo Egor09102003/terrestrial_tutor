@@ -1,12 +1,12 @@
 package com.example.terrestrial_tutor.dto;
 
+import com.example.terrestrial_tutor.entity.enums.TaskStatuses;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Класс DTO ответов на дз
@@ -19,15 +19,16 @@ import java.util.Map;
 public class HomeworkAnswersDTO {
 
     HashMap<Long, Status> answersStatuses = new HashMap<>();
-    Integer attemptCount;
+    Integer attemptCount = -1;
 
 
     @Getter
     @Setter
     @NoArgsConstructor
     public static class Status {
-        Boolean status;
-        String currentAnswer;        
+        TaskStatuses status = TaskStatuses.WRONG;
+        Integer points = 0;
+        String currentAnswer = "";
     }
 }
 

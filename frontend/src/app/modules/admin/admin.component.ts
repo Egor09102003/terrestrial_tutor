@@ -12,6 +12,9 @@ import {PupilSelect} from "../../models/PupilSelect";
 import {UntypedFormControl} from "@angular/forms";
 import { TutorService } from '../tutor/services/tutor.service';
 import { TutorListSelect } from 'src/app/models/TutorListSelect';
+import { HomeworkService } from '../homework/services/homework.service.';
+import { Homework } from 'src/app/models/Homework';
+import { homeworkProps } from 'src/app/models/HomeworkProps';
 
 @Component({
   selector: 'app-admin',
@@ -38,13 +41,18 @@ export class AdminComponent implements OnInit {
   active = "requests";
   filter = new UntypedFormControl('');
   filteredData: (PupilSelect | TutorListSelect)[] = [];
+  homeworks: Homework[] = [];
+  homeworkProps = homeworkProps;
+  tutors: TutorList[] = [];
+  Object = Object;
 
   constructor(private adminService: AdminService,
               private tokenService: TokenStorageService,
               private subjectsService: SubjectsService,
               private pupilService: PupilService,
               private modalService: NgbModal,
-              private tutorService: TutorService) {
+              private tutorService: TutorService,
+              private homeworkService: HomeworkService) {
   }
 
   ngOnInit(): void {
@@ -159,5 +167,12 @@ export class AdminComponent implements OnInit {
 
   checkType(data: PupilSelect | TutorListSelect) {
     return data instanceof PupilSelect ? data.pupil : data.tutor;
+  }
+
+  getHomeworks() {
+    this.homeworkService.getAllHomeworks().subscribe(homeworks => {
+      this.homeworks = <Homework[]>homeworks
+    });
+    this.tutorService.getAllTutors().subscribe(tutors => this.tutors = tutors);
   }
 }

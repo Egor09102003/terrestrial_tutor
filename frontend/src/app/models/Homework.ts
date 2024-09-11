@@ -1,6 +1,7 @@
 import {Task} from "./Task";
 
 export class Homework {
+  [key: string]: any;
   id?: number;
   name: string = '';
   targetTime: number = -1;
