@@ -150,7 +150,9 @@ export class TaskChoiceComponent implements OnInit {
       this.tutorService.saveHomework(this.homework).subscribe(homework => {
         this.pageLoaded = true;
         let tutorId = this.route.snapshot.paramMap.get('id');
-        this.router.navigate([`/tutor/${tutorId}/constructor/${homework.id}`]);
+        this.router.navigate([`/tutor/${tutorId}/constructor/${homework.id}`], {
+          queryParamsHandling: 'merge'
+        });
       });
     }
   }

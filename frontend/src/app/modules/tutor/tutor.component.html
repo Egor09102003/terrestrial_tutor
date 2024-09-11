@@ -42,35 +42,37 @@
     <ng-template ngbNavContent>
         <div *ngIf="!currentSubjects || !pageLoaded" class="row m-3 col-12 spinner-border" role="status"></div>
         <div *ngIf="pageLoaded">
-          <table>
+          <table class="mx-auto mt-3 checking">
             <thead>
+              @for (prop of Object.keys(homeworkProps); track prop) {
+                <th>
+                  {{homeworkProps[prop]}}
+                </th>
+              }
               <th>
-                ID
+                Проверка
               </th>
               <th>
-                Название
-              </th>
-              <th>
-                Предмет
-              </th>
-              <th>
-                Test
+                Изменить
               </th>
             </thead>
             <tbody>
               @for(homework of homeworks; track homework) {
                 <tr>
-                  <td>
-                    {{homework.id}}
+                  @for (prop of Object.keys(homeworkProps); track prop) {
+                      <td class="p-2">
+                        @if(homework[prop]) {
+                          {{homework[prop]}}
+                        }
+                      </td>
+                  }
+                  <td class="text-center p-2">
+                    <pupils-modal class="mx-auto" [tutorId]="tutorId" [homeworkId]="homework.id ?? -1" [pupilIds]="homework.pupilIds"></pupils-modal>
                   </td>
-                  <td>
-                    {{homework.name}}
-                  </td>
-                  <td>
-                    {{homework.subject}}
-                  </td>
-                  <td>
-                    <pupils-modal [tutorId]="tutorId" [homeworkId]="homework.id ?? -1" [pupilIds]="homework.pupilIds"></pupils-modal>
+                  <td class="text-center p-2">
+                    <a routerLink="/tutor/{{tutorId}}/constructor/{{homework.id}}" [queryParams]="{tab: 3}">
+                      <button class="p-1 col-12 col-md-6 btn btn-primary">Изменить</button>
+                    </a>
                   </td>
                 </tr>
               }

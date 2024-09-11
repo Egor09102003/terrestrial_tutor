@@ -118,4 +118,12 @@ public class TutorServiceImpl implements TutorService {
         }
         return filtredTutors;
     }
+
+    public List<TutorEntity> getAllTutors() {
+        return this.tutorRepository.findAll();
+    }
+
+    public List<TutorEntity> getTutorByIds(List<Long> tutorIds) {
+        return tutorRepository.findAllById(tutorIds);
+    }
 }

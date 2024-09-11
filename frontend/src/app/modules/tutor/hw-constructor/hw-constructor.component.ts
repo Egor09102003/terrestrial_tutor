@@ -81,7 +81,9 @@ export class HwConstructorComponent implements OnInit {
 
   addTasks(): void {
     this.saveHomework();
-    this.router.navigate([`/tutor/${this.tutorId}/constructor/${this.homework?.id}/hw/add/task`])
+    this.router.navigate([`/tutor/${this.tutorId}/constructor/${this.homework?.id}/hw/add/task`], {
+      queryParamsHandling: 'merge'
+    })
   }
 
   saveHomework() {
@@ -105,7 +107,7 @@ export class HwConstructorComponent implements OnInit {
         sessionStorage.removeItem("homeworkId");
         clearInterval(this.homeworkUpdate);
         this.router.navigate([`tutor/${this.tutorId}`], {
-          queryParams: {tab: 2},
+          queryParams: {tab: this.route.snapshot.queryParamMap.get('tab') ?? 2},
           queryParamsHandling: 'merge'
         });
       });
@@ -133,7 +135,9 @@ export class HwConstructorComponent implements OnInit {
 
   addPupils() {
     this.saveHomework();
-    this.router.navigate([`tutor/${this.tutorId}/constructor/${this.homework?.id}/add/pup`]);
+    this.router.navigate([`tutor/${this.tutorId}/constructor/${this.homework?.id}/add/pup`], {
+      queryParamsHandling: 'merge'
+    });
   }
 
   onDrop(event: CdkDragDrop<Task[]>) {
@@ -157,7 +161,7 @@ export class HwConstructorComponent implements OnInit {
     this.tutorService.deleteHomeworkById(this.homework?.id).subscribe(() => {
       clearInterval(this.homeworkUpdate);
       this.router.navigate([`tutor/${this.tutorId}`], {
-        queryParams: {tab: 2},
+        queryParams: {tab: this.route.snapshot.queryParamMap.get('tab') ?? 2},
         queryParamsHandling: 'merge'
       });
     });

@@ -4,15 +4,20 @@ import com.example.terrestrial_tutor.TerrestrialTutorApplication;
 import com.example.terrestrial_tutor.annotations.Api;
 import com.example.terrestrial_tutor.dto.HomeworkAnswersDTO;
 import com.example.terrestrial_tutor.dto.SelectionDTO;
+import com.example.terrestrial_tutor.dto.TutorListDTO;
 import com.example.terrestrial_tutor.dto.facade.HomeworkFacade;
+import com.example.terrestrial_tutor.dto.facade.TutorListFacade;
 import com.example.terrestrial_tutor.entity.HomeworkEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TaskEntity;
+import com.example.terrestrial_tutor.entity.TutorEntity;
 import com.example.terrestrial_tutor.dto.HomeworkDTO;
 import com.example.terrestrial_tutor.service.HomeworkService;
 import com.example.terrestrial_tutor.service.SubjectService;
 import com.example.terrestrial_tutor.service.TaskService;
+import com.example.terrestrial_tutor.service.TutorService;
+
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +31,15 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
@@ -48,6 +59,10 @@ public class HomeworkController {
     HomeworkFacade homeworkFacade;
     @Autowired
     SubjectService subjectService;
+    @Autowired
+    TutorListFacade tutorListFacade;
+    @Autowired
+    TutorService tutorService;
 
     static final Logger log =
             LoggerFactory.getLogger(TerrestrialTutorApplication.class);
@@ -267,4 +282,27 @@ public class HomeworkController {
             return new ResponseEntity<>(new HomeworkAnswersDTO(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
     }
+
+    /**
+     * Get all homework tutors
+     * 
+     * @param homeworkId homework id
+     * @return list of TutorListDTO
+     */
+    @GetMapping("/homework/{homeworkId}/tutors")
+    public ResponseEntity<List<TutorListDTO>> getHomeworkTutors(@PathVariable Long homeworkId) {
+        List<TutorEntity> tutors = new ArrayList<>();
+        tutors.addAll(homeworkService.getHomeworkById(homeworkId).getTutors());
+        return new ResponseEntity<>(tutorListFacade.tutorListToDTO(tutors), HttpStatus.OK);
+    }
+
+    @PatchMapping("homework/{homeworkId}/set/tutors")
+    public ResponseEntity<HomeworkDTO> setHomeworkTutors(@PathVariable Long homeworkId, @RequestBody List<Long> tutorIds) {
+        HomeworkEntity homework = homeworkService.getHomeworkById(homeworkId);
+        List<TutorEntity> tutors = tutorService.getTutorByIds(tutorIds);
+        homework.setTutors(new HashSet<>(tutors));
+        homeworkService.saveHomework(homework);
+        return new ResponseEntity<>(homeworkFacade.homeworkToHomeworkDTO(homework), HttpStatus.OK);
+    }
+    
 }

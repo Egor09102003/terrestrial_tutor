@@ -142,5 +142,41 @@
       </ng-template>
     </ng-template>
   </li>
+
+  <li ngbNavItem="tutorsHomework">
+    <a ngbNavLink (click)="getHomeworks()">Назначение ДЗ</a>
+    <ng-template ngbNavContent>
+      <div *ngIf="homeworks.length === 0" class="spinner-border" role="status"></div>
+      <table *ngIf="homeworks.length > 0">
+        <thead>
+          @for (prop of Object.keys(homeworkProps); track prop) {
+            <th>
+              {{homeworkProps[prop]}}
+            </th>
+          }
+          <th>
+            Действия
+          </th>
+        </thead>
+        <tbody *ngFor="let check of checks">
+          @for(homework of homeworks; track homework) {
+            <tr>
+              @for (prop of Object.keys(homeworkProps); track prop) {
+                <td>
+                  @if(homework[prop]) {
+                    {{homework[prop]}}
+                  }
+                </td>
+              }
+              <td>
+                <homework-tutors-set-modal [homeworkId]="homework.id ?? -1" [tutors]="tutors"></homework-tutors-set-modal>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </ng-template>
+
+  </li>
 </ul>
 <div [ngbNavOutlet]="nav"></div>

@@ -66,4 +66,16 @@ export class HomeworkService {
   public updateAttemptStat(homeworkId: number, pupilId: number, updatedStatuses: HomeworkAnswers): Observable<any> {
     return this.http.patch(this.HOMEWORK_API + `${homeworkId}/pupil/${pupilId}`, updatedStatuses);
   }
+
+  public getAllHomeworks(): Observable<any> {
+    return this.http.get(this.HOMEWORK_API + 'all');
+  }
+
+  public getHomeworkTutors(homeworkId: number): Observable<any> {
+    return this.http.get(this.HOMEWORK_API + `${homeworkId}/tutors`);
+  }
+
+  public addHomeworkTutors(homeworkId: number, tutorIds: number[]) {
+    return this.http.patch(this.HOMEWORK_API + `${homeworkId}/set/tutors`, tutorIds);
+  }
 }

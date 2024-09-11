@@ -4,6 +4,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {dataService} from "./services/data.service";
 import {Homework} from "../../models/Homework";
 import {TutorDataService} from "./storage/tutor.data.service";
+import { homeworkProps } from 'src/app/models/HomeworkProps';
 
 @Component({
   selector: 'app-tutor',
@@ -25,6 +26,7 @@ export class TutorComponent implements OnInit {
   homeworks: Homework[] = [];
   tutorId: number;
   checkingHomeworks: Homework[];
+  homeworkProps = homeworkProps;
 
   ngOnInit(): void {
     this.tutorId = Number(this.route.snapshot.paramMap.get('id'));
@@ -82,5 +84,6 @@ export class TutorComponent implements OnInit {
     })
   }
 
-  protected readonly Homework = Homework;
+  public readonly Object = Object;
+  public readonly Homework = Homework;
 }

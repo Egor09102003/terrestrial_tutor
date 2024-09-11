@@ -40,6 +40,7 @@ import { StatisticContainerComponent } from './modules/homework/statistic.contai
 import { CheckTaskCardComponent } from './modules/homework/check.task.card/check.task.card.component';
 import { PupilsModalComponent } from './modules/tutor/pupils.modal/pupils.modal.component';
 import { CheckHomeworksComponent } from './modules/tutor/check.homeworks/check.homeworks.component';
+import { HomeworkTutorsSetModalComponent } from './modules/admin/homework.tutors.set.modal/homework.tutors.set.modal.component';
 
 @NgModule({
   declarations: [
@@ -65,6 +66,7 @@ import { CheckHomeworksComponent } from './modules/tutor/check.homeworks/check.h
     CheckTaskCardComponent,
     PupilsModalComponent,
     CheckHomeworksComponent,
+    HomeworkTutorsSetModalComponent,
   ],
   imports: [
     BrowserModule,

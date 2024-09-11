@@ -1,0 +1,36 @@
+<ng-template #content let-modal aria-modal="true">
+    <div class="modal-header">
+        <h4 class="modal-title">Назначение преподавателя</h4>
+        <button class="mx-2 p-1 col-6 col-md-3 btn btn-primary" (click)="save()">Сохранить</button>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+      </div>
+    <div class="modal-body">
+        @if (modalLoaded) {
+            <table>
+                <thead>
+                    @for (prop of Object.keys(TutorProps); track prop) {
+                        <th>
+                            {{TutorProps[prop]}}
+                        </th>
+                    }
+                </thead>
+                <tbody>
+                    @for(tutor of tutorsSelect|keyvalue; track tutor) {
+                        <tr>
+                            <td>
+                                <input type="checkbox" [(ngModel)]="tutor.value.isSelected">
+                            </td>
+                            @for (prop of Object.keys(TutorProps); track prop) {
+                                <td>
+                                    {{tutor.value.tutor[prop]}}
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</ng-template>
+
+<button class="p-1 col-10 col-md-6 btn btn-primary" (click)="open(content)">Преподаватели</button>

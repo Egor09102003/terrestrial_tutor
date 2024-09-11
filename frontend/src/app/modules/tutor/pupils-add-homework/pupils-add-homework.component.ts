@@ -92,7 +92,9 @@ export class PupilsAddHomeworkComponent implements OnInit {
       this.tutorService.saveHomework(this.homework).subscribe(() => {
         let tutorId = this.route.snapshot.paramMap.get('id');
         this.pageLoaded = true;
-        this.router.navigate([`tutor/${tutorId}/constructor/${this.homework?.id}`]);
+        this.router.navigate([`tutor/${tutorId}/constructor/${this.homework?.id}`], {
+          queryParamsHandling: 'merge'
+        });
       });
     }
   }

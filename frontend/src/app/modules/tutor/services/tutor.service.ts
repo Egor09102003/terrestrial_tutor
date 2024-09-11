@@ -15,6 +15,7 @@ export class TutorService {
               private apiService: EnvironmentService) { }
 
   private TUTOR_API = this.apiService.apiUrl + 'tutor/';
+  private TUTORS_API = this.apiService.apiUrl + 'tutors/';
   private HOMEWORK_API = this.apiService.apiUrl + 'homework/';
 
   getTutorSubjects(): Observable<any> {
@@ -53,6 +54,10 @@ export class TutorService {
 
   getTutorHomeworks(): Observable<any> {
     return this.http.get(this.TUTOR_API + 'homeworks');
+  }
+
+  getAllTutors(): Observable<any> {
+    return this.http.get(this.TUTORS_API);
   }
 
 }

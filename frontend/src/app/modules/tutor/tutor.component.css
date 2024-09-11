@@ -20,3 +20,15 @@
   background-color: #474646;
   color: white;
 }
+
+table {
+  width: 90%;
+}
+
+th {
+  text-align: center;
+}
+
+table, th, td {
+  border: 1px solid white;
+}
