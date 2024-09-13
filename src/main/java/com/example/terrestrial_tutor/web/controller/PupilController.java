@@ -144,6 +144,7 @@ public class PupilController {
                 }
 
                 Boolean currentHomework = false;
+                AttemptEntity lastAttempt = null;
                 for (AttemptEntity attempt: pupil.getAnswers()) {
                     if (attempt.getHomework() != null && attempt.getHomework().getId().equals(homeworkId) 
                         && !attempt.getAnswers().getAnswersStatuses().isEmpty()
@@ -151,12 +152,19 @@ public class PupilController {
                         && attempt.getStatus() == HomeworkStatus.FINISHED
                     )
                     {
+                        if (lastAttempt == null || attempt.getAttemptNumber() > lastAttempt.getAttemptNumber()) {
+                            lastAttempt = attempt;
+                        }
                         currentHomework = true;
                     }
                 }
 
                 if (currrentTutor && currentHomework) {
-                    pupilDTOs.add(pupilFacade.pupilToPupilDTO(pupil));
+                    PupilDTO pupilDTO = pupilFacade.pupilToPupilDTO(pupil);
+                    if (lastAttempt != null) {
+                        pupilDTO.setAttempt(lastAttempt.getAnswers());
+                    }
+                    pupilDTOs.add(pupilDTO);
                 }
             } catch(Exception e) {
                 log.error("Geting pupil failed: " + e.getMessage(), e);

@@ -431,4 +431,8 @@ public class HomeworkServiceImpl implements HomeworkService {
             }
         }
     }
+
+    public AttemptEntity getLastFinishedAttempt(Long homeworkId, Long pupilId) {
+        return attemptRepository.findLastFinishedAttempt(homeworkId, pupilId);
+    }
 }
