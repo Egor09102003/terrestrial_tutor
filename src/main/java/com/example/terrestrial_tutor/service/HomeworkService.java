@@ -152,4 +152,9 @@ public interface HomeworkService {
      * Repair homework
      */
     void repairHomeworks();
+
+    /**
+     * Repair attempts
+     */
+    public void repairAttemptNumber();
 }

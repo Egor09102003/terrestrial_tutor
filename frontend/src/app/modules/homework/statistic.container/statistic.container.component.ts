@@ -39,7 +39,7 @@ export class StatisticContainerComponent implements OnInit {
     }
 
     submit() {
-        this.router.navigate(['pupil']);
+        this.router.navigate(['/']);
     }
 
     getResultProgress() {

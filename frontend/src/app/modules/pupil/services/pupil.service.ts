@@ -43,8 +43,8 @@ export class PupilService {
     return this.http.get(this.PUPIL_API + `${pupilId}/homework/completed`);
   }
 
-  getPupilByIds(ids: number[]): Observable<any> {
-    return this.http.get(this.PUPILS_API, {
+  getPupilByIds(ids: number[], homeworkId: number): Observable<any> {
+    return this.http.get(this.PUPILS_API + `check/list/${homeworkId}`, {
       params: {
         pupilIds: ids
       }

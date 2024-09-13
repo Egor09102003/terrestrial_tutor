@@ -39,9 +39,11 @@ export class HomeworksDisplayingComponent implements OnInit {
         this.homework = homework;
         this.formFill();
       });
-      window.addEventListener('beforeunload', event => {
-        event.preventDefault();
-      });
+      window.addEventListener('beforeunload', this.prevent);
+  }
+  
+  prevent(event: Event) {
+    event.preventDefault();
   }
 
   formFill() {
@@ -148,5 +150,9 @@ export class HomeworksDisplayingComponent implements OnInit {
 
   initTable(taskId: number) {
     return this.tasksAnswers.controls[taskId.toString()].value;
+  }
+
+  ngOnDestroy() {
+    window.addEventListener('beforeunload', this.prevent);
   }
 }
