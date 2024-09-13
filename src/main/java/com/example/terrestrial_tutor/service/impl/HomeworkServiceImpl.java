@@ -1,8 +1,10 @@
 package com.example.terrestrial_tutor.service.impl;
 
+import com.example.terrestrial_tutor.TerrestrialTutorApplication;
 import com.example.terrestrial_tutor.dto.HomeworkAnswersDTO;
 import com.example.terrestrial_tutor.dto.facade.HomeworkFacade;
 import com.example.terrestrial_tutor.entity.*;
+import com.example.terrestrial_tutor.entity.enums.AnswerTypes;
 import com.example.terrestrial_tutor.entity.enums.ERole;
 import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
@@ -14,9 +16,12 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.lang.reflect.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -51,6 +56,9 @@ public class HomeworkServiceImpl implements HomeworkService {
     @Autowired
     HomeworkFacade homeworkFacade;
 
+    static final Logger log =
+            LoggerFactory.getLogger(TerrestrialTutorApplication.class);
+
     public HomeworkEntity saveHomework(HomeworkEntity homework) {
         homework = homeworkRepository.save(homework);
         for (TutorEntity tutor : homework.getTutors()) {
@@ -64,6 +72,11 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     public Long deleteHomeworkById(Long id) {
+        HomeworkEntity homework = homeworkRepository.findHomeworkEntityById(id);
+        for (TutorEntity tutor : homework.getTutors()) {
+            tutor.getHomeworkList().remove(homework);
+            tutorService.updateTutor(tutor);
+        }
         homeworkRepository.deleteById(id);
         return id;
     }
@@ -362,8 +375,59 @@ public class HomeworkServiceImpl implements HomeworkService {
                 }
                 attempt.setAnswers(formatedAnswers);
                 attemptRepository.save(attempt);
-            } catch (JsonSyntaxException e1) {
-                throw new JsonSyntaxException("Invalid answers JSON format");
+            } catch (JsonSyntaxException e) {
+                log.error("Failed to repair attempt: " + attempt.getId(), e);
+                continue;
+            }
+        }
+    }
+
+    public void repairAttemptNumber() {
+        List<PupilEntity> pupils = pupilService.findAllPupils();
+        for (PupilEntity pupil : pupils) {
+            if (pupil.getAnswers() != null) {
+                try {
+                    HashMap<Long, List<AttemptEntity>> homeworkPupilAttempts = new HashMap<>();
+                    for (AttemptEntity attempt : pupil.getAnswers()) {
+                        Long homeworkId = attempt.getHomework().getId();
+                        List<AttemptEntity> homeworkAttempts = new ArrayList<>();
+                        if (homeworkPupilAttempts.get(homeworkId) != null) {
+                            homeworkAttempts = homeworkPupilAttempts.get(homeworkId);
+                            homeworkAttempts.add(attempt);
+                        } else {
+                            homeworkAttempts.add(attempt);
+                        }
+                        homeworkPupilAttempts.put(attempt.getHomework().getId(), homeworkAttempts);
+                    }
+
+                    for (Long homeworkId : homeworkPupilAttempts.keySet()) {
+                        List<AttemptEntity> homeworkAttempts = homeworkPupilAttempts.get(homeworkId);
+                        HomeworkEntity homework = homeworkRepository.findHomeworkEntityById(homeworkId);
+                        HashMap<Long, TaskCheckingType> taskCheckingTypes = this.getHomeworkCheckingTypes(homework.getTaskCheckingTypes());
+                        for (int i = 0; i < homeworkAttempts.size(); i++) {
+                            AttemptEntity currentAttempt = homeworkAttempts.get(i);
+                            currentAttempt.setAttemptNumber(i + 1);
+                            HomeworkAnswersDTO answers = currentAttempt.getAnswers();
+                            answers.setAttemptCount(i + 1);
+                            currentAttempt.setAnswers(answers);
+                            HashMap<Long, HomeworkAnswersDTO.Status> answersDTO = currentAttempt.getAnswers().getAnswersStatuses();
+                            HomeworkAnswersDTO answerStatuses = currentAttempt.getAnswers();
+                            for (Long taskId : answersDTO.keySet()) {
+                                TaskEntity task = taskService.getTaskById(taskId);
+                                HomeworkAnswersDTO.Status status = checkAnswer(task, answersDTO.get(taskId).getCurrentAnswer(), taskCheckingTypes.get(taskId));
+                                answerStatuses.getAnswersStatuses().put(taskId, status);
+                                if (pupil.getId() == 1205 && homework.getId() == 2174) {
+                                    log.info(new Gson().toJson(answerStatuses));
+                                }
+                            }
+                            currentAttempt.setAnswers(answerStatuses);
+                            attemptRepository.save(currentAttempt);
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error(pupil.getId().toString() + e.getMessage());
+                    continue;
+                }
             }
         }
     }

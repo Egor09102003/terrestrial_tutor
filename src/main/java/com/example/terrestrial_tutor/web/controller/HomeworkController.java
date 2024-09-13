@@ -37,9 +37,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 
 
 
@@ -261,7 +258,7 @@ public class HomeworkController {
     @GetMapping("/homeworks/repair")
     public ResponseEntity<String> getRepairHomeworks() {
         try {
-            homeworkService.repairHomeworks();
+            homeworkService.repairAttemptNumber();
             return new ResponseEntity<>("All attempts repaired", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
