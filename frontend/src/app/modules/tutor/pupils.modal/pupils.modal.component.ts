@@ -25,7 +25,7 @@ export class PupilsModalComponent implements OnInit {
     }
 
     open(content: TemplateRef<any>) {
-        this.pupilService.getPupilByIds(this.pupilIds).subscribe(pupils => {
+        this.pupilService.getPupilByIds(this.pupilIds, this.homeworkId).subscribe(pupils => {
             this.pupils = pupils;
         });
 		this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result;

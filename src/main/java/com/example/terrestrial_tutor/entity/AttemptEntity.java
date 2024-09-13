@@ -52,11 +52,7 @@ public class AttemptEntity {
     public HomeworkAnswersDTO getAnswers() {
         try {
             HomeworkAnswersDTO answers = new Gson().fromJson(this.answers, HomeworkAnswersDTO.class);
-            if (answers.getAttemptCount() == -1) {
-                throw new JsonSyntaxException("No answers found");
-            } else {
-                return new Gson().fromJson(this.answers, HomeworkAnswersDTO.class);
-            }
+            return answers;
         } catch (Exception e) {
             return new HomeworkAnswersDTO();
         }

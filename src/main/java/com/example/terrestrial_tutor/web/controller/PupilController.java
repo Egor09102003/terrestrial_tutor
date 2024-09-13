@@ -1,5 +1,6 @@
 package com.example.terrestrial_tutor.web.controller;
 
+import com.example.terrestrial_tutor.TerrestrialTutorApplication;
 import com.example.terrestrial_tutor.annotations.Api;
 import com.example.terrestrial_tutor.dto.PupilDTO;
 import com.example.terrestrial_tutor.dto.facade.PupilFacade;
@@ -7,6 +8,7 @@ import com.example.terrestrial_tutor.entity.AttemptEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TutorEntity;
+import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 import com.example.terrestrial_tutor.payload.request.AddSubjectRequest;
 import com.example.terrestrial_tutor.service.HomeworkService;
 import com.example.terrestrial_tutor.service.PupilService;
@@ -16,6 +18,9 @@ import com.google.gson.Gson;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +56,8 @@ public class PupilController {
     private PupilFacade pupilFacade;
     @Autowired
     private SubjectService subjectService;
+    static final Logger log =
+            LoggerFactory.getLogger(TerrestrialTutorApplication.class);
 
     /*@PostMapping("/pupil/add")
     public ResponseEntity<PupilEntity> addPupil(@RequestBody PupilEntity pupil) {
@@ -121,17 +128,39 @@ public class PupilController {
         return new ResponseEntity<>(pupilsDTO, HttpStatus.OK);
     }
 
-    @GetMapping("/pupils")
-    public ResponseEntity<List<PupilDTO>> getPupilByIds(@RequestParam List<Long> pupilIds) {
+    @GetMapping("/pupils/check/list/{homeworkId}")
+    public ResponseEntity<List<PupilDTO>> getPupilByIds(@PathVariable Long homeworkId, @RequestParam List<Long> pupilIds) {
         List<PupilEntity> pupils = pupilService.findPupilsByIds(pupilIds);
         TutorEntity tutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<PupilDTO> pupilDTOs = new ArrayList<>();
         for (PupilEntity pupil : pupils) {
-            for (TutorEntity pupilsTutor : pupil.getTutors()) {
-                if (pupilsTutor.getId().equals(tutor.getId())) {
-                    pupilDTOs.add(pupilFacade.pupilToPupilDTO(pupil));
-                    break;
+            try {
+                Boolean currrentTutor = false;
+                for (TutorEntity pupilsTutor : pupil.getTutors()) {
+                    if (pupilsTutor.getId().equals(tutor.getId())) {
+                        currrentTutor = true;
+                        break;
+                    }
                 }
+
+                Boolean currentHomework = false;
+                for (AttemptEntity attempt: pupil.getAnswers()) {
+                    if (attempt.getHomework() != null && attempt.getHomework().getId().equals(homeworkId) 
+                        && !attempt.getAnswers().getAnswersStatuses().isEmpty()
+                        && attempt.getAttemptNumber() != -1
+                        && attempt.getStatus() == HomeworkStatus.FINISHED
+                    )
+                    {
+                        currentHomework = true;
+                    }
+                }
+
+                if (currrentTutor && currentHomework) {
+                    pupilDTOs.add(pupilFacade.pupilToPupilDTO(pupil));
+                }
+            } catch(Exception e) {
+                log.error("Geting pupil failed: " + e.getMessage(), e);
+                continue;
             }
         }
         return new ResponseEntity<>(pupilDTOs, HttpStatus.OK);
