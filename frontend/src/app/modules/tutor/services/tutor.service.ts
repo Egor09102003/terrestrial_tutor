@@ -60,4 +60,12 @@ export class TutorService {
     return this.http.get(this.TUTORS_API);
   }
 
+  getAllCurrentPupils(subject: string): Observable<any> {
+    return this.http.get(this.TUTOR_API + 'pupils', {
+      params: {
+        subject: subject
+      }
+    });
+  }
+
 }

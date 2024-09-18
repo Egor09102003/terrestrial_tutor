@@ -4,6 +4,8 @@ import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TaskEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -53,4 +55,12 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
      * @return листа заданий
      */
     List<TaskEntity> findTaskEntitiesBySubjectAndLevel1AndLevel2(SubjectEntity subject, String level1, String level2);
+
+    /**
+     * Find tasks by ids
+     * 
+     * @param taskIds task ids
+     * @return task entities
+     */
+    List<TaskEntity> findAllById(Iterable<Long> taskIds);
 }

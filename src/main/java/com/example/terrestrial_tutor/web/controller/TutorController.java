@@ -1,5 +1,6 @@
 package com.example.terrestrial_tutor.web.controller;
 
+import com.example.terrestrial_tutor.TerrestrialTutorApplication;
 import com.example.terrestrial_tutor.annotations.Api;
 import com.example.terrestrial_tutor.dto.HomeworkDTO;
 import com.example.terrestrial_tutor.dto.PupilDTO;
@@ -11,9 +12,13 @@ import com.example.terrestrial_tutor.dto.facade.TutorListFacade;
 import com.example.terrestrial_tutor.entity.*;
 import com.example.terrestrial_tutor.service.HomeworkService;
 import com.example.terrestrial_tutor.service.PupilService;
+import com.example.terrestrial_tutor.service.SubjectService;
 import com.example.terrestrial_tutor.service.TutorService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +27,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import java.util.Set;
+
+import javax.transaction.Transactional;
 
 
 /**
@@ -52,6 +59,12 @@ public class TutorController {
     private HomeworkFacade homeworkFacade;
     @Autowired
     private TutorListFacade tutorListFacade;
+    @Autowired
+    @NonNull
+    SubjectService subjectService;
+
+    static final Logger log =
+            LoggerFactory.getLogger(TerrestrialTutorApplication.class);
 
     /**
      * Поиск учеников репетитора по предмету
@@ -63,7 +76,7 @@ public class TutorController {
     @GetMapping("/tutor/find/pupils/{subject}/{id}")
     @Secured("TUTOR")
     public ResponseEntity<List<PupilDTO>> getTutorPupilsBySubject(@PathVariable String subject, @PathVariable Long id) {
-        List<PupilEntity> pupils = tutorService.findTutorById(id).getPupils();
+        Set<PupilEntity> pupils = tutorService.findTutorById(id).getPupils();
         List<PupilDTO> pupilsDTO = new ArrayList<>();
         for (PupilEntity pupil : pupils) {
             for (SubjectEntity pupilSubject : pupil.getSubjects()) {
@@ -115,5 +128,26 @@ public class TutorController {
         return new ResponseEntity<>(tutorListFacade.tutorListToDTO(tutorService.getAllTutors()), HttpStatus.OK);
     }
     
-
+    @GetMapping("/tutor/pupils")
+    public ResponseEntity<Set<PupilDTO>> getCurrentPupils(@RequestParam String subject) {
+        try {
+            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            TutorEntity tutor = tutorService.findTutorById(user.getId());
+            List<PupilDTO> pupilDTOs = new ArrayList<>();
+            for (PupilEntity pupil : tutor.getPupils()) {
+                for (SubjectEntity pupilSubject : pupil.getSubjects()) {
+                    log.info(pupilSubject.getName());
+                    if (pupilSubject.getName().equals(subject)) {
+                        pupilDTOs.add(pupilFacade.pupilToPupilDTO(pupil));
+                        break;
+                    }
+                }
+            }
+            return new ResponseEntity<>(new HashSet<PupilDTO>(pupilDTOs), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+    }
+    
 }

@@ -44,7 +44,7 @@ public class PupilEntity implements User {
     @JoinColumn(name = "support")
     SupportEntity support;
 
-    @ManyToMany(mappedBy = "pupils", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "pupils", fetch = FetchType.LAZY)
     List<TutorEntity> tutors = new ArrayList<>();
 
     @OneToMany(mappedBy = "pupil", fetch = FetchType.LAZY)

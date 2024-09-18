@@ -86,4 +86,8 @@ public class PupilServiceImpl implements PupilService {
     public PupilEntity findPupilById(Long id) {
         return pupilRepository.findPupilEntityById(id);
     }
+
+    public List<PupilEntity> getByIds(Iterable<Long> ids) {
+        return pupilRepository.findAllById(ids);
+    }
 }
