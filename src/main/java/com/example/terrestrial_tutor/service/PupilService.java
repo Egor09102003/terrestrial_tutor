@@ -68,4 +68,11 @@ public interface PupilService {
 
     List<PupilEntity> findAllPupils();
 
+    /**
+     * Get pupil by ids
+     * 
+     * @param ids pupil ids
+     * @return pupil entities
+     */
+    List<PupilEntity> getByIds(Iterable<Long> ids);
 }

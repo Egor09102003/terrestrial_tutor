@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -145,5 +146,9 @@ public class TaskServiceImpl implements TaskService {
         TaskEntity task = taskRepository.findTaskEntityById(id);
         taskRepository.delete(task);
         return id;
+    }
+
+    public List<TaskEntity> getByIds(Iterable<Long> taskIds) {
+        return taskRepository.findAllById(taskIds);
     }
 }
