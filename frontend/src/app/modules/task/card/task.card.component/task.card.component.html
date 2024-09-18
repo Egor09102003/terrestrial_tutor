@@ -27,7 +27,7 @@
         <div class="card-body"><b>Баллы: </b>{{ task.cost }}</div>
         <div class="card-body">
             <b>Ответы: </b>
-            <ngx-codemirror class="col-5 m-2" #codemirrorComponent *ngIf="task.answerType == 'Код'"
+            <ngx-codemirror class="col-5 m-2" #codemirrorComponent *ngIf="task.answerType == 'CODE'"
                             [options]="{
                             lineNumbers: true,
                             theme: 'material',
@@ -37,7 +37,11 @@
                             }"
                             [(ngModel)]="task.answers[0]"
             ></ngx-codemirror>
-            <div class="answer" *ngIf="task.answerType != 'Код'">{{ task.answers }}</div>
+            <div class="answer" *ngIf="task.answerType === 'TABLE'">
+                <task-table table="{{task.answers[0]}}"></task-table>
+            </div>
+            
+            <div class="answer" *ngIf="task.answerType != 'CODE' && task.answerType !== 'TABLE'">{{ task.answers }}</div>
         </div>
         <div class="card-body"><b>Тема 1: </b>{{ task.level1 }}</div>
         <div class="card-body"><b>Тема 2: </b>{{ task.level2 }}</div>
