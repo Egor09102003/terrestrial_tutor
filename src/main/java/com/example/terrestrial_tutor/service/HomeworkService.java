@@ -165,5 +165,5 @@ public interface HomeworkService {
      * @param pupilId pupil id
      * @return last finished attempt entity
      */
-    public AttemptEntity getLastFinishedAttempt(Long homeworkId, Long pupilId)
+    public AttemptEntity getLastFinishedAttempt(Long homeworkId, Long pupilId);
 }
