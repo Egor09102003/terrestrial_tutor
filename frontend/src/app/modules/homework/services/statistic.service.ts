@@ -33,6 +33,7 @@ export class StatisticService {
       this.homeworkService.getLastAttemptAnswers(homeworkId, pupilId).subscribe(pupilAnswers => {
         let pupilAnswersMap = <HomeworkAnswers> pupilAnswers;
         this.pupilAnswers = pupilAnswersMap;
+        this.attempts = [];
         for (let i = 1; i <= pupilAnswersMap.attemptCount; i++) {
           this.attempts.push(i);
         }

@@ -339,7 +339,6 @@ public class HomeworkServiceImpl implements HomeworkService {
             for (Map.Entry<Long,HomeworkAnswersDTO.Status> status : updatedAnswers.getAnswersStatuses().entrySet()) {
                 if(attemptAnswers.getAnswersStatuses().containsKey(status.getKey())
                         && taskCheckingTypes.containsKey(status.getKey())
-                        && taskCheckingTypes.get(status.getKey()) == TaskCheckingType.MANUALLY
                 ) {
                     HomeworkAnswersDTO.Status updatedStatus = attemptAnswers.getAnswersStatuses().get(status.getKey());
                     updatedStatus.setPoints(status.getValue().getPoints());
