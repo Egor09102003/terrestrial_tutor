@@ -143,7 +143,7 @@ export class AdminComponent implements OnInit {
       })
       if (typePupils) {
         this.pupilService.addSubjects(this.pupilsSubject, newDataIds).subscribe();
-        this.adminService.addPupilsForTutor(newDataIds, this.selectedTutor.id).subscribe(pupils => {
+        this.adminService.addPupilsForTutor(newDataIds, this.selectedTutor.id, this.pupilsSubject).subscribe(pupils => {
           this.pupils = pupils;
         });
       } else {

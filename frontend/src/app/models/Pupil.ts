@@ -1,6 +1,8 @@
 import { Homework } from "./Homework";
+import { HomeworkAnswers } from "./HomeworkAnswers";
 
 export interface Pupil {
+  [key: string]: any;
   id: number;
   balance: number;
   homeworks: Homework[];
@@ -11,4 +13,5 @@ export interface Pupil {
   name: string;
   surname: string;
   patronymic: string;
+  attempt: HomeworkAnswers;
 }

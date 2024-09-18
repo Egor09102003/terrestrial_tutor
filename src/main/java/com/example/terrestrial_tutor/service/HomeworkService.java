@@ -157,4 +157,13 @@ public interface HomeworkService {
      * Repair attempts
      */
     public void repairAttemptNumber();
+
+    /**
+     * Get last finished homework
+     * 
+     * @param homeworkId homework id
+     * @param pupilId pupil id
+     * @return last finished attempt entity
+     */
+    public AttemptEntity getLastFinishedAttempt(Long homeworkId, Long pupilId)
 }
