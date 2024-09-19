@@ -2,6 +2,7 @@ package com.example.terrestrial_tutor.web.controller;
 
 import com.example.terrestrial_tutor.TerrestrialTutorApplication;
 import com.example.terrestrial_tutor.annotations.Api;
+import com.example.terrestrial_tutor.dto.HomeworkAnswersDTO;
 import com.example.terrestrial_tutor.dto.PupilDTO;
 import com.example.terrestrial_tutor.dto.facade.PupilFacade;
 import com.example.terrestrial_tutor.entity.AttemptEntity;
@@ -144,7 +145,8 @@ public class PupilController {
                 }
 
                 Boolean currentHomework = false;
-                AttemptEntity lastAttempt = null;
+                AttemptEntity bestAttempt = null;
+                Integer lastAttemptNumber = 1;
                 for (AttemptEntity attempt: pupil.getAnswers()) {
                     if (attempt.getHomework() != null && attempt.getHomework().getId().equals(homeworkId) 
                         && !attempt.getAnswers().getAnswersStatuses().isEmpty()
@@ -152,8 +154,11 @@ public class PupilController {
                         && attempt.getStatus() == HomeworkStatus.FINISHED
                     )
                     {
-                        if (lastAttempt == null || attempt.getAttemptPoints() > lastAttempt.getAttemptPoints()) {
-                            lastAttempt = attempt;
+                        if (bestAttempt == null || attempt.getAttemptPoints() > bestAttempt.getAttemptPoints()) {
+                            bestAttempt = attempt;
+                        }
+                        if (attempt.getAttemptNumber() > lastAttemptNumber) {
+                            lastAttemptNumber = attempt.getAttemptNumber();
                         }
                         currentHomework = true;
                     }
@@ -161,9 +166,10 @@ public class PupilController {
 
                 if (currrentTutor && currentHomework) {
                     PupilDTO pupilDTO = pupilFacade.pupilToPupilDTO(pupil);
-                    if (lastAttempt != null) {
-                        pupilDTO.setAttempt(lastAttempt.getAnswers());
+                    if (bestAttempt != null) {
+                        pupilDTO.setAttempt(bestAttempt.getAnswers());
                     }
+                    pupilDTO.setLastAttemptNumber(lastAttemptNumber);
                     pupilDTOs.add(pupilDTO);
                 }
             } catch(Exception e) {
