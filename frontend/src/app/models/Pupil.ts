@@ -14,4 +14,5 @@ export interface Pupil {
   surname: string;
   patronymic: string;
   attempt: HomeworkAnswers;
+  lastAttemptNumber: number
 }

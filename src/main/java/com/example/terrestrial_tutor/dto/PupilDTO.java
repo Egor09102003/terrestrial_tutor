@@ -21,4 +21,5 @@ public class PupilDTO {
     String surname;
     String patronymic;
     HomeworkAnswersDTO attempt;
+    Integer lastAttemptNumber;
 }
