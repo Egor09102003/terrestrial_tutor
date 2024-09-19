@@ -31,7 +31,7 @@ public class TutorEntity implements User {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "pupils")
-    List<PupilEntity> pupils;
+    Set<PupilEntity> pupils;
 
     @Column(name = "payment_data")
     String paymentData;

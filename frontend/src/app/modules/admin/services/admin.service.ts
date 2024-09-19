@@ -42,8 +42,12 @@ export class AdminService {
     return this.http.get(this.ADMIN_API + `find/tutors/new/${subject}`);
   }
 
-  addPupilsForTutor(pupilsIds: number[] | undefined, id: number | undefined): Observable<any> {
-    return this.http.post(this.ADMIN_API + `tutor/${id}/add/pupils`, pupilsIds);
+  addPupilsForTutor(pupilsIds: number[] | undefined, id: number | undefined, subject: string): Observable<any> {
+    return this.http.post(this.ADMIN_API + `tutor/${id}/add/pupils`, pupilsIds, {
+      params: {
+        subject: subject,
+      }
+    });
   }
 
   addTutorsSubject(tutorsIds: number[] | undefined, subject: string | undefined): Observable<any> {

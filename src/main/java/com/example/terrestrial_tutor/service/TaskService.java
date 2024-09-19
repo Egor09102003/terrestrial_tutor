@@ -5,6 +5,7 @@ import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.SupportEntity;
 import com.example.terrestrial_tutor.entity.TaskEntity;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -88,4 +89,11 @@ public interface TaskService {
      */
     Long delete(Long id);
 
+    /**
+     * Get all tasks by ids
+     * 
+     * @param taskIds task ids
+     * @return task entities
+     */
+    List<TaskEntity> getByIds(Iterable<Long> taskIds);
 }

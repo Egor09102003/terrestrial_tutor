@@ -153,7 +153,7 @@ export class TaskComponent implements OnInit {
       files: new FormControl(['']),
       table: new FormControl(this.task?.table ?? ''),
       analysis: new FormControl(this.task?.analysis ? this.task?.analysis : ''),
-      cost: new FormControl(this.task?.cost ? this.task?.cost : 1),
+      cost: new FormControl(this.task?.cost ? this.task?.cost : 0),
     });
 
     if (this.task && 'answerType' in this.task && this.task.answerType === 'TABLE') {

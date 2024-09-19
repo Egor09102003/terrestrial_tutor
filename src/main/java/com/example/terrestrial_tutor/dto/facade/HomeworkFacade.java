@@ -3,6 +3,7 @@ package com.example.terrestrial_tutor.dto.facade;
 import com.example.terrestrial_tutor.dto.HomeworkDTO;
 import com.example.terrestrial_tutor.dto.TaskDTO;
 import com.example.terrestrial_tutor.entity.*;
+import com.example.terrestrial_tutor.entity.enums.ERole;
 import com.example.terrestrial_tutor.service.*;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -53,17 +54,21 @@ public class HomeworkFacade {
         Map<Long, String> tasksCheckingTypes = new Gson().fromJson(homework.getTaskCheckingTypes(), (new TypeToken<Map<Long, String>>() {
         }.getType()));
         homeworkDTO.setTasksCheckingTypes(tasksCheckingTypes);
-        List<TaskDTO> tasks = new LinkedList<>();
-        for (Map.Entry<Long, String> task : tasksCheckingTypes.entrySet()) {
-            homework.getSubject().getTasks().stream().filter(currentTask
-                            -> Objects.equals(currentTask.getId(), task.getKey())).findFirst().
-                    ifPresent(taskEntity -> {
-                        taskEntity.setAnswer("");
-                        tasks.add(taskFacade.taskToTaskDTO(taskEntity));
-                    });
+        List<TaskDTO> taskDTOs = new LinkedList<>();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<TaskEntity> tasks = taskService.getByIds(tasksCheckingTypes.keySet());
+        if (user.getRole() == ERole.PUPIL) {
+            for (TaskEntity task : tasks) {
+                task.setAnswer("");
+                taskDTOs.add(taskFacade.taskToTaskDTO(task));
+            }
+        } else {
+            for (TaskEntity task : tasks) {
+                taskDTOs.add(taskFacade.taskToTaskDTO(task));
+            }
         }
 
-        homeworkDTO.setTasks(tasks);
+        homeworkDTO.setTasks(taskDTOs);
         return homeworkDTO;
     }
 

@@ -32,17 +32,13 @@ export class PupilsAddHomeworkComponent implements OnInit {
   ngOnInit(): void {
     this.homework = this.tutorDataService.getHomework();
     this.currentPupils = this.homework?.pupilIds;
-    this.pupilService.getAllPupils().subscribe(pupils => {
-      if (this.homework == null) {
-        this.tutorService.getHomework(this.route.snapshot.paramMap.get('hwId')).subscribe(homework => {
-          this.homework = homework;
-          this.currentPupils = this.homework?.pupilIds;
-          this.fillPupils(pupils);
-        });
-      } else {
+    this.tutorService.getHomework(this.route.snapshot.paramMap.get('hwId')).subscribe(homework => {
+      this.homework = homework;
+      this.currentPupils = this.homework?.pupilIds;
+      this.tutorService.getAllCurrentPupils(this.homework?.subject ?? '').subscribe(pupils => {
         this.fillPupils(pupils);
-      }
-    })
+      })
+    });
     this.filter.valueChanges.subscribe((text) => {
       this.search(text);
     });

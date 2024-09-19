@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.security.auth.Subject;
+
 /**
  * Контроллер для администратора
  */
@@ -59,17 +61,15 @@ public class AdminController {
      */
     @PostMapping("/admin/tutor/{id}/add/pupils")
     @Secured("hasAnyRole({'ADMIN'})")
-    public ResponseEntity<List<PupilDTO>> addPupilsForTutor(@RequestBody List<Long> pupilsIds, @PathVariable Long id) {
+    public ResponseEntity<List<PupilDTO>> addPupilsForTutor(@RequestParam String subject, @RequestBody List<Long> pupilsIds, @PathVariable Long id) {
         List<PupilEntity> pupils = pupilService.findPupilsByIds(pupilsIds);
         TutorEntity tutor = tutorService.findTutorById(id);
-        for (PupilEntity pupil : pupils) {
-            pupil.getTutors().add(tutor);
-            pupilService.updatePupil(pupil);
-        }
+        SubjectEntity subjectEntity = subjectService.findSubjectByName(subject);
         tutor.getPupils().addAll(pupils);
         tutorService.updateTutor(tutor);
         List<PupilDTO> pupilsDTO = tutor.getPupils()
                 .stream()
+                .filter(pupil -> pupil.getSubjects().contains(subjectEntity))
                 .map(pupil -> pupilFacade.pupilToPupilDTO(pupil))
                 .toList();
         return new ResponseEntity<>(pupilsDTO, HttpStatus.OK);
