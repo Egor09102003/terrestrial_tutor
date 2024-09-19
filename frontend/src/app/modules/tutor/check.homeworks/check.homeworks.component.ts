@@ -60,4 +60,12 @@ export class CheckHomeworksComponent implements OnInit {
         this.homeworkService.updateAttemptStat(this.homework.id ?? -1, this.pupilId, this.pupilAnswers).subscribe(pupilAnswers => this.pupilAnswers = pupilAnswers);
     }
 
+    test(tasks: Task[]) {
+        this.tasks = tasks;
+        console.log(tasks);
+    }
+    test1(ans: HomeworkAnswers) {
+        this.pupilAnswers = ans;
+        console.log(ans);
+    }
 }

@@ -6,6 +6,7 @@ import { PupilService } from "../../pupil/services/pupil.service";
 import { HomeworkService } from "../services/homework.service.";
 import { EnvironmentService } from "src/environments/environment.service";
 import { Homework } from "src/app/models/Homework";
+import { TaskService } from "../../task/services/task.service";
 
 @Component({
     selector: 'statistic-container',
@@ -18,6 +19,7 @@ export class StatisticContainerComponent implements OnInit {
     @Input() attempts: number[] = [];
     @Output() updatedAnswers = new EventEmitter<HomeworkAnswers>
     tasks: Task[];
+    @Output() tasksUpdate = new EventEmitter<Task[]>;
     @Input() pageLoaded: boolean;
     attempt: number
     @Input() homework: Homework;
@@ -30,6 +32,7 @@ export class StatisticContainerComponent implements OnInit {
 
     constructor(private router: Router,
         private homeworkService: HomeworkService,
+        private taskService: TaskService,
         public env: EnvironmentService,
       ) {}
 
@@ -72,9 +75,17 @@ export class StatisticContainerComponent implements OnInit {
         if ('id' in this.homework && this.homework.id) {
           this.homeworkService.getAttemptAnswers(this.homework.id, attempt, this.pupilId).subscribe(pupilAnswers => {
             this.pupilAnswers = <HomeworkAnswers>pupilAnswers;
-            this.updatedAnswers.emit(this.pupilAnswers);
-            this.getResultProgress();
-            this.pageLoaded = true;
+            let taskIds: number[] = [];
+            for (let taskId in pupilAnswers.answersStatuses) {
+              taskIds.push(Number(taskId));
+            }
+            this.taskService.getTaskByIds(taskIds).subscribe(tasks => {
+              this.tasks = tasks;
+              this.tasksUpdate.emit(tasks);
+              this.updatedAnswers.emit(this.pupilAnswers);
+              this.getResultProgress();
+              this.pageLoaded = true;
+            })
           });
         }
     }

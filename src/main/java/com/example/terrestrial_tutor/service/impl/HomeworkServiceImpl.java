@@ -335,11 +335,8 @@ public class HomeworkServiceImpl implements HomeworkService {
             if (homework == null) {
                 throw new NoSuchElementException("Homework not found");
             }
-            HashMap<Long, TaskCheckingType> taskCheckingTypes = this.getHomeworkCheckingTypes(homework.getTaskCheckingTypes());
             for (Map.Entry<Long,HomeworkAnswersDTO.Status> status : updatedAnswers.getAnswersStatuses().entrySet()) {
-                if(attemptAnswers.getAnswersStatuses().containsKey(status.getKey())
-                        && taskCheckingTypes.containsKey(status.getKey())
-                ) {
+                if(attemptAnswers.getAnswersStatuses().containsKey(status.getKey())) {
                     HomeworkAnswersDTO.Status updatedStatus = attemptAnswers.getAnswersStatuses().get(status.getKey());
                     updatedStatus.setPoints(status.getValue().getPoints());
                     updatedStatus.setStatus(status.getValue().getStatus());
@@ -347,7 +344,7 @@ public class HomeworkServiceImpl implements HomeworkService {
                 }
             }
             attempt.setAnswers(attemptAnswers);
-            attemptRepository.save(attempt);
+            attempt = this.updateAttemptPoints(attempt);
             return attemptAnswers;
         } catch (Exception e) {
             throw new Exception("Tasks status update failed: " +  e.getMessage());
@@ -388,6 +385,8 @@ public class HomeworkServiceImpl implements HomeworkService {
                 try {
                     HashMap<Long, List<AttemptEntity>> homeworkPupilAttempts = new HashMap<>();
                     for (AttemptEntity attempt : pupil.getAnswers()) {
+                        log.info(attempt.getId().toString());
+                        attempt = this.updateAttemptPoints(attempt);
                         Long homeworkId = attempt.getHomework().getId();
                         List<AttemptEntity> homeworkAttempts = new ArrayList<>();
                         if (homeworkPupilAttempts.get(homeworkId) != null) {
@@ -433,5 +432,15 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     public AttemptEntity getLastFinishedAttempt(Long homeworkId, Long pupilId) {
         return attemptRepository.findLastFinishedAttempt(homeworkId, pupilId);
+    }
+
+    public AttemptEntity updateAttemptPoints(AttemptEntity attempt) {
+        Long points = 0L;
+        for (HomeworkAnswersDTO.Status status : attempt.getAnswers().getAnswersStatuses().values()) {
+            points += status.getPoints();
+        }
+        attempt.setAttemptPoints(points);
+        log.info("Id: " + attempt.getId().toString() + "; point: " + points.toString());
+        return attemptRepository.save(attempt);
     }
 }

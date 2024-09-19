@@ -160,10 +160,18 @@ public interface HomeworkService {
 
     /**
      * Get last finished homework
-     * 
+     *
      * @param homeworkId homework id
      * @param pupilId pupil id
      * @return last finished attempt entity
      */
     public AttemptEntity getLastFinishedAttempt(Long homeworkId, Long pupilId);
+
+    /**
+     * Update attempt points
+     * 
+     * @param attempt attempt entity
+     * @return updated attempt
+     */
+    AttemptEntity updateAttemptPoints(AttemptEntity attempt);
 }
