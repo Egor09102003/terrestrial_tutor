@@ -32,4 +32,12 @@ export class TaskService {
   deleteTask(id: number) {
     return this.http.delete(this.TASK_API + `${id}/delete`);
   }
+
+  getTaskByIds(ids: number[]): Observable<any> {
+    return this.http.get(this.TASK_API, {
+      params: {
+        taskIds: ids,
+      }
+    })
+  }
 }

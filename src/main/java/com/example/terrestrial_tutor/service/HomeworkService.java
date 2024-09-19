@@ -166,4 +166,12 @@ public interface HomeworkService {
      * @return last finished attempt entity
      */
     public AttemptEntity getLastFinishedAttempt(Long homeworkId, Long pupilId);
+
+    /**
+     * Update attempt points
+     * 
+     * @param attempt attempt entity
+     * @return updated attempt
+     */
+    AttemptEntity updateAttemptPoints(AttemptEntity attempt);
 }

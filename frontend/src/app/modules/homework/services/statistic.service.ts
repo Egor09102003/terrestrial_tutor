@@ -4,7 +4,8 @@ import { HomeworkAnswers } from 'src/app/models/HomeworkAnswers';
 import { HomeworkService } from './homework.service.';
 import { EnvironmentService } from 'src/environments/environment.service';
 import {Task} from "../../../models/Task";
-import { Subject } from 'rxjs';
+import { map, Subject } from 'rxjs';
+import { TaskService } from '../../task/services/task.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,7 @@ export class StatisticService {
 
   constructor(
     private homeworkService: HomeworkService,
+    private taskService: TaskService,
     public env: EnvironmentService,
   ) {
     this.rightAnswers = [];
@@ -33,18 +35,25 @@ export class StatisticService {
       this.homeworkService.getLastAttemptAnswers(homeworkId, pupilId).subscribe(pupilAnswers => {
         let pupilAnswersMap = <HomeworkAnswers> pupilAnswers;
         this.pupilAnswers = pupilAnswersMap;
-        this.attempts = [];
-        for (let i = 1; i <= pupilAnswersMap.attemptCount; i++) {
-          this.attempts.push(i);
+        let taskIds: number[] = [];
+        for (let taskId in pupilAnswers.answersStatuses) {
+          taskIds.push(Number(taskId));
         }
-        this.homeworkService.getHomeworkRightAnswers(homeworkId).subscribe(rightAnswers => {
-          rightAnswers = <{[key: number]: string}> rightAnswers;
-          this.rightAnswers = rightAnswers;
-          for (let taskId of Object.keys(rightAnswers)) {
-            this.rightAnswers[Number(taskId)] = (JSON.parse(rightAnswers[taskId]));
+        this.taskService.getTaskByIds(taskIds).subscribe(tasks => {
+          this.tasks = tasks;
+          this.attempts = [];
+          for (let i = 1; i <= pupilAnswersMap.attemptCount; i++) {
+            this.attempts.push(i);
           }
-          this.pageLoaded.next(true);
-        });
+          this.homeworkService.getHomeworkRightAnswers(homeworkId).subscribe(rightAnswers => {
+            rightAnswers = <{[key: number]: string}> rightAnswers;
+            this.rightAnswers = rightAnswers;
+            for (let taskId of Object.keys(rightAnswers)) {
+              this.rightAnswers[Number(taskId)] = (JSON.parse(rightAnswers[taskId]));
+            }
+            this.pageLoaded.next(true);
+          });
+        })
       });
     });
   }
