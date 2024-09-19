@@ -1,6 +1,6 @@
 <div *ngIf="pageLoaded" class="container-fluid px-3 pb-3">
   <div class="container-fluid mx-auto p-3  min-vh-100 border-opacity-25 rounded-4 border border-2 col-12 plate text-le">
-    <statistic-container (updatedAnswers)="pupilAnswers = $event" [pageLoaded]="pageLoaded" [homework]="homework" [attempts]="attempts" [pupilAnswers]="pupilAnswers"></statistic-container>
+    <statistic-container (tasksUpdate)="tasks = $event" (updatedAnswers)="pupilAnswers = $event" [pageLoaded]="pageLoaded" [homework]="homework" [attempts]="attempts" [pupilAnswers]="pupilAnswers"></statistic-container>
     <div class="d-inline m-3 mb-5" *ngFor="let task of tasks">
       <check-task-card [rightAnswers]="rightAnswers" [pupilAnswers]="pupilAnswers" [task]="task"></check-task-card>
     </div>

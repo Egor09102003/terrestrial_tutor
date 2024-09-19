@@ -36,6 +36,9 @@ public class AttemptEntity {
     @JoinColumn(name = "homework")
     HomeworkEntity homework;
 
+    @Column(name = "attempt_points")
+    Long attemptPoints = 0L;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pupil")
     PupilEntity pupil;

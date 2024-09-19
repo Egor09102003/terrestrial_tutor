@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.io.IOException;
 import java.util.*;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 /**
  * Контроллер дл работы с заданиями
@@ -124,5 +126,13 @@ public class TaskController {
         taskService.delete(id);
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
+
+    @GetMapping("/tasks")
+    public ResponseEntity<List<TaskDTO>> getTaskByIds(@RequestParam List<Long> taskIds) {
+        List<TaskEntity> tasks = taskService.getByIds(taskIds);
+        List<TaskDTO> taskDTOs = tasks.stream().map(task -> taskFacade.taskToTaskDTO(task)).toList();
+        return new ResponseEntity<>(taskDTOs, HttpStatus.OK);
+    }
+    
 
 }

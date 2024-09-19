@@ -152,7 +152,7 @@ public class PupilController {
                         && attempt.getStatus() == HomeworkStatus.FINISHED
                     )
                     {
-                        if (lastAttempt == null || attempt.getAttemptNumber() > lastAttempt.getAttemptNumber()) {
+                        if (lastAttempt == null || attempt.getAttemptPoints() > lastAttempt.getAttemptPoints()) {
                             lastAttempt = attempt;
                         }
                         currentHomework = true;

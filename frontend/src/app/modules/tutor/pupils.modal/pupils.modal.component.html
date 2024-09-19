@@ -4,42 +4,44 @@
         <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
       </div>
     <div class="modal-body">
-        <table>
-            <thead>
-                @for (pupilField of pupilFields|keyvalue; track pupilField) {
-                    <th>
-                        {{pupilField.value}}
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    @for (pupilField of pupilFields|keyvalue; track pupilField) {
+                        <th>
+                            {{pupilField.value}}
+                        </th>
+                    }
+                    <th> 
+                        Кол-во попыток
                     </th>
-                }
-                <th> 
-                    Кол-во попыток
-                </th>
-                <th> 
-                    Баллы последней попытки
-                </th>
-            </thead>
-            <tbody>
-                @for(pupil of pupils; track pupil) {
-                    <tr>
-                        @for (pupilField of pupilFields|keyvalue; track pupilField) {
-                            <td 
-                                (click)="modal.dismiss()" 
-                                [routerLink]="['/tutor/' + tutorId + '/homework/checking']"
-                                [queryParams]="{homework: homeworkId, pupil: pupil.id}"
-                            >
-                                {{pupil[pupilField.key]}}
+                    <th> 
+                        Балл лучшей попытки
+                    </th>
+                </thead>
+                <tbody>
+                    @for(pupil of pupils; track pupil) {
+                        <tr
+                            (click)="modal.dismiss()" 
+                            [routerLink]="['/tutor/' + tutorId + '/homework/checking']"
+                            [queryParams]="{homework: homeworkId, pupil: pupil.id}"
+                        >
+                            @for (pupilField of pupilFields|keyvalue; track pupilField) {
+                                <td>
+                                    {{pupil[pupilField.key]}}
+                                </td>
+                            }
+                            <td>
+                                {{pupil.attempt.attemptCount}}
                             </td>
-                        }
-                        <td>
-                            {{pupil.attempt.attemptCount}}
-                        </td>
-                        <td>
-                            {{getAttemptPoints(pupil.attempt)}}
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                            <td>
+                                {{getAttemptPoints(pupil.attempt)}}
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </ng-template>
 
