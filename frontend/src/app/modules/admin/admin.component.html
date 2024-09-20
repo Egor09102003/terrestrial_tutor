@@ -66,7 +66,6 @@
             </div>
           </div>
 
-          <button class="row btn btn-primary mb-5 mx-3 p-2" (click)="open(content)" *ngIf="selectedTutor != undefined">Выбрать учеников</button>
           <div class="row m-1"></div>
           <div *ngIf="!isNewDataLoaded"  class="row mx-3 m-2 spinner-border" role="status"></div>
 
@@ -86,7 +85,6 @@
             </div>
           </div>
 
-          <button class="row btn btn-primary mb-5 mx-3 p-2" (click)="open(content, false)" *ngIf="tutorsSubject != 'Выберите предмет'">Выбрать преподавателя</button>
           <div class="row m-1"></div>
           <div *ngIf="!isNewDataLoaded"  class="row mx-3 m-2 spinner-border" role="status"></div>
 
@@ -98,48 +96,7 @@
 
       <!-- Создание далогового окна с таблицей учеников -->
 
-      <ng-template #content let-modal>
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Выбор ученика</h4>
-            <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
-          </div>
-          <div class="modal-body col-9">
-            <form>
-              <div class="mb-3 row">
-                <label for="table-filtering-search" class="col-xs-3 col-sm-auto col-form-label">Поиск:</label>
-                <div class="col-xs-3 col-sm-auto">
-                  <input id="table-filtering-search" class="form-control" type="text" [formControl]="filter">
-                </div>
-              </div>
-            </form>
-            <div *ngIf="!isNewPupilsLoaded" class="spinner-border" role="status"></div>
-            <table class="table rounded table-striped" *ngIf="isNewPupilsLoaded">
-              <thead>
-              <tr>
-                <th scope="col">Выбор</th>
-                <th scope="col">Фамилия</th>
-                <th scope="col">Имя</th>
-                <th scope="col">Отчество</th>
-                <th scope="col">Почта</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr *ngFor="let pupil of filteredData">
-                <td><input type="checkbox" [(ngModel)]="pupil.isSelected" /></td>
-                <td><ngb-highlight [result]="checkType(pupil).surname" [term]="filter.value"></ngb-highlight></td>
-                <td><ngb-highlight [result]="checkType(pupil).name" [term]="filter.value"></ngb-highlight></td>
-                <td><ngb-highlight [result]="checkType(pupil).patronymic" [term]="filter.value"></ngb-highlight></td>
-                <td ><ngb-highlight [result]="checkType(pupil).username" [term]="filter.value"></ngb-highlight></td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary p-2" (click)="close(modal)" [disabled]="newData.length == 0">Добавить</button>
-          </div>
-        </div>
-      </ng-template>
+      <pupils-select-modal (resultPupilIds)="test($event)" [currentPupils]="pupils"></pupils-select-modal>
     </ng-template>
   </li>
 

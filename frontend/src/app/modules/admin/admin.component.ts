@@ -61,6 +61,11 @@ export class AdminComponent implements OnInit {
         this.checks = checks;
         this.isChecksPageLoaded = true;
       });
+
+    this.pupilService.getAll().subscribe(pupils => {
+      this.pupils.push(pupils[0]);
+      this.pupils.push(pupils[1]);
+    })
   }
 
   deleteCheck(id: number) {
@@ -174,5 +179,9 @@ export class AdminComponent implements OnInit {
       this.homeworks = <Homework[]>homeworks
     });
     this.tutorService.getAllTutors().subscribe(tutors => this.tutors = tutors);
+  }
+
+  test(test: number[]) {
+    console.log(test);
   }
 }
