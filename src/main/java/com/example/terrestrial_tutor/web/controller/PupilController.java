@@ -2,15 +2,20 @@ package com.example.terrestrial_tutor.web.controller;
 
 import com.example.terrestrial_tutor.TerrestrialTutorApplication;
 import com.example.terrestrial_tutor.annotations.Api;
+import com.example.terrestrial_tutor.dto.EnrollDTO;
 import com.example.terrestrial_tutor.dto.HomeworkAnswersDTO;
 import com.example.terrestrial_tutor.dto.PupilDTO;
+import com.example.terrestrial_tutor.dto.TutorListDTO;
+import com.example.terrestrial_tutor.dto.facade.EnrollFacade;
 import com.example.terrestrial_tutor.dto.facade.PupilFacade;
+import com.example.terrestrial_tutor.dto.facade.TutorListFacade;
 import com.example.terrestrial_tutor.entity.AttemptEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TutorEntity;
 import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 import com.example.terrestrial_tutor.payload.request.AddSubjectRequest;
+import com.example.terrestrial_tutor.service.EnrollService;
 import com.example.terrestrial_tutor.service.HomeworkService;
 import com.example.terrestrial_tutor.service.PupilService;
 import com.example.terrestrial_tutor.service.SubjectService;
@@ -34,6 +39,12 @@ import javax.persistence.EntityExistsException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+
 
 
 /**
@@ -57,13 +68,14 @@ public class PupilController {
     private PupilFacade pupilFacade;
     @Autowired
     private SubjectService subjectService;
+    @Autowired
+    private TutorListFacade tutorListFacade;
+    @Autowired
+    private EnrollService enrollService;
+    @Autowired
+    private EnrollFacade enrollFacade;
     static final Logger log =
             LoggerFactory.getLogger(TerrestrialTutorApplication.class);
-
-    /*@PostMapping("/pupil/add")
-    public ResponseEntity<PupilEntity> addPupil(@RequestBody PupilEntity pupil) {
-        return new ResponseEntity<>(pupilService.addNewPupil(pupil), HttpStatus.OK);
-    }*/
 
     /**
      * Поиск ученика по id
@@ -179,5 +191,15 @@ public class PupilController {
         }
         return new ResponseEntity<>(pupilDTOs, HttpStatus.OK);
     }
-    
+
+    @GetMapping("/pupil/{pupilId}/tutors")
+    public ResponseEntity<List<TutorListDTO>> getTutors(@PathVariable Long pupilId) {
+        try {
+            PupilEntity pupil = pupilService.findPupilById(pupilId);
+            return new ResponseEntity<>(tutorListFacade.tutorListToDTO(pupil.getTutors()), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Failed to get pupil " + pupilId.toString() + " tutors. Error message: " + e.getMessage());
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }    
 }

@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Класс сущности предмета
@@ -33,6 +34,9 @@ public class SubjectEntity {
     @NonNull
     @Column(name = "count_level")
     Integer countLevel;
+
+    @OneToMany(mappedBy = "subject")
+    Set<EnrollEntity> enrolls;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "tutors")

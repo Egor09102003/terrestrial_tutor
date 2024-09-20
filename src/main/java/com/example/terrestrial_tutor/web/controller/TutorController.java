@@ -2,14 +2,17 @@ package com.example.terrestrial_tutor.web.controller;
 
 import com.example.terrestrial_tutor.TerrestrialTutorApplication;
 import com.example.terrestrial_tutor.annotations.Api;
+import com.example.terrestrial_tutor.dto.EnrollDTO;
 import com.example.terrestrial_tutor.dto.HomeworkDTO;
 import com.example.terrestrial_tutor.dto.PupilDTO;
 import com.example.terrestrial_tutor.dto.SubjectDTO;
 import com.example.terrestrial_tutor.dto.TutorListDTO;
+import com.example.terrestrial_tutor.dto.facade.EnrollFacade;
 import com.example.terrestrial_tutor.dto.facade.HomeworkFacade;
 import com.example.terrestrial_tutor.dto.facade.PupilFacade;
 import com.example.terrestrial_tutor.dto.facade.TutorListFacade;
 import com.example.terrestrial_tutor.entity.*;
+import com.example.terrestrial_tutor.service.EnrollService;
 import com.example.terrestrial_tutor.service.HomeworkService;
 import com.example.terrestrial_tutor.service.PupilService;
 import com.example.terrestrial_tutor.service.SubjectService;
@@ -29,9 +32,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.transaction.Transactional;
+
+
 
 
 /**
@@ -62,6 +68,10 @@ public class TutorController {
     @Autowired
     @NonNull
     SubjectService subjectService;
+    @Autowired
+    EnrollService enrollService;
+    @Autowired
+    EnrollFacade enrollFacade;
 
     static final Logger log =
             LoggerFactory.getLogger(TerrestrialTutorApplication.class);
@@ -127,27 +137,45 @@ public class TutorController {
     public ResponseEntity<List<TutorListDTO>> getAllTutors() {
         return new ResponseEntity<>(tutorListFacade.tutorListToDTO(tutorService.getAllTutors()), HttpStatus.OK);
     }
-    
-    @GetMapping("/tutor/pupils")
-    public ResponseEntity<Set<PupilDTO>> getCurrentPupils(@RequestParam String subject) {
+
+    /**
+     * Get tutor asigned pupils
+     * 
+     * @param tutorId tutor id
+     * @param subject sunject name
+     * @return pils DTOs
+     */
+    @GetMapping("/tutor/{tutorId}/pupils")
+    public ResponseEntity<List<PupilDTO>> getPupils(@PathVariable Long tutorId, @RequestParam Optional<String> subject) {
         try {
-            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            TutorEntity tutor = tutorService.findTutorById(user.getId());
-            List<PupilDTO> pupilDTOs = new ArrayList<>();
-            for (PupilEntity pupil : tutor.getPupils()) {
-                for (SubjectEntity pupilSubject : pupil.getSubjects()) {
-                    log.info(pupilSubject.getName());
-                    if (pupilSubject.getName().equals(subject)) {
-                        pupilDTOs.add(pupilFacade.pupilToPupilDTO(pupil));
-                        break;
-                    }
-                }
+            Set<PupilEntity> pupils;
+            if (subject.isPresent()) {
+                pupils = pupilService.getByTutorAndSubject(tutorId, subjectService.findSubjectByName(subject.get()).getId());
+            } else {
+                pupils = pupilService.getByTutor(tutorId);
             }
-            return new ResponseEntity<>(new HashSet<PupilDTO>(pupilDTOs), HttpStatus.OK);
+            List<PupilDTO> pupilDTOs = new ArrayList<>();
+            for (PupilEntity pupil : pupils) {
+                pupilDTOs.add(pupilFacade.pupilToPupilDTO(pupil));
+            }
+            return new ResponseEntity<>(pupilDTOs, HttpStatus.OK);
         } catch (Exception e) {
-            log.error(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            log.error("Failed to get pupils for tutor: " + tutorId.toString() + ". Error: " + e.getMessage());
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @PostMapping("/tutor/{tutorId}/enroll/{subjectName}")
+    public ResponseEntity<List<EnrollDTO>> pupilsEnroll(@PathVariable String subjectName, @RequestBody List<Long> pupilIds, @PathVariable Long tutorId) {
+        SubjectEntity subject = subjectService.findSubjectByName(subjectName);
+        TutorEntity tutor = tutorService.findTutorById(tutorId);
+        List<PupilEntity> pupils = pupilService.findPupilsByIds(pupilIds);
+       
+        return new ResponseEntity<List<EnrollDTO>>(
+            enrollService.saveAll(subject, tutor, pupils).stream().map(enroll -> enrollFacade.enrollToEnrollDTO(enroll)).toList(),
+            HttpStatus.OK
+        );
+    }
+    
     
 }

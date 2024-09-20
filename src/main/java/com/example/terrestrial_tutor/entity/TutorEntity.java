@@ -3,6 +3,7 @@ package com.example.terrestrial_tutor.entity;
 import javax.persistence.*;
 
 import com.example.terrestrial_tutor.entity.enums.ERole;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,6 +39,9 @@ public class TutorEntity implements User {
 
     @ManyToMany(mappedBy = "tutors", fetch = FetchType.LAZY)
     Set<HomeworkEntity> homeworkList;
+
+    @OneToMany(mappedBy = "tutor")
+    List<EnrollEntity> enrolls;
 
     @NonNull
     @Column(name = "username")
@@ -137,5 +141,9 @@ public class TutorEntity implements User {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public Set<PupilEntity> getPupils() {
+        return new HashSet<PupilEntity>(this.enrolls.stream().map(enroll -> enroll.getPupil()).toList());
     }
 }
