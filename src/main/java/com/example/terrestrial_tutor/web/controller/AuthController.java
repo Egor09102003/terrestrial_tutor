@@ -66,18 +66,54 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = SecurityConstants.TOKEN_PREFIX + jwtTokenProvider.generateToken(authentication);
-        if (authentication.getPrincipal() instanceof AdminEntity) {
-            AdminEntity admin = (AdminEntity) authentication.getPrincipal();
-            return ResponseEntity.ok(new JWTTokenSuccessResponse(true, jwt, ERole.ADMIN, admin.getId()));
-        } else if (authentication.getPrincipal() instanceof PupilEntity) {
-            PupilEntity pupil = (PupilEntity) authentication.getPrincipal();
-            return ResponseEntity.ok(new JWTTokenSuccessResponse(true, jwt, ERole.PUPIL, pupil.getId()));
-        } else if (authentication.getPrincipal() instanceof SupportEntity) {
-            SupportEntity support = (SupportEntity) authentication.getPrincipal();
-            return ResponseEntity.ok(new JWTTokenSuccessResponse(true, jwt, ERole.SUPPORT, support.getId()));
+        if (authentication.getPrincipal() instanceof AdminEntity admin) {
+            return ResponseEntity.ok(new JWTTokenSuccessResponse(
+                true,
+                    jwt,
+                    ERole.ADMIN,
+                    admin.getId(),
+                    admin.getUsername(),
+                    admin.getName(),
+                    admin.getSurname(),
+                    admin.getPatronymic()
+                )
+            );
+        } else if (authentication.getPrincipal() instanceof PupilEntity pupil) {
+            return ResponseEntity.ok(new JWTTokenSuccessResponse(
+                true,
+                    jwt,
+                    ERole.PUPIL,
+                    pupil.getId(),
+                    pupil.getUsername(),
+                    pupil.getName(),
+                    pupil.getSurname(),
+                    pupil.getPatronymic()
+                )
+            );
+        } else if (authentication.getPrincipal() instanceof SupportEntity support) {
+            return ResponseEntity.ok(new JWTTokenSuccessResponse(
+                true,
+                    jwt, ERole.SUPPORT,
+                    support.getId(),
+                    support.getUsername(),
+                    support.getName(),
+                    support.getSurname(),
+                    support.getPatronymic()
+                )
+            );
         } else {
             TutorEntity tutor = (TutorEntity) authentication.getPrincipal();
-            return ResponseEntity.ok(new JWTTokenSuccessResponse(true, jwt, ERole.TUTOR, tutor.getId()));
+            return ResponseEntity.ok(new JWTTokenSuccessResponse(
+                    true,
+                    jwt,
+                    ERole.TUTOR,
+                    tutor.getId(),
+                    tutor.getUsername(),
+                    tutor.getName(),
+                    tutor.getSurname(),
+                    tutor.getPatronymic()
+                )
+            );
         }
     }
 
@@ -140,7 +176,60 @@ public class AuthController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String jwt = SecurityConstants.TOKEN_PREFIX + jwtTokenProvider.generateToken(SecurityContextHolder.getContext().getAuthentication());
 
-        return new JWTTokenSuccessResponse(true, jwt, user.getRole(), user.getId());
+        return switch (user.getRole()) {
+            case ADMIN -> {
+                AdminEntity admin = (AdminEntity) user;
+                yield new JWTTokenSuccessResponse(
+                        true,
+                        jwt,
+                        admin.getRole(),
+                        admin.getId(),
+                        admin.getUsername(),
+                        admin.getName(),
+                        admin.getSurname(),
+                        admin.getPatronymic()
+                );
+            }
+            case SUPPORT -> {
+                SupportEntity support = (SupportEntity) user;
+                yield new JWTTokenSuccessResponse(
+                        true,
+                        jwt,
+                        support.getRole(),
+                        support.getId(),
+                        support.getUsername(),
+                        support.getName(),
+                        support.getSurname(),
+                        support.getPatronymic()
+                );
+            }
+            case TUTOR -> {
+                TutorEntity tutor = (TutorEntity) user;
+                yield new JWTTokenSuccessResponse(
+                        true,
+                        jwt,
+                        tutor.getRole(),
+                        tutor.getId(),
+                        tutor.getUsername(),
+                        tutor.getName(),
+                        tutor.getSurname(),
+                        tutor.getPatronymic()
+                );
+            }
+            case PUPIL -> {
+                PupilEntity pupil = (PupilEntity) user;
+                yield new JWTTokenSuccessResponse(
+                        true,
+                        jwt,
+                        pupil.getRole(),
+                        pupil.getId(),
+                        pupil.getUsername(),
+                        pupil.getName(),
+                        pupil.getSurname(),
+                        pupil.getPatronymic()
+                );
+            }
+        };
     }
 
 }

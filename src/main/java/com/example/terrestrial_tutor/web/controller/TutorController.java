@@ -68,10 +68,6 @@ public class TutorController {
     @Autowired
     @NonNull
     SubjectService subjectService;
-    @Autowired
-    EnrollService enrollService;
-    @Autowired
-    EnrollFacade enrollFacade;
 
     static final Logger log =
             LoggerFactory.getLogger(TerrestrialTutorApplication.class);
@@ -164,18 +160,4 @@ public class TutorController {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
-
-    @PostMapping("/tutor/{tutorId}/enroll/{subjectName}")
-    public ResponseEntity<List<EnrollDTO>> pupilsEnroll(@PathVariable String subjectName, @RequestBody List<Long> pupilIds, @PathVariable Long tutorId) {
-        SubjectEntity subject = subjectService.findSubjectByName(subjectName);
-        TutorEntity tutor = tutorService.findTutorById(tutorId);
-        List<PupilEntity> pupils = pupilService.findPupilsByIds(pupilIds);
-       
-        return new ResponseEntity<List<EnrollDTO>>(
-            enrollService.saveAll(subject, tutor, pupils).stream().map(enroll -> enrollFacade.enrollToEnrollDTO(enroll)).toList(),
-            HttpStatus.OK
-        );
-    }
-    
-    
 }

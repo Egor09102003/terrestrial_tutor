@@ -29,10 +29,10 @@
             <tbody>
               <tr *ngFor="let pupil of fiteredPupils">
                 <td class="overflow-hidden text-center"><input type="checkbox" width="20px" [(ngModel)]="selectedPupils[pupil.id]" /></td>
-                <td class="overflow-hidden"><ngb-highlight [result]="pupil.surname" [term]="filter.value ?? ''"></ngb-highlight></td>
-                <td class="overflow-hidden"><ngb-highlight [result]="pupil.name" [term]="filter.value  ?? ''"></ngb-highlight></td>
-                <td class="overflow-hidden"><ngb-highlight [result]="pupil.patronymic" [term]="filter.value  ?? ''"></ngb-highlight></td>
-                <td class="overflow-hidden" ><ngb-highlight [result]="pupil.username" [term]="filter.value  ?? ''"></ngb-highlight></td>
+                <td class="overflow-hidden" (click)="selectedPupils[pupil.id] = !selectedPupils[pupil.id]"><ngb-highlight [result]="pupil.surname" [term]="filter.value ?? ''"></ngb-highlight></td>
+                <td class="overflow-hidden" (click)="selectedPupils[pupil.id] = !selectedPupils[pupil.id]"><ngb-highlight [result]="pupil.name" [term]="filter.value  ?? ''"></ngb-highlight></td>
+                <td class="overflow-hidden" (click)="selectedPupils[pupil.id] = !selectedPupils[pupil.id]"><ngb-highlight [result]="pupil.patronymic" [term]="filter.value  ?? ''"></ngb-highlight></td>
+                <td class="overflow-hidden" (click)="selectedPupils[pupil.id] = !selectedPupils[pupil.id]"><ngb-highlight [result]="pupil.username" [term]="filter.value  ?? ''"></ngb-highlight></td>
               </tr>
             </tbody>
           </table>

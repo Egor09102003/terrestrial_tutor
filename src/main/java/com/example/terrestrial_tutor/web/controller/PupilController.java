@@ -9,10 +9,7 @@ import com.example.terrestrial_tutor.dto.TutorListDTO;
 import com.example.terrestrial_tutor.dto.facade.EnrollFacade;
 import com.example.terrestrial_tutor.dto.facade.PupilFacade;
 import com.example.terrestrial_tutor.dto.facade.TutorListFacade;
-import com.example.terrestrial_tutor.entity.AttemptEntity;
-import com.example.terrestrial_tutor.entity.PupilEntity;
-import com.example.terrestrial_tutor.entity.SubjectEntity;
-import com.example.terrestrial_tutor.entity.TutorEntity;
+import com.example.terrestrial_tutor.entity.*;
 import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 import com.example.terrestrial_tutor.payload.request.AddSubjectRequest;
 import com.example.terrestrial_tutor.service.EnrollService;
@@ -71,9 +68,7 @@ public class PupilController {
     @Autowired
     private TutorListFacade tutorListFacade;
     @Autowired
-    private EnrollService enrollService;
-    @Autowired
-    private EnrollFacade enrollFacade;
+    EnrollService enrollService;
     static final Logger log =
             LoggerFactory.getLogger(TerrestrialTutorApplication.class);
 
@@ -148,19 +143,12 @@ public class PupilController {
         List<PupilDTO> pupilDTOs = new ArrayList<>();
         for (PupilEntity pupil : pupils) {
             try {
-                Boolean currrentTutor = false;
-                for (TutorEntity pupilsTutor : pupil.getTutors()) {
-                    if (pupilsTutor.getId().equals(tutor.getId())) {
-                        currrentTutor = true;
-                        break;
-                    }
-                }
-
-                Boolean currentHomework = false;
                 AttemptEntity bestAttempt = null;
-                Integer lastAttemptNumber = 1;
+                int lastAttemptNumber = 1;
                 for (AttemptEntity attempt: pupil.getAnswers()) {
-                    if (attempt.getHomework() != null && attempt.getHomework().getId().equals(homeworkId) 
+                    HomeworkEntity homework = attempt.getHomework();
+                    HomeworkAnswersDTO test = attempt.getAnswers();
+                    if (homework != null && homework.getId().equals(homeworkId)
                         && !attempt.getAnswers().getAnswersStatuses().isEmpty()
                         && attempt.getAttemptNumber() != -1
                         && attempt.getStatus() == HomeworkStatus.FINISHED
@@ -172,15 +160,12 @@ public class PupilController {
                         if (attempt.getAttemptNumber() > lastAttemptNumber) {
                             lastAttemptNumber = attempt.getAttemptNumber();
                         }
-                        currentHomework = true;
                     }
                 }
 
-                if (currrentTutor && currentHomework) {
+                if (bestAttempt != null && enrollService.checkEnrollment(pupil, bestAttempt.getHomework().getSubject(), tutor)) {
                     PupilDTO pupilDTO = pupilFacade.pupilToPupilDTO(pupil);
-                    if (bestAttempt != null) {
-                        pupilDTO.setAttempt(bestAttempt.getAnswers());
-                    }
+                    pupilDTO.setAttempt(bestAttempt.getAnswers());
                     pupilDTO.setLastAttemptNumber(lastAttemptNumber);
                     pupilDTOs.add(pupilDTO);
                 }

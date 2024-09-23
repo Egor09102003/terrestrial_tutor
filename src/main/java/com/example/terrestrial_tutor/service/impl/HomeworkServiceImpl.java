@@ -440,7 +440,6 @@ public class HomeworkServiceImpl implements HomeworkService {
             points += status.getPoints();
         }
         attempt.setAttemptPoints(points);
-        log.info("Id: " + attempt.getId().toString() + "; point: " + points.toString());
         return attemptRepository.save(attempt);
     }
 }

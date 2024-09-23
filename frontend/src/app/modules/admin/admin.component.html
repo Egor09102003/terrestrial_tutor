@@ -47,49 +47,35 @@
 
     <ng-template ngbNavContent class="col-12">
       <div class="row mx-0 mt-3 mb-3 col-12 justify-content-center">
-        <div class="container-fluid mx-3 min-vh-100 col-5 border-opacity-25 rounded-4 border border-2">
-          <h2>Назначение учеников</h2>
-          <div ngbDropdown class="row col-5 m-3">
-            <button type="button" class="drop-btn btn-primary p-2" ngbDropdownToggle>{{pupilsSubject}}</button>
+        <div class="container-fluid mx-3 min-vh-100 col-11 border-opacity-25 rounded-4 border border-2">
+          <h1 class="m-3">Назначение учеников</h1>
+          <h2 class="mx-3">Предмет</h2>
+          <div ngbDropdown class="row col-3 m-3">
+            <button type="button" class="drop-btn btn-primary p-2" ngbDropdownToggle>{{currentSubject}}</button>
             <div ngbDropdownMenu class="text-center">
-              <button ngbDropdownItem class="nav-btn" *ngFor="let subject of subjects" (click)="pupilsSubject=subject.subjectName;findTutorsForPupilsAdd()">{{ subject.subjectName }}</button>
+              <button ngbDropdownItem class="nav-btn" *ngFor="let subject of subjects" (click)="setSubject(subject)">{{ subject.subjectName }}</button>
             </div>
           </div>
 
           <!-- Выбор препода -->
-
-          <div ngbDropdown class="row col-8 m-3" *ngIf="pupilsSubject != 'Выберите предмет'">
-            <button *ngIf="selectedTutor != undefined" type="button" class="drop-btn btn-primary p-2" ngbDropdownToggle>{{selectedTutor.surname + ' ' + selectedTutor.name + ' ' + selectedTutor.patronymic}}</button>
-            <button *ngIf="selectedTutor == undefined" type="button" class="drop-btn btn-primary p-2" ngbDropdownToggle>Выберите преподавателя</button>
-            <div ngbDropdownMenu class="text-center">
-              <button class="nav-btn" ngbDropdownItem *ngFor="let tutor of tutorsBySubjectsPupil" (click)="selectedTutor=tutor;getTutorPupilsBySubject()">{{ tutor.surname + ' ' + tutor.name + ' ' + tutor.patronymic }}</button>
+          <div *ngIf="currentSubject != 'Выбирете предмет'">
+          <h2 class="mx-3">Преподаватель</h2>
+            <div ngbDropdown class="row col-5 m-3">
+  <!--            <button *ngIf="currentTutor" type="button" class="drop-btn btn-primary p-2" ngbDropdownToggle>{{currentTutor.surname + ' ' + currentTutor.name + ' ' + currentTutor.patronymic}}</button>-->
+  <!--            <button *ngIf="!currentTutor" type="button" class="drop-btn btn-primary p-2" ngbDropdownToggle>Выбирете преподавателя</button>-->
+              <input class="p-2" ngbDropdownToggle [value]="currentTutor ? currentTutor.surname + ' ' + currentTutor.name + ' ' + currentTutor.patronymic : ''">
+              <div ngbDropdownMenu class="text-center">
+                <button class="nav-btn" ngbDropdownItem *ngFor="let tutor of tutors" (click)="currentTutor=tutor;getTutorPupilsBySubject()">{{ tutor.surname + ' ' + tutor.name + ' ' + tutor.patronymic }}</button>
+              </div>
             </div>
           </div>
 
           <div class="row m-1"></div>
-          <div *ngIf="!isNewDataLoaded"  class="row mx-3 m-2 spinner-border" role="status"></div>
 
           <!-- Вывод найденых учеников -->
 
-          <ol *ngIf="isNewDataLoaded">
+          <ol *ngIf="pupils.length !== 0">
             <li class="p-2 border-opacity-25 rounded-4 border border-2 m-2" *ngFor="let pupil of pupils">{{ pupil.username }}</li>
-          </ol>
-        </div>
-
-        <div class="container-fluid mx-3 min-vh-100 col-5 border-opacity-25 rounded-4 border border-2">
-          <h2>Назначение предмета преподавателям</h2>
-          <div ngbDropdown class="row col-5 m-3">
-            <button type="button" class="drop-btn btn-primary p-2" ngbDropdownToggle>{{tutorsSubject}}</button>
-            <div ngbDropdownMenu class="text-center">
-              <button ngbDropdownItem class="nav-btn" *ngFor="let subject of subjects" (click)="tutorsSubject=subject.subjectName;findTutorsForTutorsAdd()">{{ subject.subjectName }}</button>
-            </div>
-          </div>
-
-          <div class="row m-1"></div>
-          <div *ngIf="!isNewDataLoaded"  class="row mx-3 m-2 spinner-border" role="status"></div>
-
-          <ol class="mt-4">
-            <li class="p-2 border-opacity-25 rounded-4 border border-2 m-2" *ngFor="let tutor of tutorsBySubjectsTutor">{{ tutor.username }}</li>
           </ol>
         </div>
       </div>
@@ -115,7 +101,7 @@
             Действия
           </th>
         </thead>
-        <tbody *ngFor="let check of checks">
+        <tbody>
           @for(homework of homeworks; track homework) {
             <tr>
               @for (prop of Object.keys(homeworkProps); track prop) {

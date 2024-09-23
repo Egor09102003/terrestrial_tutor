@@ -14,4 +14,8 @@ public class JWTTokenSuccessResponse {
     private String token;
     private ERole role;
     private Long userId;
+    private String username;
+    private String name;
+    private String surname;
+    private String patronymic;
 }

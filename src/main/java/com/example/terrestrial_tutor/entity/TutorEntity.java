@@ -26,10 +26,6 @@ public class TutorEntity implements User {
     @SequenceGenerator(name = "hibernate_sequence", sequenceName = "hibernate_sequence", allocationSize = 10)
     private Long id;
 
-    @Column(name = "subjects")
-    @ManyToMany(mappedBy = "tutors", fetch = FetchType.LAZY)
-    List<SubjectEntity> subjects;
-
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "pupils")
     Set<PupilEntity> pupils;
@@ -144,6 +140,26 @@ public class TutorEntity implements User {
     }
 
     public Set<PupilEntity> getPupils() {
-        return new HashSet<PupilEntity>(this.enrolls.stream().map(enroll -> enroll.getPupil()).toList());
+        return new HashSet<PupilEntity>(this.enrolls
+                .stream()
+                .map(EnrollEntity::getPupil)
+                .toList());
+    }
+
+    public Set<PupilEntity> getPupilsBySubject(Long subjectId) {
+        return new HashSet<PupilEntity>(
+                this.enrolls
+                        .stream()
+                        .filter(enroll -> enroll.getSubject().getId().equals(subjectId))
+                        .map(EnrollEntity::getPupil)
+                        .toList()
+        );
+    }
+
+    public List<SubjectEntity> getSubjects() {
+        return this.enrolls
+                .stream()
+                .map(EnrollEntity::getSubject)
+                .toList();
     }
 }

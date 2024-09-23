@@ -19,15 +19,6 @@ public interface SubjectRepository extends JpaRepository<SubjectEntity, Long> {
     SubjectEntity findSubjectEntityById(Long id);
 
     /**
-     * Поиск предметов по репетиторам
-     *
-     * @param tutors репетиторы
-     * @return лист предметов
-     */
-
-    List<SubjectEntity> findSubjectEntitiesByTutorsIn(List<TutorEntity> tutors);
-
-    /**
      * Поиск предмета по названию
      *
      * @param name название предмета

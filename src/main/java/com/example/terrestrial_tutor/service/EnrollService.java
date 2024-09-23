@@ -20,6 +20,8 @@ public interface EnrollService {
      * @param pupils enroll pupils
      * @return saved enrolls
      */
-    List<EnrollEntity> saveAll(SubjectEntity subject, TutorEntity tutor, List<PupilEntity> pupils);
+    List<PupilEntity> saveAll(Long subject, Long tutor, List<Long> pupils);
+
+    Boolean checkEnrollment(PupilEntity pupil, SubjectEntity subject, TutorEntity tutor);
     
 }

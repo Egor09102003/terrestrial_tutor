@@ -69,7 +69,7 @@ public class TutorServiceImpl implements TutorService {
     public List<SubjectEntity> findTutorSubjectsByTutorId(Long id) {
         List<TutorEntity> tutor = new ArrayList<>();
         tutor.add(tutorRepository.findTutorEntityById(id));
-        return subjectRepository.findSubjectEntitiesByTutorsIn(tutor);
+        return new ArrayList<>();
     }
 
     public TutorEntity verifyTutor(Long id) {
@@ -86,15 +86,15 @@ public class TutorServiceImpl implements TutorService {
     public TutorEntity addTutorSubject(TutorEntity tutor, SubjectEntity subject) {
         try {
             List<SubjectEntity> subjects = tutor.getSubjects();
-            List<TutorEntity> tutors = subject.getTutors();
+            List<TutorEntity> tutors = subject.getTutors().stream().toList();
             if (subjects.contains(subject)) {
                 LOG.error("SUBJECT ALREADY EXISTS");
                 throw new RuntimeException("Subject already exists");
             }
             subjects.add(subject);
-            tutor.setSubjects(subjects);
+//            tutor.setSubjects(subjects);
             tutors.add(tutor);
-            subject.setTutors(tutors);
+//            subject.setTutors(tutors);
             subjectRepository.save(subject);
             return tutorRepository.save(tutor);
         } catch (Exception ex) {

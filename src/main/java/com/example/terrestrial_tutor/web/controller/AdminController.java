@@ -1,8 +1,10 @@
 package com.example.terrestrial_tutor.web.controller;
 
 import com.example.terrestrial_tutor.annotations.Api;
+import com.example.terrestrial_tutor.dto.EnrollDTO;
 import com.example.terrestrial_tutor.dto.PupilDTO;
 import com.example.terrestrial_tutor.dto.TutorListDTO;
+import com.example.terrestrial_tutor.dto.facade.EnrollFacade;
 import com.example.terrestrial_tutor.dto.facade.PupilFacade;
 import com.example.terrestrial_tutor.dto.facade.TutorListFacade;
 import com.example.terrestrial_tutor.entity.PupilEntity;
@@ -39,6 +41,10 @@ public class AdminController {
     TutorListFacade tutorListFacade;
     @Autowired
     private PupilFacade pupilFacade;
+    @Autowired
+    EnrollService enrollService;
+    @Autowired
+    EnrollFacade enrollFacade;
 
     /**
      * Поиск репетиторов по заданному предмету
@@ -135,6 +141,30 @@ public class AdminController {
         List<TutorEntity> filtredTutors = tutorService.findTutorsWithoutSubject(subject);
         List<TutorListDTO> result = tutorListFacade.tutorListToDTO(filtredTutors);
         return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    /**
+     * Enroll pupil for tutor and subject
+     *
+     * @param subjectName path variable with subject name
+     * @param pupilIds request body with pupil ids
+     * @param tutorId path variable with tutor id
+     * @return enrolled pupils list
+     */
+    @PostMapping("/tutor/{tutorId}/enroll/{subjectName}")
+    public ResponseEntity<List<PupilDTO>> pupilsEnroll(@PathVariable String subjectName, @RequestBody List<Long> pupilIds, @PathVariable Long tutorId) {
+        SubjectEntity subject = subjectService.findSubjectByName(subjectName);
+        try {
+            return new ResponseEntity<>(
+                    enrollService.saveAll(subject.getId(), tutorId, pupilIds)
+                            .stream()
+                            .map(pupilEntity -> pupilFacade.pupilToPupilDTO(pupilEntity))
+                            .toList(),
+                    HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
 }

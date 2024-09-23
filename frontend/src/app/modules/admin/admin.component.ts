@@ -24,23 +24,13 @@ import { homeworkProps } from 'src/app/models/HomeworkProps';
 export class AdminComponent implements OnInit {
 
   checks: Check[] = []
-  pupilsSubject = "Выбирете предмет";
-  tutorsSubject = "Выбирете предмет";
+  currentSubject = "Выбирете предмет";
+  currentTutor: TutorList;
   subjects: Subject[] | undefined;
-  tutorsBySubjectsPupil: TutorList[] = [];
-  tutorsBySubjectsTutor: TutorList[] = [];
-  // @ts-ignore
-  selectedTutor: TutorList;
   pupils: Pupil[] = [];
-  filteredTutorsPupils: TutorList[] = [];
-  filteredTutors: TutorList[] = [];
   isChecksPageLoaded: boolean = false;
   isNewDataLoaded: boolean = true;
-  isNewPupilsLoaded: boolean = true;
-  newData: (PupilSelect | TutorListSelect)[] = [];
   active = "requests";
-  filter = new UntypedFormControl('');
-  filteredData: (PupilSelect | TutorListSelect)[] = [];
   homeworks: Homework[] = [];
   homeworkProps = homeworkProps;
   tutors: TutorList[] = [];
@@ -61,11 +51,6 @@ export class AdminComponent implements OnInit {
         this.checks = checks;
         this.isChecksPageLoaded = true;
       });
-
-    this.pupilService.getAll().subscribe(pupils => {
-      this.pupils.push(pupils[0]);
-      this.pupils.push(pupils[1]);
-    })
   }
 
   deleteCheck(id: number) {
@@ -81,97 +66,18 @@ export class AdminComponent implements OnInit {
     })
   }
 
-  findTutorsForPupilsAdd() {
-    this.adminService.findTutorsBySubject(this.pupilsSubject).subscribe(tutors => {
-      this.tutorsBySubjectsPupil = tutors;
-      this.filteredTutorsPupils = this.tutorsBySubjectsPupil;
-    })
-  }
-
-  findTutorsForTutorsAdd() {
-    this.adminService.findTutorsBySubject(this.tutorsSubject).subscribe(tutors => {
-      this.tutorsBySubjectsTutor = tutors;
-      this.filteredTutors = this.tutorsBySubjectsTutor;
-    })
-  }
-
   getTutorPupilsBySubject() {
     this.isNewDataLoaded = false;
-    this.adminService.getTutorPupilsBySubject(this.pupilsSubject, this.selectedTutor.id).subscribe(data => {
+    this.adminService.getTutorPupilsBySubject(this.currentSubject, this.currentTutor.id).subscribe(data => {
       this.pupils = data;
       this.isNewDataLoaded = true;
     })
-  }
-
-  search(text: any) {
-    text = text.toLowerCase();
-    this.filteredData = this.newData.filter(data => {
-      if (data instanceof PupilSelect) {
-        return data.pupil.username.toLowerCase().includes(text) ||
-          data.pupil.name.toLowerCase().includes(text) ||
-          data.pupil.surname.toLowerCase().includes(text) ||
-          data.pupil.patronymic.toLowerCase().includes(text);
-      } else {
-        return data.tutor.username.toLowerCase().includes(text) ||
-          data.tutor.name.toLowerCase().includes(text) ||
-          data.tutor.surname.toLowerCase().includes(text) ||
-          data.tutor.patronymic.toLowerCase().includes(text);
-      }
-    });
-  }
-
-  open(content: any, typePupils: boolean = true) {
-    this.newData = [];
-    if (typePupils) {
-      this.adminService.findPupilsWithoutSubject(this.pupilsSubject).subscribe(pupils => {
-        this.newData = pupils.map((pupil: any) => {
-          return new PupilSelect(pupil, false);
-        });
-        this.filteredData = this.newData;
-        this.isNewDataLoaded = true;
-      });
-    } else {
-      this.adminService.findTutorsWithoutSubject(this.tutorsSubject).subscribe(tutors => {
-        this.newData = tutors.map((tutor: any) => {
-          return new TutorListSelect(tutor, false);
-        });;
-        this.filteredData = this.newData;
-        this.isNewDataLoaded = true;
-      })
-    }
-    this.filter.valueChanges.subscribe((text) => {
-      this.search(text);
-    });
-    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title', size: 'lg'}).result.then(selectedData => {
-      let newDataIds = selectedData.map((data: Pupil | TutorList) => {
-        return data.id;
-      })
-      if (typePupils) {
-        this.pupilService.addSubjects(this.pupilsSubject, newDataIds).subscribe();
-        this.adminService.addPupilsForTutor(newDataIds, this.selectedTutor.id, this.pupilsSubject).subscribe(pupils => {
-          this.pupils = pupils;
-        });
-      } else {
-        this.adminService.addTutorsSubject(newDataIds, this.tutorsSubject).subscribe(tutors => this.tutorsBySubjectsTutor = tutors);
-      }
-    }).finally(() => {});
-    this.isNewDataLoaded = false;
-  }
-
-  close(modal: any) {
-    modal.close(this.newData.filter(data => data.isSelected).map(data => {
-      return data instanceof PupilSelect ? data.pupil : data.tutor;
-    }));
   }
 
   navChange() {
     if (this.active == "setTutors") {
       this.getAllSubjects();
     }
-  }
-
-  checkType(data: PupilSelect | TutorListSelect) {
-    return data instanceof PupilSelect ? data.pupil : data.tutor;
   }
 
   getHomeworks() {
@@ -183,5 +89,10 @@ export class AdminComponent implements OnInit {
 
   test(test: number[]) {
     console.log(test);
+  }
+
+  setSubject(subject: Subject) {
+    this.currentSubject=subject.subjectName;
+    this.tutorService.getAllTutors().subscribe(tutors => this.tutors = tutors);
   }
 }
