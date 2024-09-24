@@ -54,17 +54,23 @@ public class HomeworkFacade {
         Map<Long, String> tasksCheckingTypes = new Gson().fromJson(homework.getTaskCheckingTypes(), (new TypeToken<Map<Long, String>>() {
         }.getType()));
         homeworkDTO.setTasksCheckingTypes(tasksCheckingTypes);
-        List<TaskDTO> taskDTOs = new LinkedList<>();
+        LinkedList<TaskDTO> taskDTOs = new LinkedList<>();
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<TaskEntity> tasks = taskService.getByIds(tasksCheckingTypes.keySet());
         if (user.getRole() == ERole.PUPIL) {
-            for (TaskEntity task : tasks) {
-                task.setAnswer("");
-                taskDTOs.add(taskFacade.taskToTaskDTO(task));
+            for (Long taskId : tasksCheckingTypes.keySet()) {
+                Optional<TaskEntity> task = tasks.stream().filter(taskEntity -> taskEntity.getId() == taskId).findFirst();
+                if (task.isPresent()) {
+                    task.get().setAnswer("");
+                    taskDTOs.add(taskFacade.taskToTaskDTO(task.get()));
+                }
             }
         } else {
-            for (TaskEntity task : tasks) {
-                taskDTOs.add(taskFacade.taskToTaskDTO(task));
+            for (Long taskId : tasksCheckingTypes.keySet()) {
+                Optional<TaskEntity> task = tasks.stream().filter(taskEntity -> taskEntity.getId().equals(taskId)).findFirst();
+                if (task.isPresent()) {
+                    taskDTOs.add(taskFacade.taskToTaskDTO(task.get()));
+                }
             }
         }
 

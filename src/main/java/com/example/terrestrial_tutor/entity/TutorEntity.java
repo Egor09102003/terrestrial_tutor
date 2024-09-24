@@ -26,10 +26,6 @@ public class TutorEntity implements User {
     @SequenceGenerator(name = "hibernate_sequence", sequenceName = "hibernate_sequence", allocationSize = 10)
     private Long id;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pupils")
-    Set<PupilEntity> pupils;
-
     @Column(name = "payment_data")
     String paymentData;
 

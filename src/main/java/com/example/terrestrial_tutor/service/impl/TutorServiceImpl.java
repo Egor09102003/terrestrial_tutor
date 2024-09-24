@@ -67,9 +67,8 @@ public class TutorServiceImpl implements TutorService {
 
     @Override
     public List<SubjectEntity> findTutorSubjectsByTutorId(Long id) {
-        List<TutorEntity> tutor = new ArrayList<>();
-        tutor.add(tutorRepository.findTutorEntityById(id));
-        return new ArrayList<>();
+        TutorEntity tutor = tutorRepository.findTutorEntityById(id);
+        return tutor.getSubjects();
     }
 
     public TutorEntity verifyTutor(Long id) {

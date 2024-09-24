@@ -61,9 +61,6 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     public HomeworkEntity saveHomework(HomeworkEntity homework) {
         homework = homeworkRepository.save(homework);
-        for (TutorEntity tutor : homework.getTutors()) {
-            tutorService.updateTutor(tutor);
-        }
         return homework;
     }
 
