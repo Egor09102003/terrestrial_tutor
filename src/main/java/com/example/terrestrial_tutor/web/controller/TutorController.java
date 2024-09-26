@@ -103,7 +103,7 @@ public class TutorController {
     @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
     public ResponseEntity<List<SubjectDTO>> getTutorPupilsBySubject() {
         TutorEntity tutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<SubjectEntity> subjects = tutorService.findTutorSubjectsByTutorId(tutor.getId());
+        Set<SubjectEntity> subjects = tutorService.findTutorSubjectsByTutorId(tutor.getId());
         List<SubjectDTO> subjectsDTO = new ArrayList<>();
         for (SubjectEntity subject : subjects) {
             SubjectDTO subjectDTO = new SubjectDTO();

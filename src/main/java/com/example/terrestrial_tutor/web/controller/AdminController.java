@@ -151,7 +151,7 @@ public class AdminController {
      * @param tutorId path variable with tutor id
      * @return enrolled pupils list
      */
-    @PostMapping("/tutor/{tutorId}/enroll/{subjectName}")
+    @PostMapping("/admin/{tutorId}/enroll/{subjectName}")
     public ResponseEntity<List<PupilDTO>> pupilsEnroll(@PathVariable String subjectName, @RequestBody List<Long> pupilIds, @PathVariable Long tutorId) {
         SubjectEntity subject = subjectService.findSubjectByName(subjectName);
         try {

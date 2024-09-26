@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -66,7 +67,7 @@ public class TutorServiceImpl implements TutorService {
     }
 
     @Override
-    public List<SubjectEntity> findTutorSubjectsByTutorId(Long id) {
+    public Set<SubjectEntity> findTutorSubjectsByTutorId(Long id) {
         TutorEntity tutor = tutorRepository.findTutorEntityById(id);
         return tutor.getSubjects();
     }
@@ -84,7 +85,7 @@ public class TutorServiceImpl implements TutorService {
     @Override
     public TutorEntity addTutorSubject(TutorEntity tutor, SubjectEntity subject) {
         try {
-            List<SubjectEntity> subjects = tutor.getSubjects();
+            Set<SubjectEntity> subjects = tutor.getSubjects();
             List<TutorEntity> tutors = subject.getTutors().stream().toList();
             if (subjects.contains(subject)) {
                 LOG.error("SUBJECT ALREADY EXISTS");

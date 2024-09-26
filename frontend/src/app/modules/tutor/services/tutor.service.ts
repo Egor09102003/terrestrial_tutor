@@ -60,8 +60,8 @@ export class TutorService {
     return this.http.get(this.TUTORS_API);
   }
 
-  getAllCurrentPupils(subject: string): Observable<any> {
-    return this.http.get(this.TUTOR_API + 'pupils', {
+  getAllCurrentPupils(subject: string, tutorId: number): Observable<any> {
+    return this.http.get(this.TUTOR_API + tutorId + '/pupils', {
       params: {
         subject: subject
       }

@@ -14,6 +14,7 @@ import {HttpErrorResponse} from "@angular/common/http";
 import {checkingTypes} from "../../../models/CheckingTypes";
 import { TaskCardComponent } from '../../task/card/task.card.component/task.card.component';
 import { waitForAsync } from '@angular/core/testing';
+import { Pupil } from 'src/app/models/Pupil';
 
 @Component({
   selector: 'app-hw-constructor',
@@ -43,20 +44,27 @@ export class HwConstructorComponent implements OnInit {
   tutorId: number|null = null;
   state: boolean[] = [];
   homeworkUpdate: any;
+  pupils: Pupil[] = [];
+  selectedPupils: Pupil[] = [];
 
   ngOnInit(): void {
     let hwId = Number(this.route.snapshot.paramMap.get('hwId'));
     this.tutorId = Number(this.route.snapshot.paramMap.get('id'));
     this.tutorService.getHomework(hwId).subscribe(homework => {
       this.homework = homework;
+      this.tutorService.getAllCurrentPupils(this.homework?.subject ?? '', this.tutorId ?? -1).subscribe(pupils => {
+          this.pupils = pupils
+          this.selectedPupils = this.pupils.filter(pupil => homework.pupilIds.indexOf(pupil.id) !== -1) ?? [];
+        }
+      )
       this.initFields();
       this.initForm();
     });
 
-    this.homeworkUpdate = setInterval(() => {
+    /*this.homeworkUpdate = setInterval(() => {
       this.saveHomework();
       this.tutorService.saveHomework(this.homework).subscribe();
-    }, 10000);
+    }, 10000);*/
   }
 
   initFields() {
@@ -181,6 +189,10 @@ export class HwConstructorComponent implements OnInit {
 
   updateDrag(state: boolean, index: number) {
     this.state[index] = state;
+  }
+
+  savePupils(pupilIds: number[]) {
+
   }
 
   ngOnDestroy() {

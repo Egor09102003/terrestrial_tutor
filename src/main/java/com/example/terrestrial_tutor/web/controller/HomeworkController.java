@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -166,7 +167,9 @@ public class HomeworkController {
         } else {
             id = pupilId.get();
         }
-        return new ResponseEntity<>(homeworkService.getPupilAnswers(homeworkId, id, attempt), HttpStatus.OK);
+        HomeworkAnswersDTO answersDTO = homeworkService.getPupilAnswers(homeworkId, id, attempt);
+        answersDTO.setOrdering(new LinkedHashSet<>(answersDTO.getAnswersStatuses().keySet()));
+        return new ResponseEntity<>(answersDTO, HttpStatus.OK);
     }
 
     /**

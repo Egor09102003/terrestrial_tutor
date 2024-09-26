@@ -59,7 +59,7 @@ public class HomeworkFacade {
         List<TaskEntity> tasks = taskService.getByIds(tasksCheckingTypes.keySet());
         if (user.getRole() == ERole.PUPIL) {
             for (Long taskId : tasksCheckingTypes.keySet()) {
-                Optional<TaskEntity> task = tasks.stream().filter(taskEntity -> taskEntity.getId() == taskId).findFirst();
+                Optional<TaskEntity> task = tasks.stream().filter(taskEntity -> taskEntity.getId().equals(taskId)).findFirst();
                 if (task.isPresent()) {
                     task.get().setAnswer("");
                     taskDTOs.add(taskFacade.taskToTaskDTO(task.get()));

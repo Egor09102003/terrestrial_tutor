@@ -147,7 +147,6 @@ public class PupilController {
                 int lastAttemptNumber = 1;
                 for (AttemptEntity attempt: pupil.getAnswers()) {
                     HomeworkEntity homework = attempt.getHomework();
-                    HomeworkAnswersDTO test = attempt.getAnswers();
                     if (homework != null && homework.getId().equals(homeworkId)
                         && !attempt.getAnswers().getAnswersStatuses().isEmpty()
                         && attempt.getAttemptNumber() != -1

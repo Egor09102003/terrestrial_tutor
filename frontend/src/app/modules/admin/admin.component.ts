@@ -24,9 +24,10 @@ import { homeworkProps } from 'src/app/models/HomeworkProps';
 export class AdminComponent implements OnInit {
 
   checks: Check[] = []
-  currentSubject = "Выбирете предмет";
-  currentTutor: TutorList;
+  currentSubject = "Выберете предмет";
+  currentTutor: TutorList | null = null;
   subjects: Subject[] | undefined;
+  selectedPupils: Pupil[] = [];
   pupils: Pupil[] = [];
   isChecksPageLoaded: boolean = false;
   isNewDataLoaded: boolean = true;
@@ -68,10 +69,16 @@ export class AdminComponent implements OnInit {
 
   getTutorPupilsBySubject() {
     this.isNewDataLoaded = false;
-    this.adminService.getTutorPupilsBySubject(this.currentSubject, this.currentTutor.id).subscribe(data => {
-      this.pupils = data;
-      this.isNewDataLoaded = true;
-    })
+    
+      this.pupilService.getAll().subscribe(pupils => {
+        this.pupils = pupils;
+        if (this.currentTutor) {
+          this.adminService.getTutorPupilsBySubject(this.currentSubject, this.currentTutor.id).subscribe(data => {
+            this.selectedPupils = data;
+            this.isNewDataLoaded = true;
+          });
+        }
+      });
   }
 
   navChange() {
@@ -87,12 +94,14 @@ export class AdminComponent implements OnInit {
     this.tutorService.getAllTutors().subscribe(tutors => this.tutors = tutors);
   }
 
-  test(test: number[]) {
-    console.log(test);
-  }
-
   setSubject(subject: Subject) {
+    this.currentTutor = null;
+    this.selectedPupils = [];
     this.currentSubject=subject.subjectName;
     this.tutorService.getAllTutors().subscribe(tutors => this.tutors = tutors);
+  }
+
+  enrollPupils(pupilIds: number[]) {
+    this.adminService.enrollPupils(this.currentTutor?.id ?? -1, this.currentSubject, pupilIds).subscribe(pupils => this.selectedPupils = pupils);
   }
 }

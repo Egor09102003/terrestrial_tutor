@@ -20,6 +20,8 @@ import org.springframework.data.util.Pair;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.lang.reflect.Type;
+import java.security.KeyStore.Entry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,8 +152,8 @@ public class HomeworkServiceImpl implements HomeworkService {
         return result;
     }
 
-    private HashMap<Long, TaskCheckingType> getHomeworkCheckingTypes(String json) {
-        Type type = new TypeToken<HashMap<Long, TaskCheckingType>>(){}.getType();
+    private LinkedHashMap<Long, TaskCheckingType> getHomeworkCheckingTypes(String json) {
+        Type type = new TypeToken<LinkedHashMap<Long, TaskCheckingType>>(){}.getType();
         return new Gson().fromJson(json, type);
     }
 
@@ -179,25 +181,38 @@ public class HomeworkServiceImpl implements HomeworkService {
 
         try {
             HomeworkEntity homework = homeworkRepository.findHomeworkEntityById(homeworkId);
-            HashMap<Long, TaskCheckingType> checkingTypes = getHomeworkCheckingTypes(homework.getTaskCheckingTypes());
-            List<TaskEntity> currentTasks = taskRepository.findAllById(checkingTypes.keySet());
+            LinkedHashMap<Long, TaskCheckingType> checkingTypes = getHomeworkCheckingTypes(homework.getTaskCheckingTypes());
+            LinkedList<TaskEntity> currentTasks = taskRepository.findAllById(checkingTypes.keySet());
+            LinkedHashMap<Long, TaskEntity> currentTasksMap = new LinkedHashMap<>();
+            for (Long taskId : checkingTypes.keySet()) {
+                TaskEntity task = currentTasks.stream().filter(taskEntity -> taskEntity.getId().equals(taskId)).findFirst().get();
+                currentTasksMap.put(taskId, task);
+            }
+            for(int i = checkingTypes.size() - 1; i >= 0; i--) {
+                TaskEntity task = currentTasks.get(i);
+                currentTasksMap.put(task.getId(), task);
+            }
             HomeworkAnswersDTO savedAnswers = lastAttempt.getAnswers();
+            LinkedHashMap<Long, HomeworkAnswersDTO.Status> updatedAnswers = new LinkedHashMap<>();
 
-            for (TaskEntity task : currentTasks) {
-                Long taskId = task.getId();
+            for (Map.Entry<Long, TaskEntity> task : currentTasksMap.entrySet()) {
+                Long taskId = task.getKey();
                 if (answers.get(taskId) != null) {
                     HomeworkAnswersDTO.Status status = this.checkAnswer(
-                            task,
+                            task.getValue(),
                             answers.get(taskId),
                             checkingTypes.get(taskId)
                     );
-                    savedAnswers.getAnswersStatuses().put(taskId, status);
+                    updatedAnswers.put(taskId, status);
+                } else if (savedAnswers.getAnswersStatuses().containsKey(taskId)) {
+                    updatedAnswers.put(taskId, savedAnswers.getAnswersStatuses().get(taskId));
                 }
 
                 if (!savedAnswers.getAnswersStatuses().containsKey(taskId)) {
-                    savedAnswers.getAnswersStatuses().put(taskId, new HomeworkAnswersDTO.Status());
+                    updatedAnswers.put(taskId, new HomeworkAnswersDTO.Status());
                 }
             }
+            savedAnswers.setAnswersStatuses(updatedAnswers);
 
             lastAttempt.setHomework(homework);
             lastAttempt.setPupil(pupil);
@@ -206,7 +221,8 @@ public class HomeworkServiceImpl implements HomeworkService {
 
             return savedAnswers;
         } catch (Exception e) {
-            throw new NoSuchElementException("Save and get homework answers failed");
+            log.error("Save and get homework answers failed" + e.getMessage());
+            return null;
         }
     }
 
@@ -398,7 +414,7 @@ public class HomeworkServiceImpl implements HomeworkService {
                     for (Long homeworkId : homeworkPupilAttempts.keySet()) {
                         List<AttemptEntity> homeworkAttempts = homeworkPupilAttempts.get(homeworkId);
                         HomeworkEntity homework = homeworkRepository.findHomeworkEntityById(homeworkId);
-                        HashMap<Long, TaskCheckingType> taskCheckingTypes = this.getHomeworkCheckingTypes(homework.getTaskCheckingTypes());
+                        LinkedHashMap<Long, TaskCheckingType> taskCheckingTypes = this.getHomeworkCheckingTypes(homework.getTaskCheckingTypes());
                         for (int i = 0; i < homeworkAttempts.size(); i++) {
                             AttemptEntity currentAttempt = homeworkAttempts.get(i);
                             currentAttempt.setAttemptNumber(i + 1);

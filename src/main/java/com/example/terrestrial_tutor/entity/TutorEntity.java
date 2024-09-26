@@ -152,10 +152,10 @@ public class TutorEntity implements User {
         );
     }
 
-    public List<SubjectEntity> getSubjects() {
-        return this.enrolls
+    public Set<SubjectEntity> getSubjects() {
+        return new HashSet<>(this.enrolls
                 .stream()
                 .map(EnrollEntity::getSubject)
-                .toList();
+                .toList());
     }
 }

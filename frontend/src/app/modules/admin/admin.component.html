@@ -50,7 +50,7 @@
         <div class="container-fluid mx-3 min-vh-100 col-11 border-opacity-25 rounded-4 border border-2">
           <h1 class="m-3">Назначение учеников</h1>
           <h2 class="mx-3">Предмет</h2>
-          <div ngbDropdown class="row col-3 m-3">
+          <div ngbDropdown class="row col-4 col-md-3 col-lg-2 m-3">
             <button type="button" class="drop-btn btn-primary p-2" ngbDropdownToggle>{{currentSubject}}</button>
             <div ngbDropdownMenu class="text-center">
               <button ngbDropdownItem class="nav-btn" *ngFor="let subject of subjects" (click)="setSubject(subject)">{{ subject.subjectName }}</button>
@@ -58,15 +58,30 @@
           </div>
 
           <!-- Выбор препода -->
-          <div *ngIf="currentSubject != 'Выбирете предмет'">
-          <h2 class="mx-3">Преподаватель</h2>
-            <div ngbDropdown class="row col-5 m-3">
-  <!--            <button *ngIf="currentTutor" type="button" class="drop-btn btn-primary p-2" ngbDropdownToggle>{{currentTutor.surname + ' ' + currentTutor.name + ' ' + currentTutor.patronymic}}</button>-->
-  <!--            <button *ngIf="!currentTutor" type="button" class="drop-btn btn-primary p-2" ngbDropdownToggle>Выбирете преподавателя</button>-->
-              <input class="p-2" ngbDropdownToggle [value]="currentTutor ? currentTutor.surname + ' ' + currentTutor.name + ' ' + currentTutor.patronymic : ''">
-              <div ngbDropdownMenu class="text-center">
-                <button class="nav-btn" ngbDropdownItem *ngFor="let tutor of tutors" (click)="currentTutor=tutor;getTutorPupilsBySubject()">{{ tutor.surname + ' ' + tutor.name + ' ' + tutor.patronymic }}</button>
+          <div class="mx-3" *ngIf="currentSubject != 'Выберете предмет'">
+            <h2>Преподаватель</h2>
+            <div class="row">
+              <div ngbDropdown class="col-6 col-md-5 col-lg-4 m-auto mx-0">
+                <input 
+                    placeholder="Выберете преподавателя" 
+                    #tutorSearch
+                    [value]="currentTutor ? currentTutor.surname + ' ' + currentTutor.name + ' ' + currentTutor.patronymic : ''"
+                    class="p-2 col-12"
+                    ngbDropdownToggle
+                >
+                <div ngbDropdownMenu class="dropdown-menu text-left">
+                  <button 
+                      [ngClass]="{active: currentTutor === tutor}"
+                      class="nav-btn" 
+                      ngbDropdownItem 
+                      *ngFor="let tutor of tutors" 
+                      (click)="currentTutor=tutor;getTutorPupilsBySubject();"
+                      >
+                        {{ tutor.surname + ' ' + tutor.name + ' ' + tutor.patronymic }}
+                      </button>
+                </div>
               </div>
+              <pupils-select-modal class="m-auto mx-0 col-4 col-md-3 col-lg-2" (resultPupilIds)="enrollPupils($event)" [pupils]="pupils" [currentPupils]="selectedPupils"></pupils-select-modal>
             </div>
           </div>
 
@@ -74,15 +89,11 @@
 
           <!-- Вывод найденых учеников -->
 
-          <ol *ngIf="pupils.length !== 0">
-            <li class="p-2 border-opacity-25 rounded-4 border border-2 m-2" *ngFor="let pupil of pupils">{{ pupil.username }}</li>
+          <ol *ngIf="selectedPupils.length !== 0">
+            <li class="p-2 border-opacity-25 rounded-4 border border-2 m-2" *ngFor="let pupil of selectedPupils">{{ pupil.username }}</li>
           </ol>
         </div>
       </div>
-
-      <!-- Создание далогового окна с таблицей учеников -->
-
-      <pupils-select-modal (resultPupilIds)="test($event)" [currentPupils]="pupils"></pupils-select-modal>
     </ng-template>
   </li>
 
@@ -112,7 +123,7 @@
                 </td>
               }
               <td>
-                <homework-tutors-set-modal [homeworkId]="homework.id ?? -1" [tutors]="tutors"></homework-tutors-set-modal>
+                <homework-tutors-set-modal [homeworkId]="homework.id ?? -1" [subject]="homework.subject"></homework-tutors-set-modal>
               </td>
             </tr>
           }

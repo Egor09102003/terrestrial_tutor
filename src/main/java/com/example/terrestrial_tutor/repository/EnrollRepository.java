@@ -26,4 +26,6 @@ public interface EnrollRepository extends JpaRepository<EnrollEntity, Long> {
     );
 
     EnrollEntity findFirstByPupilAndTutorAndSubject(PupilEntity pupil, TutorEntity tutor, SubjectEntity subject);
+
+    void deleteByPupilAndTutorAndSubject(PupilEntity pupil, TutorEntity tutor, SubjectEntity subject);
 }

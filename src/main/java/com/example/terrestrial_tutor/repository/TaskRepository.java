@@ -62,5 +62,5 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
      * @param taskIds task ids
      * @return task entities
      */
-    List<TaskEntity> findAllById(Iterable<Long> taskIds);
+    LinkedList<TaskEntity> findAllById(Iterable<Long> taskIds);
 }

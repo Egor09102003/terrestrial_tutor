@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import javax.transaction.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -40,22 +42,31 @@ public class EnrollServiceImpl implements EnrollService {
             LoggerFactory.getLogger(TerrestrialTutorApplication.class);
 
 
+    @Transactional
     public List<PupilEntity> saveAll(Long subject, Long tutor, List<Long> pupilIds) {
         List<PupilEntity> currentPupils = new ArrayList<>(tutorService.findTutorById(tutor).getPupilsBySubject(subject));
+        List<PupilEntity> updatedCurrentPupils = new ArrayList<PupilEntity>(currentPupils);
         try {
             List<PupilEntity> pupils = pupilService.findPupilsByIds(pupilIds);
+            TutorEntity tutorEntity = tutorService.findTutorById(tutor);
+            SubjectEntity subjectEntity = subjectService.findSubjectById(subject);
+            for (PupilEntity currentPupil : currentPupils) {
+                if (!pupils.contains(currentPupil)) {
+                    enrollRepository.deleteByPupilAndTutorAndSubject(currentPupil, tutorEntity, subjectEntity);
+                    updatedCurrentPupils.remove(currentPupil);
+                }
+            }
             for (PupilEntity pupil : pupils) {
-                if (!currentPupils.contains(pupil)) {
-                    log.info("pupil added");
+                if (!updatedCurrentPupils.contains(pupil)) {
                     enrollRepository.saveIfNotExist(pupil.getId(), tutor, subject);
-                    currentPupils.add(pupil);
+                    updatedCurrentPupils.add(pupil);
                 }
             }
         } catch (Exception e) {
             log.error("Failed to save enroll: {}", e.getMessage());
             throw new NoSuchElementException("Failed to save enroll");
         }
-        return currentPupils;
+        return updatedCurrentPupils;
     }
 
     public Boolean checkEnrollment(PupilEntity pupil, SubjectEntity subject, TutorEntity tutor) {
