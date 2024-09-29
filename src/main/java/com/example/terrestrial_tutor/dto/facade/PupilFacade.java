@@ -7,6 +7,8 @@ import com.example.terrestrial_tutor.service.PupilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedList;
+
 /**
  * Класс для перевода сущности ученика в DTO
  */
@@ -35,6 +37,9 @@ public class PupilFacade {
                 .stream()
                 .map(SubjectEntity::getName)
                 .toList()));
+        LinkedList<String> subjects = new LinkedList<>(pupilDTO.getSubjects());
+        subjects.sort(String::compareTo);
+        pupilDTO.setSubjects(subjects);
         pupilDTO.setTutors((pupil.getTutors()
                 .stream()
                 .map(tutorEntity -> tutorEntity.getSurname() + " " + tutorEntity.getName() + " " + tutorEntity.getPatronymic())

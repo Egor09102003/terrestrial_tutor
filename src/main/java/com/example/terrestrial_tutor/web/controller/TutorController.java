@@ -2,17 +2,14 @@ package com.example.terrestrial_tutor.web.controller;
 
 import com.example.terrestrial_tutor.TerrestrialTutorApplication;
 import com.example.terrestrial_tutor.annotations.Api;
-import com.example.terrestrial_tutor.dto.EnrollDTO;
 import com.example.terrestrial_tutor.dto.HomeworkDTO;
 import com.example.terrestrial_tutor.dto.PupilDTO;
 import com.example.terrestrial_tutor.dto.SubjectDTO;
 import com.example.terrestrial_tutor.dto.TutorListDTO;
-import com.example.terrestrial_tutor.dto.facade.EnrollFacade;
 import com.example.terrestrial_tutor.dto.facade.HomeworkFacade;
 import com.example.terrestrial_tutor.dto.facade.PupilFacade;
 import com.example.terrestrial_tutor.dto.facade.TutorListFacade;
 import com.example.terrestrial_tutor.entity.*;
-import com.example.terrestrial_tutor.service.EnrollService;
 import com.example.terrestrial_tutor.service.HomeworkService;
 import com.example.terrestrial_tutor.service.PupilService;
 import com.example.terrestrial_tutor.service.SubjectService;
@@ -29,13 +26,9 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
-import javax.transaction.Transactional;
+import java.util.*;
+
 
 
 
@@ -101,16 +94,17 @@ public class TutorController {
      */
     @GetMapping("/tutor/subjects")
     @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
-    public ResponseEntity<List<SubjectDTO>> getTutorPupilsBySubject() {
+    public ResponseEntity<List<SubjectDTO>> getTutorSubjects() {
         TutorEntity tutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Set<SubjectEntity> subjects = tutorService.findTutorSubjectsByTutorId(tutor.getId());
-        List<SubjectDTO> subjectsDTO = new ArrayList<>();
+        LinkedList<SubjectDTO> subjectsDTO = new LinkedList<>();
         for (SubjectEntity subject : subjects) {
             SubjectDTO subjectDTO = new SubjectDTO();
             subjectDTO.setId(subject.getId());
             subjectDTO.setSubjectName(subject.getName());
             subjectsDTO.add(subjectDTO);
         }
+        subjectsDTO.sort(Comparator.comparing(SubjectDTO::getSubjectName));
         return new ResponseEntity<>(subjectsDTO, HttpStatus.OK);
     }
 

@@ -68,9 +68,7 @@ public class HomeworkFacade {
         } else {
             for (Long taskId : tasksCheckingTypes.keySet()) {
                 Optional<TaskEntity> task = tasks.stream().filter(taskEntity -> taskEntity.getId().equals(taskId)).findFirst();
-                if (task.isPresent()) {
-                    taskDTOs.add(taskFacade.taskToTaskDTO(task.get()));
-                }
+                task.ifPresent(taskEntity -> taskDTOs.add(taskFacade.taskToTaskDTO(taskEntity)));
             }
         }
 
@@ -86,16 +84,18 @@ public class HomeworkFacade {
      */
 
     public HomeworkEntity homeworkDTOToHomework(HomeworkDTO homeworkDTO) {
-        HomeworkEntity homework = new HomeworkEntity();
+        HomeworkEntity homework;
+        if (homeworkDTO.getId() != null && homeworkDTO.getId() > 0) {
+            homework = homeworkService.getHomeworkById(homeworkDTO.getId());
+        } else {
+            homework = new HomeworkEntity();
+        }
         homework.setId(homeworkDTO.getId());
         homework.setName(homeworkDTO.getName());
         homework.setDeadLine(homeworkDTO.getDeadLine());
         homework.setSubject(subjectService.findSubjectByName(homeworkDTO.getSubject()));
-        TutorEntity tutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        homework.getTutors().add(tutor);
         homework.setPupils(homeworkDTO.getPupilIds().stream()
                 .map(id -> pupilService.findPupilById(id)).collect(Collectors.toSet()));
-
         if (homeworkDTO.getTasksCheckingTypes() != null) {
             LinkedHashMap<Long, String> tasksCheckingTypes = new LinkedHashMap<>();
             for (TaskDTO task : homeworkDTO.getTasks()) {
