@@ -36,10 +36,6 @@ public class SubjectEntity {
     @OneToMany(mappedBy = "subject")
     Set<EnrollEntity> enrolls;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pupils")
-    List<PupilEntity> pupils;
-
     @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     List<TaskEntity> tasks = new ArrayList<>();
 
