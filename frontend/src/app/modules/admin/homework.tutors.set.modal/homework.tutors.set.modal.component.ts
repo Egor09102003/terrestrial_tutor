@@ -5,6 +5,8 @@ import { HomeworkService } from '../../homework/services/homework.service.';
 import { TutorList } from 'src/app/models/TutorList';
 import { TutorListSelect } from 'src/app/models/TutorListSelect';
 import { tutorProps } from 'src/app/models/TutorProps';
+import { TutorService } from '../../tutor/services/tutor.service';
+import { AdminService } from '../services/admin.service';
 
 @Component({
     selector: 'homework-tutors-set-modal',
@@ -14,7 +16,7 @@ import { tutorProps } from 'src/app/models/TutorProps';
 export class HomeworkTutorsSetModalComponent implements OnInit {
 
     @Input() homeworkId: number;
-    @Input() tutors: TutorList[] = [];
+    @Input() subject: string;
     tutorsSelect: {[key: number]: TutorListSelect} = {};
     modalLoaded = false; 
     Object = Object;
@@ -23,31 +25,30 @@ export class HomeworkTutorsSetModalComponent implements OnInit {
     constructor(
         private modalService: NgbModal,
         private homeworkService: HomeworkService,
+        private adminService: AdminService,
     ) {
     }
 
     ngOnInit(): void { 
-        for (let tutor of this.tutors) {
-            this.tutorsSelect[tutor.id] = new TutorListSelect(tutor, false);
-        }
+        
     }
 
     open(content: TemplateRef<any>) {
-        this.homeworkService.getHomeworkTutors(this.homeworkId).subscribe(tutors => {
-            tutors = <TutorList[]> tutors;
-            console.log(tutors);
-            for(let tutor of tutors) {
-                if (tutor.id in this.tutorsSelect) {
-                    this.tutorsSelect[tutor.id].isSelected = true;
-                }
+        this.adminService.findTutorsBySubject(this.subject).subscribe(tutors => {
+            for (let tutor of tutors) {
+                this.tutorsSelect[tutor.id] = new TutorListSelect(tutor, false);
             }
-            this.modalLoaded = true;
-        });
-		this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg'}).result;
-    }
-
-    changeTutorSelect(status: Event) {
-        console.log(status);
+            this.homeworkService.getHomeworkTutors(this.homeworkId).subscribe(tutors => {
+                tutors = <TutorList[]> tutors;
+                for(let tutor of tutors) {
+                    if (tutor.id in this.tutorsSelect) {
+                        this.tutorsSelect[tutor.id].isSelected = true;
+                    }
+                }
+                this.modalLoaded = true;
+            });
+            this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg'}).result;
+        })
     }
 
     save() {

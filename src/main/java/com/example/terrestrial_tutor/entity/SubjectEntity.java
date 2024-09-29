@@ -5,8 +5,7 @@ import javax.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Класс сущности предмета
@@ -34,9 +33,8 @@ public class SubjectEntity {
     @Column(name = "count_level")
     Integer countLevel;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tutors")
-    List<TutorEntity> tutors;
+    @OneToMany(mappedBy = "subject")
+    Set<EnrollEntity> enrolls;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "pupils")
@@ -47,4 +45,11 @@ public class SubjectEntity {
 
     @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     List<HomeworkEntity> homeworkList;
+
+    public Set<TutorEntity> getTutors() {
+        return new HashSet<TutorEntity>(this.enrolls
+                .stream()
+                .map(EnrollEntity::getTutor)
+                .toList());
+    }
 }

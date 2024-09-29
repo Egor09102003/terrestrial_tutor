@@ -41,11 +41,16 @@ input {
 }
 
 .btn-primary {
+  white-space: normal;
+  word-wrap: break-word;
   border-radius: 20px;
   border: 0;
   background-color: #FFFFFF;
   color: black;
-  font-size: 1em;
+  font-size: 14px;
+  @media only screen and (min-width: 992px) {
+    font-size: 20px;
+  }
   padding: 1em;
   word-break: break-all;
 }
@@ -91,10 +96,10 @@ textarea {
   background-color: #1E1E1E;
   color: #fff;
   border: 1px solid #FFFFFF;
-  word-break: break-all;
+  word-break: break-word;
 }
 
-.text-center {
+.text-center, .text-left {
   background-color: #1E1E1E;
 }
 

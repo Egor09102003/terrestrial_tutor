@@ -21,6 +21,6 @@ public class HomeworkDTO {
     LocalDate deadLine;
     @NonNull
     String subject;
-    List<TaskDTO> tasks = new LinkedList<>();
+    LinkedList<TaskDTO> tasks = new LinkedList<>();
     Integer lastAttempt = 0;
 }

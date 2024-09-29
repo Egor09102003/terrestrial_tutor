@@ -128,8 +128,13 @@ public class TaskController {
     }
 
     @GetMapping("/tasks")
-    public ResponseEntity<List<TaskDTO>> getTaskByIds(@RequestParam List<Long> taskIds) {
-        List<TaskEntity> tasks = taskService.getByIds(taskIds);
+    public ResponseEntity<List<TaskDTO>> getTaskByIds(@RequestParam(required = false) List<Long> taskIds) {
+        List<TaskEntity> tasks;
+        if (taskIds == null) {
+            tasks = new ArrayList<>();
+        } else {
+            tasks = taskService.getByIds(taskIds);
+        }
         List<TaskDTO> taskDTOs = tasks.stream().map(task -> taskFacade.taskToTaskDTO(task)).toList();
         return new ResponseEntity<>(taskDTOs, HttpStatus.OK);
     }

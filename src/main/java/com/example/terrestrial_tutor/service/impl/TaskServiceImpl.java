@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -149,6 +150,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     public List<TaskEntity> getByIds(Iterable<Long> taskIds) {
-        return taskRepository.findAllById(taskIds);
+        List<TaskEntity> tasks = taskRepository.findAllById(taskIds);
+        LinkedList<TaskEntity> sortedTasks = new LinkedList<>();
+        for (Long taskId : taskIds) {
+            sortedTasks.add(tasks
+                .stream()
+                .filter(task -> task.getId().equals(taskId)).findFirst().get()
+            );
+        }
+        return sortedTasks;
     }
 }

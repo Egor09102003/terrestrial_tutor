@@ -75,11 +75,7 @@ export class StatisticContainerComponent implements OnInit {
         if ('id' in this.homework && this.homework.id) {
           this.homeworkService.getAttemptAnswers(this.homework.id, attempt, this.pupilId).subscribe(pupilAnswers => {
             this.pupilAnswers = <HomeworkAnswers>pupilAnswers;
-            let taskIds: number[] = [];
-            for (let taskId in pupilAnswers.answersStatuses) {
-              taskIds.push(Number(taskId));
-            }
-            this.taskService.getTaskByIds(taskIds).subscribe(tasks => {
+            this.taskService.getTaskByIds(this.pupilAnswers.ordering).subscribe(tasks => {
               this.tasks = tasks;
               this.tasksUpdate.emit(tasks);
               this.updatedAnswers.emit(this.pupilAnswers);

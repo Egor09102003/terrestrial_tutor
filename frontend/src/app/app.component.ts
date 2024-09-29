@@ -14,6 +14,8 @@ export class AppComponent implements OnInit{
               private tokenService: TokenStorageService,) {
   }
 
+  user: {[key: string]: string} | null = {};
+
   ngOnInit(): void {
   }
 
@@ -22,6 +24,7 @@ export class AppComponent implements OnInit{
   }
 
   checkLogin(): boolean {
-    return this.tokenService.getUser();
+    this.user = this.tokenService.getUser();
+    return this.user != null && Object.keys(this.user).length > 0;
   }
 }

@@ -54,17 +54,21 @@ public class HomeworkFacade {
         Map<Long, String> tasksCheckingTypes = new Gson().fromJson(homework.getTaskCheckingTypes(), (new TypeToken<Map<Long, String>>() {
         }.getType()));
         homeworkDTO.setTasksCheckingTypes(tasksCheckingTypes);
-        List<TaskDTO> taskDTOs = new LinkedList<>();
+        LinkedList<TaskDTO> taskDTOs = new LinkedList<>();
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<TaskEntity> tasks = taskService.getByIds(tasksCheckingTypes.keySet());
         if (user.getRole() == ERole.PUPIL) {
-            for (TaskEntity task : tasks) {
-                task.setAnswer("");
-                taskDTOs.add(taskFacade.taskToTaskDTO(task));
+            for (Long taskId : tasksCheckingTypes.keySet()) {
+                Optional<TaskEntity> task = tasks.stream().filter(taskEntity -> taskEntity.getId().equals(taskId)).findFirst();
+                if (task.isPresent()) {
+                    task.get().setAnswer("");
+                    taskDTOs.add(taskFacade.taskToTaskDTO(task.get()));
+                }
             }
         } else {
-            for (TaskEntity task : tasks) {
-                taskDTOs.add(taskFacade.taskToTaskDTO(task));
+            for (Long taskId : tasksCheckingTypes.keySet()) {
+                Optional<TaskEntity> task = tasks.stream().filter(taskEntity -> taskEntity.getId().equals(taskId)).findFirst();
+                task.ifPresent(taskEntity -> taskDTOs.add(taskFacade.taskToTaskDTO(taskEntity)));
             }
         }
 
@@ -80,16 +84,18 @@ public class HomeworkFacade {
      */
 
     public HomeworkEntity homeworkDTOToHomework(HomeworkDTO homeworkDTO) {
-        HomeworkEntity homework = new HomeworkEntity();
+        HomeworkEntity homework;
+        if (homeworkDTO.getId() != null && homeworkDTO.getId() > 0) {
+            homework = homeworkService.getHomeworkById(homeworkDTO.getId());
+        } else {
+            homework = new HomeworkEntity();
+        }
         homework.setId(homeworkDTO.getId());
         homework.setName(homeworkDTO.getName());
         homework.setDeadLine(homeworkDTO.getDeadLine());
         homework.setSubject(subjectService.findSubjectByName(homeworkDTO.getSubject()));
-        TutorEntity tutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        homework.getTutors().add(tutor);
         homework.setPupils(homeworkDTO.getPupilIds().stream()
                 .map(id -> pupilService.findPupilById(id)).collect(Collectors.toSet()));
-
         if (homeworkDTO.getTasksCheckingTypes() != null) {
             LinkedHashMap<Long, String> tasksCheckingTypes = new LinkedHashMap<>();
             for (TaskDTO task : homeworkDTO.getTasks()) {

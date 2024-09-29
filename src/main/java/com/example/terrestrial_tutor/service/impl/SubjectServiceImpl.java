@@ -44,7 +44,8 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     public List<TutorEntity> findSubjectTutors(String subject) {
-        return subjectRepository.findSubjectEntityByName(subject).getTutors();
+        SubjectEntity subjectEntity = subjectRepository.findSubjectEntityByName(subject);
+        return subjectEntity.getTutors().stream().toList();
     }
 
     public SubjectEntity save(SubjectEntity subject) {

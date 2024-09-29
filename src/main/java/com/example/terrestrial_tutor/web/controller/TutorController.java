@@ -26,12 +26,11 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
-import javax.transaction.Transactional;
+import java.util.*;
+
+
+
 
 
 /**
@@ -95,16 +94,17 @@ public class TutorController {
      */
     @GetMapping("/tutor/subjects")
     @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
-    public ResponseEntity<List<SubjectDTO>> getTutorPupilsBySubject() {
+    public ResponseEntity<List<SubjectDTO>> getTutorSubjects() {
         TutorEntity tutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<SubjectEntity> subjects = tutorService.findTutorSubjectsByTutorId(tutor.getId());
-        List<SubjectDTO> subjectsDTO = new ArrayList<>();
+        Set<SubjectEntity> subjects = tutorService.findTutorSubjectsByTutorId(tutor.getId());
+        LinkedList<SubjectDTO> subjectsDTO = new LinkedList<>();
         for (SubjectEntity subject : subjects) {
             SubjectDTO subjectDTO = new SubjectDTO();
             subjectDTO.setId(subject.getId());
             subjectDTO.setSubjectName(subject.getName());
             subjectsDTO.add(subjectDTO);
         }
+        subjectsDTO.sort(Comparator.comparing(SubjectDTO::getSubjectName));
         return new ResponseEntity<>(subjectsDTO, HttpStatus.OK);
     }
 
@@ -127,27 +127,31 @@ public class TutorController {
     public ResponseEntity<List<TutorListDTO>> getAllTutors() {
         return new ResponseEntity<>(tutorListFacade.tutorListToDTO(tutorService.getAllTutors()), HttpStatus.OK);
     }
-    
-    @GetMapping("/tutor/pupils")
-    public ResponseEntity<Set<PupilDTO>> getCurrentPupils(@RequestParam String subject) {
+
+    /**
+     * Get tutor asigned pupils
+     * 
+     * @param tutorId tutor id
+     * @param subject sunject name
+     * @return pils DTOs
+     */
+    @GetMapping("/tutor/{tutorId}/pupils")
+    public ResponseEntity<List<PupilDTO>> getPupils(@PathVariable Long tutorId, @RequestParam Optional<String> subject) {
         try {
-            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            TutorEntity tutor = tutorService.findTutorById(user.getId());
-            List<PupilDTO> pupilDTOs = new ArrayList<>();
-            for (PupilEntity pupil : tutor.getPupils()) {
-                for (SubjectEntity pupilSubject : pupil.getSubjects()) {
-                    log.info(pupilSubject.getName());
-                    if (pupilSubject.getName().equals(subject)) {
-                        pupilDTOs.add(pupilFacade.pupilToPupilDTO(pupil));
-                        break;
-                    }
-                }
+            Set<PupilEntity> pupils;
+            if (subject.isPresent()) {
+                pupils = pupilService.getByTutorAndSubject(tutorId, subjectService.findSubjectByName(subject.get()).getId());
+            } else {
+                pupils = pupilService.getByTutor(tutorId);
             }
-            return new ResponseEntity<>(new HashSet<PupilDTO>(pupilDTOs), HttpStatus.OK);
+            List<PupilDTO> pupilDTOs = new ArrayList<>();
+            for (PupilEntity pupil : pupils) {
+                pupilDTOs.add(pupilFacade.pupilToPupilDTO(pupil));
+            }
+            return new ResponseEntity<>(pupilDTOs, HttpStatus.OK);
         } catch (Exception e) {
-            log.error(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            log.error("Failed to get pupils for tutor: " + tutorId.toString() + ". Error: " + e.getMessage());
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
-    
 }

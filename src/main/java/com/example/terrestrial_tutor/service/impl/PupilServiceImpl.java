@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -89,5 +90,13 @@ public class PupilServiceImpl implements PupilService {
 
     public List<PupilEntity> getByIds(Iterable<Long> ids) {
         return pupilRepository.findAllById(ids);
+    }
+
+    public Set<PupilEntity> getByTutor(Long tutorId) {
+        return pupilRepository.findByTutor(tutorId);
+    }
+
+    public Set<PupilEntity> getByTutorAndSubject(Long tutorId, Long subjectId) {
+        return pupilRepository.findByTutorAndSubject(tutorId, subjectId);
     }
 }

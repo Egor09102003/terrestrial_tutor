@@ -9,7 +9,15 @@
     <div class="row">
       <button class="m-3 col-2 btn btn-primary" (click)="addTasks()">Выбрать задания</button>
 
-      <button class="m-3 col-2 btn btn-primary" (click)="addPupils()">Добавить учеников</button>
+      @if (pupils) {
+        <pupils-select-modal 
+            class="m-3 p-0 col-2 btn btn-primary" 
+            (resultPupilIds)="homework ? homework.pupilIds = $event : homework = null" 
+            [currentPupils]="selectedPupils"
+            [pupils]="pupils"
+        >
+        </pupils-select-modal>
+      }
 
       <button class="mx-3 col-2 btn btn-primary" [disabled]="hwForm.invalid" (click)="submit()">Сохранить домашку</button>
 

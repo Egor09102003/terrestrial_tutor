@@ -1,5 +1,31 @@
-<div class="text-end">
-  <button *ngIf="checkLogin()"
-          class="btn btn-primary col-4 col-md-3 col-lg-2 m-3" (click)="logout()">Выйти</button>
+<div class="row m-3">
+  <div class="col-8 col-md-9 col-lg-10" *ngIf="checkLogin()"                                                                                                          >
+    <div class="row">
+      <h2>
+        @if (user && user['username']) {
+          Имя пользователя:
+          {{' ' + user['username']}}
+        }
+      </h2>
+    </div>
+    <div class="row">
+      <h2>
+        @if (user && user['surname']) {
+          ФИО:
+          {{' ' + user['surname']}}
+        }
+        @if (user && user['name']) {
+          {{' ' + user['name']}}
+        }
+        @if (user && user['patronymic']) {
+          {{' ' + user['patronymic']}}
+        }
+      </h2>
+    </div>
+  </div>
+  <div class="text-end col-4 col-md-3 col-lg-2">
+    <button *ngIf="checkLogin()"
+            class="btn btn-primary col-12" (click)="logout()">Выйти</button>
+  </div>
 </div>
 <router-outlet></router-outlet>
