@@ -2,11 +2,8 @@ package com.example.terrestrial_tutor.web.controller;
 
 import com.example.terrestrial_tutor.TerrestrialTutorApplication;
 import com.example.terrestrial_tutor.annotations.Api;
-import com.example.terrestrial_tutor.dto.EnrollDTO;
-import com.example.terrestrial_tutor.dto.HomeworkAnswersDTO;
 import com.example.terrestrial_tutor.dto.PupilDTO;
 import com.example.terrestrial_tutor.dto.TutorListDTO;
-import com.example.terrestrial_tutor.dto.facade.EnrollFacade;
 import com.example.terrestrial_tutor.dto.facade.PupilFacade;
 import com.example.terrestrial_tutor.dto.facade.TutorListFacade;
 import com.example.terrestrial_tutor.entity.*;
@@ -17,7 +14,6 @@ import com.example.terrestrial_tutor.service.HomeworkService;
 import com.example.terrestrial_tutor.service.PupilService;
 import com.example.terrestrial_tutor.service.SubjectService;
 import com.example.terrestrial_tutor.service.TutorService;
-import com.google.gson.Gson;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -99,7 +95,7 @@ public class PupilController {
     @Secured("hasAnyRole({'PUPIL'})")
     public ResponseEntity<PupilDTO> getCurrentPupil(Principal principal) {
         PupilDTO pupilDTO = pupilFacade.pupilToPupilDTO(pupilService.getCurrentPupil(principal));
-        return new ResponseEntity<PupilDTO>(pupilDTO, HttpStatus.OK);
+        return new ResponseEntity<>(pupilDTO, HttpStatus.OK);
     }
 
     @GetMapping("/pupil/all")
@@ -113,8 +109,14 @@ public class PupilController {
         return new ResponseEntity<>(pupilsDTO, HttpStatus.OK);
     }
 
+    /**\
+     * @deprecated
+     * @param addSubjectRequest subject
+     * @return list of pupils
+     */
     @PostMapping("/pupil/add/subjects")
     @Secured("hasAnyRole({'ADMIN'})")
+    @Deprecated
     public ResponseEntity<List<PupilDTO>> addSubjects(@RequestBody AddSubjectRequest addSubjectRequest) {
         String subject = addSubjectRequest.getSubject();
         List<Long> ids = addSubjectRequest.getIds();
@@ -124,7 +126,7 @@ public class PupilController {
             SubjectEntity currentSubject = subjectService.findSubjectByName(subject);
             if (currentSubject != null && !pupil.getSubjects().contains(currentSubject)) {
                 pupil.getSubjects().add(currentSubject);
-                currentSubject.getPupils().add(pupil);
+                //currentSubject.getPupils().add(pupil);
                 subjectService.updateSubject(currentSubject);
             } else {
                 throw new EntityExistsException();
@@ -169,8 +171,7 @@ public class PupilController {
                     pupilDTOs.add(pupilDTO);
                 }
             } catch(Exception e) {
-                log.error("Geting pupil failed: " + e.getMessage(), e);
-                continue;
+                log.error("Geting pupil failed: {}", e.getMessage(), e);
             }
         }
         return new ResponseEntity<>(pupilDTOs, HttpStatus.OK);

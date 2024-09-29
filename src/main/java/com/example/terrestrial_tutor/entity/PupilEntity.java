@@ -40,9 +40,6 @@ public class PupilEntity implements User {
     @Column(name = "price")
     Integer price;
 
-    @ManyToMany(mappedBy = "pupils", fetch = FetchType.LAZY)
-    List<SubjectEntity> subjects = new ArrayList<>();
-
     @ManyToOne()
     @JoinColumn(name = "support")
     SupportEntity support;
