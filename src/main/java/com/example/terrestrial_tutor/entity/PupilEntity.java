@@ -1,6 +1,7 @@
 package com.example.terrestrial_tutor.entity;
 
 import com.example.terrestrial_tutor.entity.enums.ERole;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.GrantedAuthority;
@@ -8,7 +9,9 @@ import org.springframework.security.core.GrantedAuthority;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Класс сущности ученика
@@ -44,8 +47,8 @@ public class PupilEntity implements User {
     @JoinColumn(name = "support")
     SupportEntity support;
 
-    @ManyToMany(mappedBy = "pupils", fetch = FetchType.LAZY)
-    List<TutorEntity> tutors = new ArrayList<>();
+    @OneToMany(mappedBy = "pupil")
+    List<EnrollEntity> enrolls;
 
     @OneToMany(mappedBy = "pupil", fetch = FetchType.LAZY)
     List<PaymentEntity> payments = new ArrayList<>();
@@ -151,5 +154,13 @@ public class PupilEntity implements User {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public Set<TutorEntity> getTutors() {
+        return new HashSet<TutorEntity>(this.enrolls.stream().map(enroll -> enroll.getTutor()).toList());
+    }
+
+    public Set<SubjectEntity> getSubjects() {
+        return new HashSet<SubjectEntity>(this.enrolls.stream().map(enroll -> enroll.getSubject()).toList());
     }
 }

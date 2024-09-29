@@ -20,7 +20,7 @@ export class HomeworksDisplayingComponent implements OnInit {
   homework: Homework = new Homework;
   tasksAnswers: FormGroup = this.fb.group({});
   pageLoaded = false;
-  statistic: HomeworkAnswers = {answersStatuses: {}, attemptCount: 1};
+  statistic: HomeworkAnswers = {answersStatuses: {}, attemptCount: 1, ordering: []};
   tasksStatus: {[key: number]: number} = {};
 
   constructor(private pupilDataService: PupilDataService,

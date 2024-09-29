@@ -1,0 +1,30 @@
+table {
+    background-color: #2c2c2c ;
+    color: white;
+    width: 100%;
+  }
+
+td, th {
+    border: 1px solid white;
+    padding: 8px;
+    max-width: 200px;
+}
+
+tr {
+    transition-duration: 0.5s;
+}
+
+tr:hover {
+    background-color: #1e1e1e !important;
+    cursor: pointer;
+    transition-duration: 0s;    
+}
+
+input[type="checkbox"] {
+    width: 25px;
+    height: 25px;
+}
+
+.pupils-modal .modal-dialog .modal-content{
+    max-width: 80%;
+}

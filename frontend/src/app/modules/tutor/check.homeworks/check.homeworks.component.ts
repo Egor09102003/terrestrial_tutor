@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, type OnInit } from '@angular/core';
+import { Component, SimpleChange, type OnInit } from '@angular/core';
 import { StatisticService } from '../../homework/services/statistic.service';
 import { ActivatedRoute } from '@angular/router';
 import { Homework } from 'src/app/models/Homework';
@@ -58,14 +58,5 @@ export class CheckHomeworksComponent implements OnInit {
 
     updateStatus() {
         this.homeworkService.updateAttemptStat(this.homework.id ?? -1, this.pupilId, this.pupilAnswers).subscribe(pupilAnswers => this.pupilAnswers = pupilAnswers);
-    }
-
-    test(tasks: Task[]) {
-        this.tasks = tasks;
-        console.log(tasks);
-    }
-    test1(ans: HomeworkAnswers) {
-        this.pupilAnswers = ans;
-        console.log(ans);
     }
 }

@@ -2,15 +2,17 @@ package com.example.terrestrial_tutor.web.controller;
 
 import com.example.terrestrial_tutor.TerrestrialTutorApplication;
 import com.example.terrestrial_tutor.annotations.Api;
+import com.example.terrestrial_tutor.dto.EnrollDTO;
 import com.example.terrestrial_tutor.dto.HomeworkAnswersDTO;
 import com.example.terrestrial_tutor.dto.PupilDTO;
+import com.example.terrestrial_tutor.dto.TutorListDTO;
+import com.example.terrestrial_tutor.dto.facade.EnrollFacade;
 import com.example.terrestrial_tutor.dto.facade.PupilFacade;
-import com.example.terrestrial_tutor.entity.AttemptEntity;
-import com.example.terrestrial_tutor.entity.PupilEntity;
-import com.example.terrestrial_tutor.entity.SubjectEntity;
-import com.example.terrestrial_tutor.entity.TutorEntity;
+import com.example.terrestrial_tutor.dto.facade.TutorListFacade;
+import com.example.terrestrial_tutor.entity.*;
 import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 import com.example.terrestrial_tutor.payload.request.AddSubjectRequest;
+import com.example.terrestrial_tutor.service.EnrollService;
 import com.example.terrestrial_tutor.service.HomeworkService;
 import com.example.terrestrial_tutor.service.PupilService;
 import com.example.terrestrial_tutor.service.SubjectService;
@@ -34,6 +36,12 @@ import javax.persistence.EntityExistsException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+
 
 
 /**
@@ -57,13 +65,12 @@ public class PupilController {
     private PupilFacade pupilFacade;
     @Autowired
     private SubjectService subjectService;
+    @Autowired
+    private TutorListFacade tutorListFacade;
+    @Autowired
+    EnrollService enrollService;
     static final Logger log =
             LoggerFactory.getLogger(TerrestrialTutorApplication.class);
-
-    /*@PostMapping("/pupil/add")
-    public ResponseEntity<PupilEntity> addPupil(@RequestBody PupilEntity pupil) {
-        return new ResponseEntity<>(pupilService.addNewPupil(pupil), HttpStatus.OK);
-    }*/
 
     /**
      * Поиск ученика по id
@@ -136,19 +143,11 @@ public class PupilController {
         List<PupilDTO> pupilDTOs = new ArrayList<>();
         for (PupilEntity pupil : pupils) {
             try {
-                Boolean currrentTutor = false;
-                for (TutorEntity pupilsTutor : pupil.getTutors()) {
-                    if (pupilsTutor.getId().equals(tutor.getId())) {
-                        currrentTutor = true;
-                        break;
-                    }
-                }
-
-                Boolean currentHomework = false;
                 AttemptEntity bestAttempt = null;
-                Integer lastAttemptNumber = 1;
+                int lastAttemptNumber = 1;
                 for (AttemptEntity attempt: pupil.getAnswers()) {
-                    if (attempt.getHomework() != null && attempt.getHomework().getId().equals(homeworkId) 
+                    HomeworkEntity homework = attempt.getHomework();
+                    if (homework != null && homework.getId().equals(homeworkId)
                         && !attempt.getAnswers().getAnswersStatuses().isEmpty()
                         && attempt.getAttemptNumber() != -1
                         && attempt.getStatus() == HomeworkStatus.FINISHED
@@ -160,15 +159,12 @@ public class PupilController {
                         if (attempt.getAttemptNumber() > lastAttemptNumber) {
                             lastAttemptNumber = attempt.getAttemptNumber();
                         }
-                        currentHomework = true;
                     }
                 }
 
-                if (currrentTutor && currentHomework) {
+                if (bestAttempt != null && enrollService.checkEnrollment(pupil, bestAttempt.getHomework().getSubject(), tutor)) {
                     PupilDTO pupilDTO = pupilFacade.pupilToPupilDTO(pupil);
-                    if (bestAttempt != null) {
-                        pupilDTO.setAttempt(bestAttempt.getAnswers());
-                    }
+                    pupilDTO.setAttempt(bestAttempt.getAnswers());
                     pupilDTO.setLastAttemptNumber(lastAttemptNumber);
                     pupilDTOs.add(pupilDTO);
                 }
@@ -179,5 +175,15 @@ public class PupilController {
         }
         return new ResponseEntity<>(pupilDTOs, HttpStatus.OK);
     }
-    
+
+    @GetMapping("/pupil/{pupilId}/tutors")
+    public ResponseEntity<List<TutorListDTO>> getTutors(@PathVariable Long pupilId) {
+        try {
+            PupilEntity pupil = pupilService.findPupilById(pupilId);
+            return new ResponseEntity<>(tutorListFacade.tutorListToDTO(pupil.getTutors()), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Failed to get pupil " + pupilId.toString() + " tutors. Error message: " + e.getMessage());
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }    
 }

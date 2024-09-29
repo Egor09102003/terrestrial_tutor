@@ -32,10 +32,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 
 
@@ -147,7 +147,7 @@ public class HomeworkController {
     /**
      * Get attempt results
      *
-     * @param id - homework id
+     * @param pupilId - pupil id
      * @param attempt - attempt id, if skipped, will be returned last attempt
      * @return - attempt answers and statuses
      */
@@ -156,7 +156,7 @@ public class HomeworkController {
                                                                  @PathVariable Optional<Integer> attempt,
                                                                  @RequestParam Optional<Long> pupilId) {
         Long id;
-        if (!pupilId.isPresent()) {
+        if (pupilId.isEmpty()) {
             try {
                 PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                 id = pupil.getId();
@@ -166,7 +166,9 @@ public class HomeworkController {
         } else {
             id = pupilId.get();
         }
-        return new ResponseEntity<>(homeworkService.getPupilAnswers(homeworkId, id, attempt), HttpStatus.OK);
+        HomeworkAnswersDTO answersDTO = homeworkService.getPupilAnswers(homeworkId, id, attempt);
+        answersDTO.setOrdering(new LinkedHashSet<>(answersDTO.getAnswersStatuses().keySet()));
+        return new ResponseEntity<>(answersDTO, HttpStatus.OK);
     }
 
     /**
@@ -192,7 +194,9 @@ public class HomeworkController {
         List<HomeworkEntity> allHomeworks = homeworkService.getAllHomeworks();
         List<HomeworkDTO> allHomeworksDto = new ArrayList<>();
         for(HomeworkEntity homework : allHomeworks) {
-            allHomeworksDto.add(homeworkFacade.homeworkToHomeworkDTO(homework));
+            if (!homework.getName().isEmpty()) {
+                allHomeworksDto.add(homeworkFacade.homeworkToHomeworkDTO(homework));
+            }
         }
         return new ResponseEntity<>(allHomeworksDto, HttpStatus.OK);
     }
@@ -288,8 +292,7 @@ public class HomeworkController {
      */
     @GetMapping("/homework/{homeworkId}/tutors")
     public ResponseEntity<List<TutorListDTO>> getHomeworkTutors(@PathVariable Long homeworkId) {
-        List<TutorEntity> tutors = new ArrayList<>();
-        tutors.addAll(homeworkService.getHomeworkById(homeworkId).getTutors());
+        List<TutorEntity> tutors = new ArrayList<>(homeworkService.getHomeworkById(homeworkId).getTutors());
         return new ResponseEntity<>(tutorListFacade.tutorListToDTO(tutors), HttpStatus.OK);
     }
 

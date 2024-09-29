@@ -3,6 +3,7 @@ package com.example.terrestrial_tutor.entity;
 import javax.persistence.*;
 
 import com.example.terrestrial_tutor.entity.enums.ERole;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,19 +26,14 @@ public class TutorEntity implements User {
     @SequenceGenerator(name = "hibernate_sequence", sequenceName = "hibernate_sequence", allocationSize = 10)
     private Long id;
 
-    @Column(name = "subjects")
-    @ManyToMany(mappedBy = "tutors", fetch = FetchType.LAZY)
-    List<SubjectEntity> subjects;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pupils")
-    Set<PupilEntity> pupils;
-
     @Column(name = "payment_data")
     String paymentData;
 
     @ManyToMany(mappedBy = "tutors", fetch = FetchType.LAZY)
     Set<HomeworkEntity> homeworkList;
+
+    @OneToMany(mappedBy = "tutor")
+    List<EnrollEntity> enrolls;
 
     @NonNull
     @Column(name = "username")
@@ -137,5 +133,29 @@ public class TutorEntity implements User {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public Set<PupilEntity> getPupils() {
+        return new HashSet<PupilEntity>(this.enrolls
+                .stream()
+                .map(EnrollEntity::getPupil)
+                .toList());
+    }
+
+    public Set<PupilEntity> getPupilsBySubject(Long subjectId) {
+        return new HashSet<PupilEntity>(
+                this.enrolls
+                        .stream()
+                        .filter(enroll -> enroll.getSubject().getId().equals(subjectId))
+                        .map(EnrollEntity::getPupil)
+                        .toList()
+        );
+    }
+
+    public Set<SubjectEntity> getSubjects() {
+        return new HashSet<>(this.enrolls
+                .stream()
+                .map(EnrollEntity::getSubject)
+                .toList());
     }
 }

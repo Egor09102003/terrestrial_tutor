@@ -39,7 +39,7 @@
         </div>
 
         <div class="mt-5" *ngIf="task.answerType == 'DETAILED'">
-          <textarea class="ocl-7 col-md-5 col-lg-4" [formControlName]="task.id.toString()" style="resize: both" rows="4"
+          <textarea class="col-7 col-md-5 col-lg-4" [formControlName]="task.id.toString()" style="resize: both" rows="4"
                     placeholder="Введите ответ" (change)="!checkChecking(task.id) ? momentCheck(task) : ''" [ngClass]="{'is-invalid': tasksStatus[task.id] == 2 && checkChecking(task.id),
             'is-valid': tasksStatus[task.id] == 1 && checkChecking(task.id)}"></textarea>
         </div>

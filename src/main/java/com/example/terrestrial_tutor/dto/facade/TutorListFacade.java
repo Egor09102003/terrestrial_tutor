@@ -4,6 +4,7 @@ import com.example.terrestrial_tutor.dto.TutorListDTO;
 import com.example.terrestrial_tutor.entity.TutorEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -19,18 +20,20 @@ public class TutorListFacade {
      * @param tutors репетиторы
      * @return DTO из списка репетиторов
      */
-    public List<TutorListDTO> tutorListToDTO(List<TutorEntity> tutors) {
+    public List<TutorListDTO> tutorListToDTO(Collection<TutorEntity> tutors) {
         return tutors
                 .stream()
-                .map(tutorEntity -> {
-                    TutorListDTO tutorDTO = new TutorListDTO();
-                    tutorDTO.setId(tutorEntity.getId());
-                    tutorDTO.setName(tutorEntity.getName());
-                    tutorDTO.setSurname(tutorEntity.getSurname());
-                    tutorDTO.setPatronymic(tutorEntity.getPatronymic());
-                    tutorDTO.setUsername(tutorEntity.getUsername());
-                    return tutorDTO;
-                })
+                .map(tutorEntity -> this.tutorToTutorDTO(tutorEntity))
                 .toList();
+    }
+
+    public TutorListDTO tutorToTutorDTO(TutorEntity tutor) {
+        TutorListDTO tutorDTO = new TutorListDTO();
+        tutorDTO.setId(tutor.getId());
+        tutorDTO.setName(tutor.getName());
+        tutorDTO.setSurname(tutor.getSurname());
+        tutorDTO.setPatronymic(tutor.getPatronymic());
+        tutorDTO.setUsername(tutor.getUsername());
+        return tutorDTO;
     }
 }

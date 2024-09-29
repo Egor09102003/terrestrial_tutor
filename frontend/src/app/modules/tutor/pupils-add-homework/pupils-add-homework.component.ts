@@ -35,9 +35,9 @@ export class PupilsAddHomeworkComponent implements OnInit {
     this.tutorService.getHomework(this.route.snapshot.paramMap.get('hwId')).subscribe(homework => {
       this.homework = homework;
       this.currentPupils = this.homework?.pupilIds;
-      this.tutorService.getAllCurrentPupils(this.homework?.subject ?? '').subscribe(pupils => {
+      /*this.tutorService.getAllCurrentPupils(this.homework?.subject ?? '').subscribe(pupils => {
         this.fillPupils(pupils);
-      })
+      })*/
     });
     this.filter.valueChanges.subscribe((text) => {
       this.search(text);

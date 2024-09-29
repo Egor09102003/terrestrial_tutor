@@ -47,4 +47,8 @@ export class PupilService {
     });
   }
 
+  getAll(): Observable<any> {
+    return this.http.get(this.PUPIL_API + 'all');
+  }
+
 }

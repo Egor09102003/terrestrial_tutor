@@ -35,11 +35,7 @@ export class StatisticService {
       this.homeworkService.getLastAttemptAnswers(homeworkId, pupilId).subscribe(pupilAnswers => {
         let pupilAnswersMap = <HomeworkAnswers> pupilAnswers;
         this.pupilAnswers = pupilAnswersMap;
-        let taskIds: number[] = [];
-        for (let taskId in pupilAnswers.answersStatuses) {
-          taskIds.push(Number(taskId));
-        }
-        this.taskService.getTaskByIds(taskIds).subscribe(tasks => {
+        this.taskService.getTaskByIds(this.pupilAnswers.ordering).subscribe(tasks => {
           this.tasks = tasks;
           this.attempts = [];
           for (let i = 1; i <= pupilAnswersMap.attemptCount; i++) {

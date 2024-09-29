@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -66,10 +67,9 @@ public class TutorServiceImpl implements TutorService {
     }
 
     @Override
-    public List<SubjectEntity> findTutorSubjectsByTutorId(Long id) {
-        List<TutorEntity> tutor = new ArrayList<>();
-        tutor.add(tutorRepository.findTutorEntityById(id));
-        return subjectRepository.findSubjectEntitiesByTutorsIn(tutor);
+    public Set<SubjectEntity> findTutorSubjectsByTutorId(Long id) {
+        TutorEntity tutor = tutorRepository.findTutorEntityById(id);
+        return tutor.getSubjects();
     }
 
     public TutorEntity verifyTutor(Long id) {
@@ -85,16 +85,16 @@ public class TutorServiceImpl implements TutorService {
     @Override
     public TutorEntity addTutorSubject(TutorEntity tutor, SubjectEntity subject) {
         try {
-            List<SubjectEntity> subjects = tutor.getSubjects();
-            List<TutorEntity> tutors = subject.getTutors();
+            Set<SubjectEntity> subjects = tutor.getSubjects();
+            List<TutorEntity> tutors = subject.getTutors().stream().toList();
             if (subjects.contains(subject)) {
                 LOG.error("SUBJECT ALREADY EXISTS");
                 throw new RuntimeException("Subject already exists");
             }
             subjects.add(subject);
-            tutor.setSubjects(subjects);
+//            tutor.setSubjects(subjects);
             tutors.add(tutor);
-            subject.setTutors(tutors);
+//            subject.setTutors(tutors);
             subjectRepository.save(subject);
             return tutorRepository.save(tutor);
         } catch (Exception ex) {

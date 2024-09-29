@@ -5,6 +5,7 @@ import com.example.terrestrial_tutor.payload.request.RegistrationRequest;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Сервис по работе с сущностью ученика
@@ -75,4 +76,21 @@ public interface PupilService {
      * @return pupil entities
      */
     List<PupilEntity> getByIds(Iterable<Long> ids);
+
+    /**
+     * Get all tutor pupils
+     * 
+     * @param tutorId tutor id
+     * @return set of pupil entities
+     */
+    Set<PupilEntity> getByTutor(Long tutorId);
+
+    /**
+     * Get all tutor pupils by subject
+     * 
+     * @param tutorId tutor id
+     * @param subjectId subjectId
+     * @return set of pupil entities
+     */
+    Set<PupilEntity> getByTutorAndSubject(Long tutorId, Long subjectId);
 }

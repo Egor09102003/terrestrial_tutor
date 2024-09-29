@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 
 /**
  * Класс DTO ответов на дз
@@ -18,8 +20,9 @@ import java.util.HashMap;
 @NoArgsConstructor
 public class HomeworkAnswersDTO {
 
-    HashMap<Long, Status> answersStatuses = new HashMap<>();
+    LinkedHashMap<Long, Status> answersStatuses = new LinkedHashMap<>();
     Integer attemptCount = -1;
+    LinkedHashSet<Long> ordering = new LinkedHashSet<>();
 
 
     @Getter

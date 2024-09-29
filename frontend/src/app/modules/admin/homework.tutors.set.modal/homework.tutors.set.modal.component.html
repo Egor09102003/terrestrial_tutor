@@ -1,7 +1,7 @@
 <ng-template #content let-modal aria-modal="true">
     <div class="modal-header">
         <h4 class="modal-title">Назначение преподавателя</h4>
-        <button class="mx-2 p-1 col-6 col-md-3 btn btn-primary" (click)="save()">Сохранить</button>
+        <button class="mx-2 p-1 col-6 col-md-3 btn btn-primary" (click)="save();modal.dismiss()">Сохранить</button>
         <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
       </div>
     <div class="modal-body">

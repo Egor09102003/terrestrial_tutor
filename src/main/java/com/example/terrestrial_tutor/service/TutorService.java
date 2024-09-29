@@ -5,6 +5,7 @@ import com.example.terrestrial_tutor.entity.TutorEntity;
 import com.example.terrestrial_tutor.payload.request.RegistrationRequest;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Сервис по работе с сущностью репетитора
@@ -55,7 +56,7 @@ public interface TutorService {
      * @param id id
      * @return лист предметов
      */
-    List<SubjectEntity> findTutorSubjectsByTutorId(Long id);
+    Set<SubjectEntity> findTutorSubjectsByTutorId(Long id);
 
     /**
      * Обновление данных репетитора
