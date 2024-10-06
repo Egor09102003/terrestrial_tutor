@@ -1,5 +1,6 @@
 package com.example.terrestrial_tutor.dto.facade;
 
+import com.example.terrestrial_tutor.TerrestrialTutorApplication;
 import com.example.terrestrial_tutor.dto.HomeworkDTO;
 import com.example.terrestrial_tutor.dto.TaskDTO;
 import com.example.terrestrial_tutor.entity.*;
@@ -7,12 +8,13 @@ import com.example.terrestrial_tutor.entity.enums.ERole;
 import com.example.terrestrial_tutor.service.*;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Класс для перевода HomeworkEntity в HomeworkDTO и обратно
@@ -31,6 +33,9 @@ public class HomeworkFacade {
     PupilService pupilService;
     @Autowired
     TaskService taskService;
+
+    static final Logger log =
+            LoggerFactory.getLogger(TerrestrialTutorApplication.class);
 
     /**
      * Метод для перевода сущности дз в DTO
@@ -94,8 +99,19 @@ public class HomeworkFacade {
         homework.setName(homeworkDTO.getName());
         homework.setDeadLine(homeworkDTO.getDeadLine());
         homework.setSubject(subjectService.findSubjectByName(homeworkDTO.getSubject()));
-        homework.setPupils(homeworkDTO.getPupilIds().stream()
-                .map(id -> pupilService.findPupilById(id)).collect(Collectors.toSet()));
+        List<PupilEntity> pupils = pupilService.findPupilsByIds(homeworkDTO.getPupilIds());
+        if (homework.getPupils() != null) {
+            homework.getPupils().addAll(pupils);
+        } else {
+            homework.setPupils(new HashSet<>(pupils));
+        }
+
+        try {
+            TutorEntity tutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            homework.getTutors().add(tutor);
+        } catch (Exception e) {
+            log.warn("Tutor doesnt set for hw{}: {}", homework.getId().toString(), e.getMessage());
+        }
         if (homeworkDTO.getTasksCheckingTypes() != null) {
             LinkedHashMap<Long, String> tasksCheckingTypes = new LinkedHashMap<>();
             for (TaskDTO task : homeworkDTO.getTasks()) {
