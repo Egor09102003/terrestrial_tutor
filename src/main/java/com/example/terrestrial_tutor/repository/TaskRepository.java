@@ -3,15 +3,15 @@ package com.example.terrestrial_tutor.repository;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TaskEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Репозиторий сущности задания
  */
-public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
+public interface TaskRepository extends JpaRepository<TaskEntity, Long>, JpaSpecificationExecutor<TaskEntity> {
     /**
      * Поиск задания по id
      *

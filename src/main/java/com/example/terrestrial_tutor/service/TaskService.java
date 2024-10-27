@@ -4,10 +4,11 @@ import com.example.terrestrial_tutor.dto.TaskDTO;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.SupportEntity;
 import com.example.terrestrial_tutor.entity.TaskEntity;
+import org.springframework.data.domain.Page;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Сервис по работе с сущностью задания
@@ -45,7 +46,7 @@ public interface TaskService {
      *
      * @return лист заданий
      */
-    List<TaskEntity> getAllTasks();
+    public Page<TaskEntity> getAllTasks(Optional<Integer> page, Optional<Integer> size, Optional<String> filter, Optional<String> filterName);
 
     /**
      * Поиск задания по id

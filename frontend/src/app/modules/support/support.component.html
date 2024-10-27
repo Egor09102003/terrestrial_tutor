@@ -1,37 +1,58 @@
-<ul ngbNav #nav="ngbNav" class="nav-tabs">
+<ul ngbNav #nav="ngbNav" class="nav-tabs" data-bs-theme="dark">
 
   <li ngbNavItem>
     <a ngbNavLink>Задания</a>
     <ng-template ngbNavContent>
-      <button class="row col-2 p-1 btn btn-lg btn-outline-primary" (click)="addTask()">Добавить задание</button>
+      <div class="row mx-0 m-2">
+        <button class="col-3 col-md-2 col-lg-2 btn btn-primary" (click)="addTask()">Добавить задание</button>
+      </div>
+      <div class="row mx-0 m-2">
+        <input [(ngModel)]="filter" class="col-6"/>
+        <div ngbDropdown class="col-auto">
+          <button class="dropdown-toggle drop-btn btn-primary" ngbDropdownToggle>
+            {{taskFilters[filterName]}}
+          </button>
+          <div ngbDropdownMenu>
+            @for (taskFilter of Object.keys(taskFilters); track taskFilter) {
+              <button (click)="filterName = taskFilter" ngbDropdownItem>{{taskFilters[taskFilter]}}</button>
+            }
+          </div>
+        </div>
+        <button class="col-3 col-md-2 col-lg-2 btn btn-primary" (click)="changePage(1)">Найти</button>
+      </div>
       <div *ngIf="!tasksUpload" class="row mb-1 spinner-border" role="status"></div>
-      <table *ngIf="tasksUpload">
-        <thead>
-        <tr>
-          <th>Id</th>
-          <th>Название</th>
-          <th>Предмет</th>
-          <th>Уроень 1</th>
-          <th>Уровень 2</th>
-          <th>Ответ</th>
-          <th>Действия</th>
-        </tr>
-        </thead>
-        <tbody *ngFor="let task of tasks">
-        <tr>
-          <td>{{ task.id }}</td>
-          <td>{{ task.name }}</td>
-          <td>{{task.subject}}</td>
-          <td>{{task.level1}}</td>
-          <td>{{task.level2}}</td>
-          <td>{{task.answers}}</td>
-          <td>
-            <button (click)="addTask(task)">Редактировать</button>
-            <button (click)="deleteTask(task)">Удалить</button>
-          </td>
-        </tr>
-        </tbody>
-      </table>
+      <div>
+        <table *ngIf="tasksUpload">
+          <thead>
+          <tr>
+            <th>Id</th>
+            <th>Название</th>
+            <th>Предмет</th>
+            <th>Уроень 1</th>
+            <th>Уровень 2</th>
+            <th>Ответ</th>
+            <th>Действия</th>
+          </tr>
+          </thead>
+          <tbody *ngFor="let task of tasks">
+          <tr>
+            <td>{{ task.id }}</td>
+            <td>{{ task.name }}</td>
+            <td>{{task.subject}}</td>
+            <td>{{task.level1}}</td>
+            <td>{{task.level2}}</td>
+            <td>{{task.answers}}</td>
+            <td>
+              <button (click)="addTask(task)">Редактировать</button>
+              <button (click)="deleteTask(task)">Удалить</button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="row mt-2 mx-0">
+        <ngb-pagination class="mx-auto col-auto" [maxSize]="5" (pageChange)="changePage($event)" [(page)]="page" [pageSize]="pageSize" [collectionSize]="maxSize" [boundaryLinks]="true" />
+      </div>
     </ng-template>
   </li>
 

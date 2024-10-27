@@ -13,8 +13,15 @@ export class TaskService {
 
   private TASK_API = this.apiService.apiUrl + 'tasks/';
 
-  getAllTasks(): Observable<any> {
-    return this.http.get(this.TASK_API + 'all');
+  getAllTasks(page: number, size: number, filter: string, filterName: string): Observable<any> {
+    return this.http.get(this.TASK_API + 'all', {
+      params: {
+        page: page,
+        size: size,
+        filter: filter,
+        filterName: filterName
+      }
+    });
   }
 
   getTasksBySubject(subject: any): Observable<any> {
