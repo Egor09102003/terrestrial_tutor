@@ -5,11 +5,13 @@ import com.example.terrestrial_tutor.dto.TaskDTO;
 import com.example.terrestrial_tutor.dto.facade.TaskFacade;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TaskEntity;
+import com.example.terrestrial_tutor.payload.response.TasksResponse;
 import com.example.terrestrial_tutor.service.SubjectService;
 import com.example.terrestrial_tutor.service.TaskService;
 import com.example.terrestrial_tutor.service.UploadFilesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -48,9 +50,20 @@ public class TaskController {
      * @return все задания
      */
     @GetMapping("/tasks/all")
-    public ResponseEntity<List<TaskDTO>> getAllTasks() {
-        List<TaskEntity> tasksList = taskService.getAllTasks();
-        return new ResponseEntity<>(getSortedDto(tasksList), HttpStatus.OK);
+    public ResponseEntity<TasksResponse> getAllTasks(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String filter,
+            @RequestParam(required = false) String filterName
+    ) {
+        Page<TaskEntity> tasksList = taskService.getAllTasks(
+                Optional.of(page - 1),
+                Optional.ofNullable(size),
+                Optional.ofNullable(filter),
+                Optional.ofNullable(filterName)
+        );
+        TasksResponse tasksResponse = new TasksResponse(tasksList.getTotalElements(), tasksList.getContent().stream().map(task -> taskFacade.taskToTaskDTO(task)).toList());
+        return new ResponseEntity<>(tasksResponse, HttpStatus.OK);
     }
 
     /**

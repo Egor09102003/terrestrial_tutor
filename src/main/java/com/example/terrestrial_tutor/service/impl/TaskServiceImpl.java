@@ -13,14 +13,14 @@ import com.example.terrestrial_tutor.service.SupportService;
 import com.example.terrestrial_tutor.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.example.terrestrial_tutor.entity.enums.TaskCheckingType.*;
 
@@ -76,8 +76,29 @@ public class TaskServiceImpl implements TaskService {
             return null;
     }
 
-    public List<TaskEntity> getAllTasks(){
-        return taskRepository.findAll();
+    public Page<TaskEntity> getAllTasks(Optional<Integer> page, Optional<Integer> size, Optional<String> filter, Optional<String> filterName) {
+        Pageable pageable;
+        if (size.isPresent()) {
+            pageable = PageRequest.of(page.orElse(0), size.get(), Sort.by(Sort.Direction.ASC, "id"));
+        } else {
+            pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by(Sort.Direction.ASC, "id"));
+        }
+        Specification<TaskEntity> filters;
+        if (filterName.isPresent() && filter.isPresent()) {
+            filters = filterName.get().equals("id") ? likeNumber(filterName.get(), Long.parseLong(filter.get())) : likeString(filterName.get(), filter.get());
+            return taskRepository.findAll(filters, pageable);
+        }
+        return taskRepository.findAll(pageable);
+    }
+
+    public Specification<TaskEntity> likeString(String field, String needle) {
+        return ((root, query, criteriaBuilder) ->
+                criteriaBuilder.like(criteriaBuilder.lower(root.get(field)), "%" + needle.toLowerCase() + "%"));
+    }
+
+    public Specification<TaskEntity> likeNumber(String field, Long needle) {
+        return ((root, query, criteriaBuilder) ->
+                criteriaBuilder.like(criteriaBuilder.function("str", String.class, root.get(field)), "%" + needle.toString() + "%"));
     }
 
     @Override
