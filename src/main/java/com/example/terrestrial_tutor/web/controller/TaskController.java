@@ -53,14 +53,20 @@ public class TaskController {
     public ResponseEntity<TasksResponse> getAllTasks(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
-            @RequestParam(required = false) String filter,
-            @RequestParam(required = false) String filterName
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String level1,
+            @RequestParam(required = false) String level2,
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String subject
     ) {
         Page<TaskEntity> tasksList = taskService.getAllTasks(
                 Optional.of(page - 1),
                 Optional.ofNullable(size),
-                Optional.ofNullable(filter),
-                Optional.ofNullable(filterName)
+                Optional.ofNullable(name),
+                Optional.ofNullable(level1),
+                Optional.ofNullable(level2),
+                Optional.ofNullable(id),
+                Optional.ofNullable(subjectService.findSubjectByName(subject))
         );
         TasksResponse tasksResponse = new TasksResponse(tasksList.getTotalElements(), tasksList.getContent().stream().map(task -> taskFacade.taskToTaskDTO(task)).toList());
         return new ResponseEntity<>(tasksResponse, HttpStatus.OK);

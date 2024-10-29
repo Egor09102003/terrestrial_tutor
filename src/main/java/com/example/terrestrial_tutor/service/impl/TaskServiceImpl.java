@@ -11,6 +11,8 @@ import com.example.terrestrial_tutor.repository.TaskRepository;
 import com.example.terrestrial_tutor.service.SubjectService;
 import com.example.terrestrial_tutor.service.SupportService;
 import com.example.terrestrial_tutor.service.TaskService;
+import com.example.terrestrial_tutor.specification.task.TaskSpecifications;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -76,19 +78,38 @@ public class TaskServiceImpl implements TaskService {
             return null;
     }
 
-    public Page<TaskEntity> getAllTasks(Optional<Integer> page, Optional<Integer> size, Optional<String> filter, Optional<String> filterName) {
+    public Page<TaskEntity> getAllTasks(
+        Optional<Integer> page,
+        Optional<Integer> size,
+        Optional<String> name,
+        Optional<String> level1,
+        Optional<String> level2,
+        Optional<Long> id,
+        Optional<SubjectEntity> subject
+    ) {
         Pageable pageable;
         if (size.isPresent()) {
             pageable = PageRequest.of(page.orElse(0), size.get(), Sort.by(Sort.Direction.ASC, "id"));
         } else {
             pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by(Sort.Direction.ASC, "id"));
         }
-        Specification<TaskEntity> filters;
-        if (filterName.isPresent() && filter.isPresent()) {
-            filters = filterName.get().equals("id") ? likeNumber(filterName.get(), Long.parseLong(filter.get())) : likeString(filterName.get(), filter.get());
-            return taskRepository.findAll(filters, pageable);
+        Specification<TaskEntity> filters = TaskSpecifications.emptySpec();
+        if (name.isPresent()) {
+            filters = filters.and(TaskSpecifications.nameContains(name.get()));
         }
-        return taskRepository.findAll(pageable);
+        if (level1.isPresent()) {
+            filters = filters.and(TaskSpecifications.level1Contains(level1.get()));
+        }
+        if (level2.isPresent()) {
+            filters = filters.and(TaskSpecifications.level2Contains(level2.get()));
+        }
+        if (id.isPresent()) {
+            filters = filters.and(TaskSpecifications.idContains(id.get()));
+        }
+        if (subject.isPresent()) {
+            filters = filters.and(TaskSpecifications.subjectContains(subject.get().getId()));
+        }
+        return taskRepository.findAll(filters, pageable);
     }
 
     public Specification<TaskEntity> likeString(String field, String needle) {
