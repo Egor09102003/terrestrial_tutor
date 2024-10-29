@@ -33,12 +33,15 @@ export class TaskChoiceComponent implements OnInit {
               ) { }
 
   allTasks: TaskSelect[] = [];
-  filteredTasks: TaskSelect[] = [];
+  tasks: Task[] = [];
   subject: any;
   pageLoaded: boolean = false;
   isCollapsed: boolean[] = [];
   homework: Homework | null = null;
   filterText = new UntypedFormControl('');
+  page = 1;
+  pageSize = 30;
+  maxSize = 100;
 
   ngOnInit(): void {
     if (this.tutorDataService.getHomework()) {
@@ -53,25 +56,18 @@ export class TaskChoiceComponent implements OnInit {
         this.setTasks();
       });
     }
-
-    this.filterText.valueChanges.subscribe(text => {
-      this.search(text);
-    })
   }
 
   setTasks() {
-    this.taskService.getTasksBySubject(this.subject).pipe(map(tasks => tasks)).subscribe(tasks => {
-      for (let i = 0; i < tasks.length; i++) {
-        if (this.homework != null && this.homework.tasks.some(task => task.id == tasks[i].id)) {
-          this.allTasks.push(new TaskSelect(tasks[i], true));
-        } else {
-          this.allTasks.push(new TaskSelect(tasks[i]));
-        }
-        this.isCollapsed.push(true);
+    this.allTasks = [];
+    for (let i = 0; i < this.tasks.length; i++) {
+      if (this.homework != null && this.homework.tasks.some(task => task.id == this.tasks[i].id)) {
+        this.allTasks.push(new TaskSelect(this.tasks[i], true));
+      } else {
+        this.allTasks.push(new TaskSelect(this.tasks[i]));
       }
-      this.filteredTasks = this.allTasks;
-      this.pageLoaded = true;
-    });
+      this.isCollapsed.push(true);
+    }
   }
 
   checkImage(file: string): boolean {
@@ -82,28 +78,6 @@ export class TaskChoiceComponent implements OnInit {
     if (this.codemirror != undefined) {
       this.codemirror.codeMirror?.refresh();
     }
-  }
-
-  search(text: any) {
-    text = text.toLowerCase();
-    this.filteredTasks = this.allTasks.filter(task => {
-      return task.task.id.toString().toLowerCase().includes(text) ||
-        task.task.name.toLowerCase().includes(text) ||
-        task.task.subject.toLowerCase().includes(text) ||
-        task.task.answers.includes(text) ||
-        task.task.files.includes(text) ||
-        task.task.table.toLowerCase().includes(text) ||
-        task.task.level2.toLowerCase().includes(text) ||
-        task.task.level1.toLowerCase().includes(text) ||
-        task.task.taskText.toLowerCase().includes(text);
-    });
-  }
-
-  getFromAllTasksById(id: number): TaskSelect {
-    // @ts-ignore
-    return this.allTasks.find(task => {
-      return task.task.id == id;
-    });
   }
 
   getSelectedTasks(): Task[] {

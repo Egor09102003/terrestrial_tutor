@@ -6,22 +6,12 @@
       <div class="row mx-0 m-2">
         <button class="col-3 col-md-2 col-lg-2 btn btn-primary" (click)="addTask()">Добавить задание</button>
       </div>
-      <div class="row mx-0 m-2">
-        <input [(ngModel)]="filter" class="col-6"/>
-        <div ngbDropdown class="col-auto">
-          <button class="dropdown-toggle drop-btn btn-primary" ngbDropdownToggle>
-            {{taskFilters[filterName]}}
-          </button>
-          <div ngbDropdownMenu>
-            @for (taskFilter of Object.keys(taskFilters); track taskFilter) {
-              <button (click)="filterName = taskFilter" ngbDropdownItem>{{taskFilters[taskFilter]}}</button>
-            }
-          </div>
-        </div>
-        <button class="col-3 col-md-2 col-lg-2 btn btn-primary" (click)="changePage(1)">Найти</button>
+      <div class="col-12 sticky-top bg-dark row mx-0 m-2">
+        <task-filter class="col-12" [page]="page" (total)="maxSize=$event" (tasks)="tasks=$event; tasksUpload=true"></task-filter>
       </div>
       <div *ngIf="!tasksUpload" class="row mb-1 spinner-border" role="status"></div>
       <div>
+        Найдено: {{maxSize}}
         <table *ngIf="tasksUpload">
           <thead>
           <tr>
@@ -51,7 +41,7 @@
         </table>
       </div>
       <div class="row mt-2 mx-0">
-        <ngb-pagination class="mx-auto col-auto" [maxSize]="5" (pageChange)="changePage($event)" [(page)]="page" [pageSize]="pageSize" [collectionSize]="maxSize" [boundaryLinks]="true" />
+        <ngb-pagination class="mx-auto col-auto" [maxSize]="5" [(page)]="page" [pageSize]="pageSize" [collectionSize]="maxSize" [boundaryLinks]="true" />
       </div>
     </ng-template>
   </li>

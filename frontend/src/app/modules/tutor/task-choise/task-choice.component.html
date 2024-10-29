@@ -1,22 +1,21 @@
-<div *ngIf="!pageLoaded" class="row m-3 col-12 spinner-border" role="status"></div>
-<div *ngIf="pageLoaded" class="container">
-  <button class="row m-3 col-2 btn btn-primary" (click)="submit()">Сохранить</button>
-  <div class="row m-1"></div>
-  <div class="mb-3 row">
-    <label for="table-filtering-search" class="col-xs-3 col-sm-auto col-form-label">Поиск:</label>
-    <div class="col-xs-3 col-sm-auto">
-      <input id="table-filtering-search" class="form-control" type="text" [formControl]="filterText">
-    </div>
+
+<button class="row m-3 col-2 btn btn-primary" (click)="submit()">Сохранить</button>
+<div class="row m-1"></div>
+<div class="col-12 sticky-top bg-dark row mx-0 m-2">
+  <task-filter [bannedFilters]="['subject']" [initialFilters]="{subject: subject}" class="col-12" [page]="page" (total)="maxSize=$event" (tasks)="tasks=$event; setTasks()"></task-filter>
+</div>
 <!--    <button type="button" class="btn btn-primary m-2 col-10" (click)="search()">Найти</button>-->
-  </div>
-  <div *ngFor="let task of filteredTasks let i = index">
-    <div class="row mb-2">
-      <div class="col-1 checkbox">
-        <input class="mx-auto" style="transform:scale(2);" type="checkbox" [(ngModel)]="getFromAllTasksById(task.task.id).isSelected" />
-      </div>
-      
-      <task-card class="col-11" [task]="task.task"></task-card>
+<div *ngFor="let task of allTasks let i = index">
+  <div class="row mb-2">
+    <div class="col-1 checkbox">
+      <input class="mx-auto" style="transform:scale(2);" type="checkbox" [(ngModel)]="task.isSelected" />
     </div>
     
+    <task-card class="col-11" [task]="task.task"></task-card>
   </div>
+  
+</div>
+
+<div class="row mt-2 mx-0">
+  <ngb-pagination class="mx-auto col-auto" [maxSize]="5" [(page)]="page" [pageSize]="pageSize" [collectionSize]="maxSize" [boundaryLinks]="true" />
 </div>

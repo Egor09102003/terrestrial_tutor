@@ -1,0 +1,35 @@
+@if(pageLoaded) {
+<form [formGroup]="filterForm" class="col-auto row col-12">
+    @for (taskFilter of Object.keys(taskFilters); track taskFilter) {
+        @if (!bannedFilters.includes(taskFilter)) {
+            @if(taskFilter !== 'subject') {
+                <div class="col-3">
+                    <label class="m-2 col-12 row form-label" [for]="taskFilter">{{taskFilters[taskFilter]}}: </label>
+                    <input class="p-1 col-12" [id]="taskFilter" [formControlName]="taskFilter"/>
+                </div>
+            } 
+            @else {
+                <div class="col-3" ngbDropdown>
+                    <label class="m-2 row form-label" [for]="taskFilter">{{taskFilters[taskFilter]}}: </label>
+                    <button [id]="taskFilter" type="button" class="p-1 col-12 drop-btn btn-primary" id="dropdownBasic1" ngbDropdownToggle>
+                        {{filterForm.get(taskFilter)?.value && filterForm.get(taskFilter)?.value !== '' ?
+                            filterForm.get(taskFilter)?.value : 'Выбрать'
+                        }}
+                    </button>
+                    <div ngbDropdownMenu>
+                        @switch (taskFilter) {
+                            @case ('subject') {
+                                @for (subject of subjects; track subject) {
+                                    <button (click)="filterForm.get('subject')?.setValue(subject.subjectName)" ngbDropdownItem>{{subject.subjectName}}</button>
+                                }
+                            }
+                        }
+                        <button (click)="filterForm.get('subject')?.setValue('')" ngbDropdownItem>Не выбрано</button>
+                    </div>
+                </div>
+            }
+        }
+    }
+    <input type="submit" class="col-3 col-md-2 col-lg-2 btn btn-primary m-2 p-1" (click)="updateData(1)" value="Найти"/>
+</form>
+}
