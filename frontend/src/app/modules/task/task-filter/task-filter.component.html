@@ -3,13 +3,13 @@
     @for (taskFilter of Object.keys(taskFilters); track taskFilter) {
         @if (!bannedFilters.includes(taskFilter)) {
             @if(taskFilter !== 'subject') {
-                <div class="col-3">
+                <div class="col-6 col-md-4 col-lg-3">
                     <label class="m-2 col-12 row form-label" [for]="taskFilter">{{taskFilters[taskFilter]}}: </label>
                     <input class="p-1 col-12" [id]="taskFilter" [formControlName]="taskFilter"/>
                 </div>
             } 
             @else {
-                <div class="col-3" ngbDropdown>
+                <div class="col-6 col-md-4 col-lg-3" ngbDropdown>
                     <label class="m-2 row form-label" [for]="taskFilter">{{taskFilters[taskFilter]}}: </label>
                     <button type="button" [id]="taskFilter" type="button" class="p-1 col-12 drop-btn btn-primary" id="dropdownBasic1" ngbDropdownToggle>
                         {{filterForm.get(taskFilter)?.value && filterForm.get(taskFilter)?.value !== '' ?

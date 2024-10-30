@@ -4,13 +4,13 @@
     <a ngbNavLink>Задания</a>
     <ng-template ngbNavContent>
       <div class="row mx-0 m-2">
-        <button class="col-3 col-md-2 col-lg-2 btn btn-primary" (click)="addTask()">Добавить задание</button>
+        <button class="col-6 col-md-3 col-lg-3 btn btn-primary" (click)="addTask()">Добавить задание</button>
       </div>
       <div class="col-12 sticky-top bg-dark row mx-0 m-2">
         <task-filter class="col-12" [page]="page" (total)="maxSize=$event" (tasks)="tasks=$event; tasksUpload=true"></task-filter>
       </div>
       <div *ngIf="!tasksUpload" class="row mb-1 spinner-border" role="status"></div>
-      <div>
+      <div class="table-responsive">
         Найдено: {{maxSize}}
         <table *ngIf="tasksUpload">
           <thead>
@@ -41,7 +41,7 @@
         </table>
       </div>
       <div class="row mt-2 mx-0">
-        <ngb-pagination class="mx-auto col-auto" [maxSize]="5" [(page)]="page" [pageSize]="pageSize" [collectionSize]="maxSize" [boundaryLinks]="true" />
+        <ngb-pagination class="mx-auto col-auto" [maxSize]="3" [(page)]="page" [pageSize]="pageSize" [collectionSize]="maxSize" [boundaryLinks]="true" />
       </div>
     </ng-template>
   </li>
