@@ -8,7 +8,6 @@ import {TutorService} from "../services/tutor.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {Homework} from "../../../models/Homework";
 import {Store} from "@ngrx/store";
-import {map} from "rxjs";
 import {TutorDataService} from "../storage/tutor.data.service";
 import {UntypedFormControl} from "@angular/forms";
 import {answerTypes} from "../../../models/AnswerTypes";
@@ -30,7 +29,7 @@ export class TaskChoiceComponent implements OnInit {
               private store: Store,
               private tutorDataService: TutorDataService,
               private route: ActivatedRoute,
-              ) { }
+  ) { }
 
   allTasks: TaskSelect[] = [];
   tasks: Task[] = [];
@@ -42,31 +41,36 @@ export class TaskChoiceComponent implements OnInit {
   page = 1;
   pageSize = 30;
   maxSize = 100;
+  selectedTasks: {[key: number]: Task} = {};
 
   ngOnInit(): void {
     if (this.tutorDataService.getHomework()) {
       this.homework = this.tutorDataService.getHomework();
       this.subject = this.homework?.subject;
-      this.setTasks();
+      this.setSelectedTasks();
     } else {
       let homework: number = Number(this.route.snapshot.paramMap.get('hwId'));
       this.tutorService.getHomework(homework).subscribe(homework => {
         this.homework = homework;
         this.subject = this.homework?.subject;
-        this.setTasks();
+        this.setSelectedTasks();
       });
     }
   }
 
-  setTasks() {
-    this.allTasks = [];
-    for (let i = 0; i < this.tasks.length; i++) {
-      if (this.homework != null && this.homework.tasks.some(task => task.id == this.tasks[i].id)) {
-        this.allTasks.push(new TaskSelect(this.tasks[i], true));
-      } else {
-        this.allTasks.push(new TaskSelect(this.tasks[i]));
+  select(event: any, task: Task) {
+    if (event.target.checked) {
+      this.selectedTasks[task.id] = task;
+    } else {
+      delete this.selectedTasks[task.id];
+    }
+  }
+
+  setSelectedTasks() {
+    if (this.homework) {
+      for (let task of this.homework.tasks) {
+        this.selectedTasks[task.id] = task;
       }
-      this.isCollapsed.push(true);
     }
   }
 
@@ -80,46 +84,14 @@ export class TaskChoiceComponent implements OnInit {
     }
   }
 
-  getSelectedTasks(): Task[] {
-    let selectedTasksIds = this.homework?.tasks.map(task => task.id);
-
-    for (let task of this.allTasks) {
-      if (task.isSelected && selectedTasksIds && !selectedTasksIds.includes(task.task.id)) {
-        selectedTasksIds.push(task.task.id);
-      }
-      if (!task.isSelected && selectedTasksIds && selectedTasksIds.includes(task.task.id)) {
-        delete selectedTasksIds[selectedTasksIds.indexOf(task.task.id)];
-      }
-    }
-
-    let currentTasks: Task[] = [];
-    if (selectedTasksIds) {
-      for (let taskId of selectedTasksIds) {
-        let task = this.allTasks.find(task => task.task.id == taskId);
-        if (task) {
-          currentTasks.push(task.task);
-        }
-      }
-    }
-    return currentTasks;
-  }
-
   submit() {
     if (this.homework != null) {
-      let currentTasks = this.getSelectedTasks();
-      let newTasksList: { [key: number]: string; } = {};
-      let tasks = []
-      for (let i = 0; i < currentTasks.length; i++) {
-        tasks.push(currentTasks[i]);
-        if (!this.homework.tasksCheckingTypes[currentTasks[i].id]) {
-          newTasksList[currentTasks[i].id] = 'INSTANCE';
-        } else {
-          newTasksList[currentTasks[i].id] = this.homework.tasksCheckingTypes[currentTasks[i].id];
+      for (let task of Object.values(this.selectedTasks)) {
+        if (!this.homework.tasksCheckingTypes[task.id]) {
+          this.homework.tasksCheckingTypes[task.id] = 'INSTANCE';
         }
       }
-      this.homework.tasksCheckingTypes = newTasksList;
-      this.homework.tasks = tasks;
-      this.tutorDataService.setHomework(this.homework);
+      this.homework.tasks = Object.values(this.selectedTasks);
       this.pageLoaded = false;
       this.tutorService.saveHomework(this.homework).subscribe(homework => {
         this.pageLoaded = true;
