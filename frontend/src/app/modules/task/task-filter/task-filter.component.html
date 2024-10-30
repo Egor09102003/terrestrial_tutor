@@ -11,7 +11,7 @@
             @else {
                 <div class="col-3" ngbDropdown>
                     <label class="m-2 row form-label" [for]="taskFilter">{{taskFilters[taskFilter]}}: </label>
-                    <button [id]="taskFilter" type="button" class="p-1 col-12 drop-btn btn-primary" id="dropdownBasic1" ngbDropdownToggle>
+                    <button type="button" [id]="taskFilter" type="button" class="p-1 col-12 drop-btn btn-primary" id="dropdownBasic1" ngbDropdownToggle>
                         {{filterForm.get(taskFilter)?.value && filterForm.get(taskFilter)?.value !== '' ?
                             filterForm.get(taskFilter)?.value : 'Выбрать'
                         }}
@@ -20,11 +20,11 @@
                         @switch (taskFilter) {
                             @case ('subject') {
                                 @for (subject of subjects; track subject) {
-                                    <button (click)="filterForm.get('subject')?.setValue(subject.subjectName)" ngbDropdownItem>{{subject.subjectName}}</button>
+                                    <button type="button" (click)="filterForm.get('subject')?.setValue(subject.subjectName)" ngbDropdownItem>{{subject.subjectName}}</button>
                                 }
                             }
                         }
-                        <button (click)="filterForm.get('subject')?.setValue('')" ngbDropdownItem>Не выбрано</button>
+                        <button type="button" (click)="filterForm.get('subject')?.setValue('')" ngbDropdownItem>Не выбрано</button>
                     </div>
                 </div>
             }
