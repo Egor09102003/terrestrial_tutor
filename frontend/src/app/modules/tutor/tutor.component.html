@@ -6,9 +6,9 @@
       <div *ngIf="currentSubjects && pageLoaded" class="container-fluid px-3 pb-3">
         <div class="container-fluid mx-auto p-3  min-vh-100 border-opacity-25 rounded-4 border border-2 col-12 plate text-le">
           <h2 class="mx-3 mb-5">Ваши предметы</h2>
-          <div class="d-inline" *ngFor="let subject of currentSubjects">
-            <button class="m-3 col-2 btn btn-primary" style="height: 15vh" (click)="addHW(subject)">
-              <h3>{{ subject.subjectName }}</h3>
+          <div *ngFor="let subject of currentSubjects">
+            <button class="m-2 mx-auto col-12 row btn btn-primary" (click)="addHW(subject)">
+              <h3 class="m-0">{{ subject.subjectName }}</h3>
             </button>
           </div>
         </div>

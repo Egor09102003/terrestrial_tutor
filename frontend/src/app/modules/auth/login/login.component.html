@@ -2,10 +2,10 @@
   <h2 class="text-center mb-4">Вход</h2>
   <form [formGroup]="loginForm" class="mb-4" (ngSubmit)="submit()">
     <div class="justify-content-center row mb-4">
-      <input placeholder="E-mail" class="col-4" formControlName="username">
+      <input placeholder="E-mail" class="col-7 col-md-4" formControlName="username">
     </div>
     <div class="justify-content-center row">
-      <input type="password" placeholder="Пароль" class="col-4" formControlName="password">
+      <input type="password" placeholder="Пароль" class="col-7 col-md-4" formControlName="password">
     </div>
     <div class="justify-content-center row mt-3">
       <button #submitButton class="btn btn-primary col-3 mt-3 mb-3" [disabled]="loginForm.invalid" type="submit">

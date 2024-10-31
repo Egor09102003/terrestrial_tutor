@@ -26,11 +26,11 @@ export class SupportComponent implements OnInit {
               private route: ActivatedRoute,) {}
 
   ngOnInit(): void {
-    this.taskService.getAllTasks(this.page, this.pageSize, this.filter, this.filterName).subscribe(data => {
-      this.maxSize = data.total;
-      this.tasks = data.tasks;
-      this.tasksUpload = true;
-    });
+    // this.taskService.getAllTasks(this.page, this.pageSize, this.filter, this.filterName).subscribe(data => {
+    //   this.maxSize = data.total;
+    //   this.tasks = data.tasks;
+    //   this.tasksUpload = true;
+    // });
   }
 
   addTask(task: Task | null = null) {
@@ -52,16 +52,16 @@ export class SupportComponent implements OnInit {
   }
 
   changePage(page: number) {
-    this.taskService.getAllTasks(page, 30, this.filter, this.filterName).subscribe(data => {
-      this.maxSize = data.total;
-      this.tasks = data.tasks;
-      this.tasksUpload = true;
-      window.scroll({
-        top: 0,
-        left: 0,
-        behavior: 'smooth'
-      });
-    });
+    // this.taskService.getAllTasks(page, 30, this.filter, this.filterName).subscribe(data => {
+    //   this.maxSize = data.total;
+    //   this.tasks = data.tasks;
+    //   this.tasksUpload = true;
+    //   window.scroll({
+    //     top: 0,
+    //     left: 0,
+    //     behavior: 'smooth'
+    //   });
+    // });
   }
 
   protected readonly onsubmit = onsubmit;
