@@ -13,14 +13,9 @@ export class TaskService {
 
   private TASK_API = this.apiService.apiUrl + 'tasks/';
 
-  getAllTasks(page: number, size: number, filter: string, filterName: string): Observable<any> {
+  getAllTasks(page: number, size: number, filters: {}): Observable<any> {
     return this.http.get(this.TASK_API + 'all', {
-      params: {
-        page: page,
-        size: size,
-        filter: filter,
-        filterName: filterName
-      }
+      params: {...filters, ...{page: page, size: size}}
     });
   }
 

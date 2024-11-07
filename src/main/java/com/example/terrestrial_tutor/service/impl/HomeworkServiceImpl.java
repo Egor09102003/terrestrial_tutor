@@ -162,7 +162,7 @@ public class HomeworkServiceImpl implements HomeworkService {
         checkingAndSaveAnswers(answers, homeworkId);
         AttemptEntity lastAttempt = attemptRepository.findLastAttempt(homeworkId, pupil.getId());
         lastAttempt.setStatus(HomeworkStatus.FINISHED);
-        attemptRepository.save(lastAttempt);
+        updateAttemptPoints(lastAttempt);
         return lastAttempt.getAnswers();
     }
 

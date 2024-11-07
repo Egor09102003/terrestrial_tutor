@@ -46,8 +46,15 @@ public interface TaskService {
      *
      * @return лист заданий
      */
-    public Page<TaskEntity> getAllTasks(Optional<Integer> page, Optional<Integer> size, Optional<String> filter, Optional<String> filterName);
-
+    public Page<TaskEntity> getAllTasks(
+        Optional<Integer> page,
+        Optional<Integer> size,
+        Optional<String> name,
+        Optional<String> level1,
+        Optional<String> level2,
+        Optional<Long> id,
+        Optional<SubjectEntity> subject
+    );
     /**
      * Поиск задания по id
      *
