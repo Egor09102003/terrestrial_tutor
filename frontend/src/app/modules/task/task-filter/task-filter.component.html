@@ -1,17 +1,17 @@
 @if(pageLoaded) {
-<form [formGroup]="filterForm" class="col-auto row col-12">
+<form [formGroup]="filterForm" class="col-auto row col-12 m-3 mx-0">
     @for (taskFilter of Object.keys(taskFilters); track taskFilter) {
         @if (!bannedFilters.includes(taskFilter)) {
             @if(taskFilter !== 'subject') {
-                <div class="col-6 col-md-4 col-lg-3">
+                <div class="col-6 col-md-4 col-lg-3 mt-3">
                     <label class="m-2 col-12 row form-label" [for]="taskFilter">{{taskFilters[taskFilter]}}: </label>
                     <input [type]="taskFilter === 'id' ? 'number' : 'text'" class="p-2 col-12" [id]="taskFilter" [formControlName]="taskFilter"/>
                 </div>
             } 
             @else {
-                <div class="col-6 col-md-4 col-lg-3" ngbDropdown>
+                <div class="col-6 col-md-4 col-lg-3 mt-3" ngbDropdown>
                     <label class="m-2 row form-label" [for]="taskFilter">{{taskFilters[taskFilter]}}: </label>
-                    <button type="button" [id]="taskFilter" type="button" class="p-1 col-12 drop-btn btn-primary" id="dropdownBasic1" ngbDropdownToggle>
+                    <button type="button" [id]="taskFilter" type="button" class="p-2 col-12 drop-btn btn-primary" id="dropdownBasic1" ngbDropdownToggle>
                         {{filterForm.get(taskFilter)?.value && filterForm.get(taskFilter)?.value !== '' ?
                             filterForm.get(taskFilter)?.value : 'Выбрать'
                         }}
@@ -30,6 +30,9 @@
             }
         }
     }
-    <input type="submit" class="col-3 col-md-2 col-lg-2 btn btn-primary m-2 p-1" (click)="updateData(1)" value="Найти"/>
+    <div class="col-6 col-md-4 col-lg-3 d-flex align-items-end mt-3">
+        <input type="submit" class="col-12 btn btn-primary p-2 align-middle" (click)="updateData(1)" value="Найти"/>
+    </div>
+    
 </form>
 }
