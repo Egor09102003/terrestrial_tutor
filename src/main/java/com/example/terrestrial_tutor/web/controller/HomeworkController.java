@@ -68,11 +68,11 @@ public class HomeworkController {
     public ResponseEntity<HomeworkDTO> saveHomework(@RequestBody HomeworkDTO homeworkDTO) {
         HomeworkEntity updatedHomework = homeworkFacade.homeworkDTOToHomework(homeworkDTO);
         HomeworkEntity currentHomework = homeworkService.getHomeworkById(updatedHomework.getId());
+        TutorEntity currentTutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (currentHomework != null) {
             Set<PupilEntity> updatedPupils = new HashSet<>();
             updatedPupils.addAll(currentHomework.getPupils());
             updatedPupils.addAll(updatedHomework.getPupils());
-            TutorEntity currentTutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             List<Long> currentPupilIds = currentTutor.getPupils().stream().map(PupilEntity::getId).toList();
             for (PupilEntity pupil : currentHomework.getPupils()) {
                 if ((updatedHomework.getPupils().isEmpty() ||!updatedHomework.getPupils().contains(pupil))
@@ -81,9 +81,15 @@ public class HomeworkController {
                     updatedPupils.remove(pupil);
                 }
             }
+            currentHomework.setName(updatedHomework.getName());
+            currentHomework.setSoluteTime(updatedHomework.getSoluteTime());
+            currentHomework.setTargetTime(updatedHomework.getTargetTime());
+            currentHomework.setTaskCheckingTypes(updatedHomework.getTaskCheckingTypes());
+            currentHomework.setDeadLine(updatedHomework.getDeadLine());
             currentHomework.setPupils(updatedPupils);
         } else {
             currentHomework = updatedHomework;
+            currentHomework.getTutors().add(currentTutor);
         }
         currentHomework = homeworkService.saveHomework(currentHomework);
         return new ResponseEntity<>(homeworkFacade.homeworkToHomeworkDTO(currentHomework), HttpStatus.OK);
