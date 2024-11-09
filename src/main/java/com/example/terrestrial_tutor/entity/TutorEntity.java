@@ -32,7 +32,7 @@ public class TutorEntity implements User {
     @ManyToMany(mappedBy = "tutors", fetch = FetchType.LAZY)
     Set<HomeworkEntity> homeworkList;
 
-    @OneToMany(mappedBy = "tutor")
+    @OneToMany(mappedBy = "tutor", fetch = FetchType.EAGER)
     List<EnrollEntity> enrolls;
 
     @NonNull
@@ -136,14 +136,14 @@ public class TutorEntity implements User {
     }
 
     public Set<PupilEntity> getPupils() {
-        return new HashSet<PupilEntity>(this.enrolls
+        return new HashSet<>(this.enrolls
                 .stream()
                 .map(EnrollEntity::getPupil)
                 .toList());
     }
 
     public Set<PupilEntity> getPupilsBySubject(Long subjectId) {
-        return new HashSet<PupilEntity>(
+        return new HashSet<>(
                 this.enrolls
                         .stream()
                         .filter(enroll -> enroll.getSubject().getId().equals(subjectId))

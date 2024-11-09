@@ -84,12 +84,7 @@ public class HomeworkFacade {
      */
 
     public HomeworkEntity homeworkDTOToHomework(HomeworkDTO homeworkDTO) {
-        HomeworkEntity homework;
-        if (homeworkDTO.getId() != null && homeworkDTO.getId() > 0) {
-            homework = homeworkService.getHomeworkById(homeworkDTO.getId());
-        } else {
-            homework = new HomeworkEntity();
-        }
+        HomeworkEntity homework = new HomeworkEntity();
         homework.setId(homeworkDTO.getId());
         homework.setName(homeworkDTO.getName());
         homework.setDeadLine(homeworkDTO.getDeadLine());
