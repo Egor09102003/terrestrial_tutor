@@ -9,7 +9,7 @@ import com.example.terrestrial_tutor.dto.facade.TutorListFacade;
 import com.example.terrestrial_tutor.entity.*;
 import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 import com.example.terrestrial_tutor.payload.request.AddSubjectRequest;
-import com.example.terrestrial_tutor.service.EnrollService;
+import com.example.terrestrial_tutor.service.EnrollmentService;
 import com.example.terrestrial_tutor.service.HomeworkService;
 import com.example.terrestrial_tutor.service.PupilService;
 import com.example.terrestrial_tutor.service.SubjectService;
@@ -64,7 +64,7 @@ public class PupilController {
     @Autowired
     private TutorListFacade tutorListFacade;
     @Autowired
-    EnrollService enrollService;
+    EnrollmentService enrollmentService;
     static final Logger log =
             LoggerFactory.getLogger(TerrestrialTutorApplication.class);
 
@@ -164,7 +164,7 @@ public class PupilController {
                     }
                 }
 
-                if (bestAttempt != null && enrollService.checkEnrollment(pupil, bestAttempt.getHomework().getSubject(), tutor)) {
+                if (bestAttempt != null && enrollmentService.checkEnrollment(pupil, bestAttempt.getHomework().getSubject(), tutor)) {
                     PupilDTO pupilDTO = pupilFacade.pupilToPupilDTO(pupil);
                     pupilDTO.setAttempt(bestAttempt.getAnswers());
                     pupilDTO.setLastAttemptNumber(lastAttemptNumber);

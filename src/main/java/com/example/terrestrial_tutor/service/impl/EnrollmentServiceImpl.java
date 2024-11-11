@@ -1,13 +1,13 @@
 package com.example.terrestrial_tutor.service.impl;
 
 import com.example.terrestrial_tutor.TerrestrialTutorApplication;
-import com.example.terrestrial_tutor.entity.EnrollEntity;
+import com.example.terrestrial_tutor.entity.EnrollmentEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TutorEntity;
-import com.example.terrestrial_tutor.repository.EnrollRepository;
+import com.example.terrestrial_tutor.repository.EnrollmentRepository;
 import com.example.terrestrial_tutor.repository.PupilRepository;
-import com.example.terrestrial_tutor.service.EnrollService;
+import com.example.terrestrial_tutor.service.EnrollmentService;
 
 import com.example.terrestrial_tutor.service.PupilService;
 import com.example.terrestrial_tutor.service.SubjectService;
@@ -25,10 +25,10 @@ import javax.transaction.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class EnrollServiceImpl implements EnrollService {
+public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Autowired
-    EnrollRepository enrollRepository;
+    EnrollmentRepository enrollmentRepository;
     @Autowired
     PupilRepository pupilRepository;
     @Autowired
@@ -52,24 +52,24 @@ public class EnrollServiceImpl implements EnrollService {
             SubjectEntity subjectEntity = subjectService.findSubjectById(subject);
             for (PupilEntity currentPupil : currentPupils) {
                 if (!pupils.contains(currentPupil)) {
-                    enrollRepository.deleteByPupilAndTutorAndSubject(currentPupil, tutorEntity, subjectEntity);
+                    enrollmentRepository.deleteByPupilAndTutorAndSubject(currentPupil, tutorEntity, subjectEntity);
                     updatedCurrentPupils.remove(currentPupil);
                 }
             }
             for (PupilEntity pupil : pupils) {
                 if (!updatedCurrentPupils.contains(pupil)) {
-                    enrollRepository.saveIfNotExist(pupil.getId(), tutor, subject);
+                    enrollmentRepository.saveIfNotExist(pupil.getId(), tutor, subject);
                     updatedCurrentPupils.add(pupil);
                 }
             }
         } catch (Exception e) {
-            log.error("Failed to save enroll: {}", e.getMessage());
-            throw new NoSuchElementException("Failed to save enroll");
+            log.error("Failed to save enrollment: {}", e.getMessage());
+            throw new NoSuchElementException("Failed to save enrollment");
         }
         return updatedCurrentPupils;
     }
 
     public Boolean checkEnrollment(PupilEntity pupil, SubjectEntity subject, TutorEntity tutor) {
-        return enrollRepository.findFirstByPupilAndTutorAndSubject(pupil, tutor, subject) != null;
+        return enrollmentRepository.findFirstByPupilAndTutorAndSubject(pupil, tutor, subject) != null;
     }
 }

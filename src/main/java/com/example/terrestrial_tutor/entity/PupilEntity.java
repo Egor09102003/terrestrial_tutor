@@ -45,7 +45,7 @@ public class PupilEntity implements User {
     SupportEntity support;
 
     @OneToMany(mappedBy = "pupil")
-    List<EnrollEntity> enrolls;
+    List<EnrollmentEntity> enrollments;
 
     @OneToMany(mappedBy = "pupil", fetch = FetchType.LAZY)
     List<PaymentEntity> payments = new ArrayList<>();
@@ -154,10 +154,10 @@ public class PupilEntity implements User {
     }
 
     public Set<TutorEntity> getTutors() {
-        return new HashSet<TutorEntity>(this.enrolls.stream().map(enroll -> enroll.getTutor()).toList());
+        return new HashSet<TutorEntity>(this.enrollments.stream().map(enrollment -> enrollment.getTutor()).toList());
     }
 
     public Set<SubjectEntity> getSubjects() {
-        return new HashSet<SubjectEntity>(this.enrolls.stream().map(enroll -> enroll.getSubject()).toList());
+        return new HashSet<SubjectEntity>(this.enrollments.stream().map(enrollment -> enrollment.getSubject()).toList());
     }
 }

@@ -15,14 +15,14 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "enrolls", schema = "public", uniqueConstraints = {
+@Table(name = "enrollments", schema = "public", uniqueConstraints = {
         @UniqueConstraint(name = "uniq_record", columnNames = {"tutor", "pupil", "subject"})
 })
-public class EnrollEntity {
+public class EnrollmentEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "enrolls_sequence")
-    @SequenceGenerator(name = "enrolls_sequence", sequenceName = "enrolls_sequence", allocationSize = 10)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "enrollments_sequence")
+    @SequenceGenerator(name = "enrollments_sequence", sequenceName = "enrollments_sequence", allocationSize = 10)
     @Column(columnDefinition = "serial")
     private Long id;
 

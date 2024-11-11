@@ -1,10 +1,10 @@
 package com.example.terrestrial_tutor.web.controller;
 
 import com.example.terrestrial_tutor.annotations.Api;
-import com.example.terrestrial_tutor.dto.EnrollDTO;
+import com.example.terrestrial_tutor.dto.EnrollmentDTO;
 import com.example.terrestrial_tutor.dto.PupilDTO;
 import com.example.terrestrial_tutor.dto.TutorListDTO;
-import com.example.terrestrial_tutor.dto.facade.EnrollFacade;
+import com.example.terrestrial_tutor.dto.facade.EnrollmentFacade;
 import com.example.terrestrial_tutor.dto.facade.PupilFacade;
 import com.example.terrestrial_tutor.dto.facade.TutorListFacade;
 import com.example.terrestrial_tutor.entity.PupilEntity;
@@ -42,9 +42,9 @@ public class AdminController {
     @Autowired
     private PupilFacade pupilFacade;
     @Autowired
-    EnrollService enrollService;
+    EnrollmentService enrollmentService;
     @Autowired
-    EnrollFacade enrollFacade;
+    EnrollmentFacade enrollmentFacade;
 
     /**
      * Поиск репетиторов по заданному предмету
@@ -144,19 +144,19 @@ public class AdminController {
     }
 
     /**
-     * Enroll pupil for tutor and subject
+     * Enrollment pupil for tutor and subject
      *
      * @param subjectName path variable with subject name
      * @param pupilIds request body with pupil ids
      * @param tutorId path variable with tutor id
      * @return enrolled pupils list
      */
-    @PostMapping("/admin/{tutorId}/enroll/{subjectName}")
-    public ResponseEntity<List<PupilDTO>> pupilsEnroll(@PathVariable String subjectName, @RequestBody List<Long> pupilIds, @PathVariable Long tutorId) {
+    @PostMapping("/admin/{tutorId}/enrollment/{subjectName}")
+    public ResponseEntity<List<PupilDTO>> pupilsEnrollments(@PathVariable String subjectName, @RequestBody List<Long> pupilIds, @PathVariable Long tutorId) {
         SubjectEntity subject = subjectService.findSubjectByName(subjectName);
         try {
             return new ResponseEntity<>(
-                    enrollService.saveAll(subject.getId(), tutorId, pupilIds)
+                    enrollmentService.saveAll(subject.getId(), tutorId, pupilIds)
                             .stream()
                             .map(pupilEntity -> pupilFacade.pupilToPupilDTO(pupilEntity))
                             .toList(),

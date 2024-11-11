@@ -5,12 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Enroll DTO
+ * Enrollment DTO
  */
 @Getter
 @Setter
 @AllArgsConstructor
-public class EnrollDTO {
+public class EnrollmentDTO {
     Long id;
     String subject;
     TutorListDTO tutor;

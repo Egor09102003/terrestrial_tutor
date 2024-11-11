@@ -33,7 +33,7 @@ public class TutorEntity implements User {
     Set<HomeworkEntity> homeworkList;
 
     @OneToMany(mappedBy = "tutor")
-    List<EnrollEntity> enrolls;
+    List<EnrollmentEntity> enrollments;
 
     @NonNull
     @Column(name = "username")
@@ -136,26 +136,26 @@ public class TutorEntity implements User {
     }
 
     public Set<PupilEntity> getPupils() {
-        return new HashSet<PupilEntity>(this.enrolls
+        return new HashSet<PupilEntity>(this.enrollments
                 .stream()
-                .map(EnrollEntity::getPupil)
+                .map(EnrollmentEntity::getPupil)
                 .toList());
     }
 
     public Set<PupilEntity> getPupilsBySubject(Long subjectId) {
         return new HashSet<PupilEntity>(
-                this.enrolls
+                this.enrollments
                         .stream()
-                        .filter(enroll -> enroll.getSubject().getId().equals(subjectId))
-                        .map(EnrollEntity::getPupil)
+                        .filter(enrollment -> enrollment.getSubject().getId().equals(subjectId))
+                        .map(EnrollmentEntity::getPupil)
                         .toList()
         );
     }
 
     public Set<SubjectEntity> getSubjects() {
-        return new HashSet<>(this.enrolls
+        return new HashSet<>(this.enrollments
                 .stream()
-                .map(EnrollEntity::getSubject)
+                .map(EnrollmentEntity::getSubject)
                 .toList());
     }
 }

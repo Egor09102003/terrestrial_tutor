@@ -34,7 +34,7 @@ public class SubjectEntity {
     Integer countLevel;
 
     @OneToMany(mappedBy = "subject")
-    Set<EnrollEntity> enrolls;
+    Set<EnrollmentEntity> enrollments;
 
     @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     List<TaskEntity> tasks = new ArrayList<>();
@@ -43,9 +43,9 @@ public class SubjectEntity {
     List<HomeworkEntity> homeworkList;
 
     public Set<TutorEntity> getTutors() {
-        return new HashSet<TutorEntity>(this.enrolls
+        return new HashSet<TutorEntity>(this.enrollments
                 .stream()
-                .map(EnrollEntity::getTutor)
+                .map(EnrollmentEntity::getTutor)
                 .toList());
     }
 }

@@ -55,7 +55,7 @@ export class AdminService {
   }
 
   enrollPupils(tutorId: number, subjectName: string, pupilIds: number[]): Observable<any> {
-    return this.http.post(this.ADMIN_API + `${tutorId}/enroll/${subjectName}`, pupilIds);
+    return this.http.post(this.ADMIN_API + `${tutorId}/enrollment/${subjectName}`, pupilIds);
   }
 
 }

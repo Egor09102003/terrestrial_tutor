@@ -2,23 +2,23 @@ package com.example.terrestrial_tutor.service;
 
 import java.util.List;
 
-import com.example.terrestrial_tutor.entity.EnrollEntity;
+import com.example.terrestrial_tutor.entity.EnrollmentEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TutorEntity;
 
 /**
- * User enrolls service
+ * User enrollments service
  */
-public interface EnrollService {
+public interface EnrollmentService {
 
     /**
-     * Save multiple enrolls
+     * Save multiple enrollments
      * 
-     * @param subject enroll subject
-     * @param tutor enroll tutor
-     * @param pupils enroll pupils
-     * @return saved enrolls
+     * @param subject enrollment subject
+     * @param tutor enrollment tutor
+     * @param pupils enrollment pupils
+     * @return saved enrollments
      */
     List<PupilEntity> saveAll(Long subject, Long tutor, List<Long> pupils);
 
