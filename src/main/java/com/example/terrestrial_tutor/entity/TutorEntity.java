@@ -136,14 +136,14 @@ public class TutorEntity implements User {
     }
 
     public Set<PupilEntity> getPupils() {
-        return new HashSet<PupilEntity>(this.enrollments
+        return new HashSet<>(this.enrollments
                 .stream()
                 .map(EnrollmentEntity::getPupil)
                 .toList());
     }
 
     public Set<PupilEntity> getPupilsBySubject(Long subjectId) {
-        return new HashSet<PupilEntity>(
+        return new HashSet<>(
                 this.enrollments
                         .stream()
                         .filter(enrollment -> enrollment.getSubject().getId().equals(subjectId))

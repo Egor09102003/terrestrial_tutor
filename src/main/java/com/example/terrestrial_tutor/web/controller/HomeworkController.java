@@ -29,16 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-
-
+import java.util.*;
 
 
 /**
@@ -75,9 +66,33 @@ public class HomeworkController {
     @PostMapping("/homework/save")
     @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
     public ResponseEntity<HomeworkDTO> saveHomework(@RequestBody HomeworkDTO homeworkDTO) {
-        HomeworkEntity newHomework = homeworkService.saveHomework(homeworkFacade.homeworkDTOToHomework(homeworkDTO));
-        HomeworkDTO newHomeworkDTO = homeworkFacade.homeworkToHomeworkDTO(newHomework);
-        return new ResponseEntity<>(newHomeworkDTO, HttpStatus.OK);
+        HomeworkEntity updatedHomework = homeworkFacade.homeworkDTOToHomework(homeworkDTO);
+        HomeworkEntity currentHomework = homeworkService.getHomeworkById(updatedHomework.getId());
+        TutorEntity currentTutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (currentHomework != null) {
+            Set<PupilEntity> updatedPupils = new HashSet<>();
+            updatedPupils.addAll(currentHomework.getPupils());
+            updatedPupils.addAll(updatedHomework.getPupils());
+            List<Long> currentPupilIds = currentTutor.getPupils().stream().map(PupilEntity::getId).toList();
+            for (PupilEntity pupil : currentHomework.getPupils()) {
+                if ((updatedHomework.getPupils().isEmpty() ||!updatedHomework.getPupils().contains(pupil))
+                        && currentPupilIds.contains(pupil.getId()))
+                {
+                    updatedPupils.remove(pupil);
+                }
+            }
+            currentHomework.setName(updatedHomework.getName());
+            currentHomework.setSoluteTime(updatedHomework.getSoluteTime());
+            currentHomework.setTargetTime(updatedHomework.getTargetTime());
+            currentHomework.setTaskCheckingTypes(updatedHomework.getTaskCheckingTypes());
+            currentHomework.setDeadLine(updatedHomework.getDeadLine());
+            currentHomework.setPupils(updatedPupils);
+        } else {
+            currentHomework = updatedHomework;
+            currentHomework.getTutors().add(currentTutor);
+        }
+        currentHomework = homeworkService.saveHomework(currentHomework);
+        return new ResponseEntity<>(homeworkFacade.homeworkToHomeworkDTO(currentHomework), HttpStatus.OK);
     }
 
     /**
