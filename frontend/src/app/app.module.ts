@@ -43,6 +43,7 @@ import { CheckHomeworksComponent } from './modules/tutor/check.homeworks/check.h
 import { HomeworkTutorsSetModalComponent } from './modules/admin/homework.tutors.set.modal/homework.tutors.set.modal.component';
 import { PupilsSelectModalComponent } from './modules/pupil/pupils.select.modal/pupils.select.modal.component';
 import { TaskFilterComponent } from './modules/task/task-filter/task-filter.component';
+import { SearchSelectComponent } from './components/search-select/search-select.component';
 
 @NgModule({
   declarations: [
@@ -71,6 +72,7 @@ import { TaskFilterComponent } from './modules/task/task-filter/task-filter.comp
     HomeworkTutorsSetModalComponent,
     PupilsSelectModalComponent,
     TaskFilterComponent,
+    SearchSelectComponent,
   ],
   imports: [
     BrowserModule,
