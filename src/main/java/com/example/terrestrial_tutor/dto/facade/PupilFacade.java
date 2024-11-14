@@ -3,6 +3,7 @@ package com.example.terrestrial_tutor.dto.facade;
 import com.example.terrestrial_tutor.dto.PupilDTO;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
+import com.example.terrestrial_tutor.entity.TutorEntity;
 import com.example.terrestrial_tutor.service.PupilService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,17 +33,20 @@ public class PupilFacade {
         PupilDTO pupilDTO = new PupilDTO();
         pupilDTO.setId(pupil.getId());
         pupilDTO.setBalance(pupil.getBalance());
-        pupilDTO.setPrice(pupil.getPrice());
-        pupilDTO.setSubjects((pupil.getSubjects()
+        pupilDTO.setLessonPrice(pupil.getLessonPprice());
+        LinkedList<String> subjects = new LinkedList<>(
+            (
+                pupil.getSubjects()
                 .stream()
                 .map(SubjectEntity::getName)
-                .toList()));
-        LinkedList<String> subjects = new LinkedList<>(pupilDTO.getSubjects());
+                .toList()
+            )
+        );
         subjects.sort(String::compareTo);
         pupilDTO.setSubjects(subjects);
         pupilDTO.setTutors((pupil.getTutors()
                 .stream()
-                .map(tutorEntity -> tutorEntity.getSurname() + " " + tutorEntity.getName() + " " + tutorEntity.getPatronymic())
+                .map(TutorEntity::getId)
                 .toList()));
         pupilDTO.setUsername(pupil.getUsername());
         pupilDTO.setName(pupil.getName());

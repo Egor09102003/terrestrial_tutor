@@ -1,10 +1,6 @@
 package com.example.terrestrial_tutor.repository;
 
-import com.example.terrestrial_tutor.entity.AttemptEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
-import com.example.terrestrial_tutor.entity.SubjectEntity;
-
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,15 +26,6 @@ public interface PupilRepository extends JpaRepository<PupilEntity, Long> {
      * @return ученик
      */
     PupilEntity findPupilEntityByUsername(String username);
-
-    /**
-     * Get all pupils by ids
-     * 
-     * @param ids pupil ids
-     * @return pupil entities
-     */
-    @Query(value = "SELECT * FROM pupils WHERE id IN (?1)", nativeQuery = true)
-    List<PupilEntity> findByIds(Iterable<Long> ids);
 
     @Query(value = "SELECT DISTINCT on(pupils.id) * FROM pupils JOIN enrollments e on pupils.id = e.pupil AND e.tutor = ?1 AND e.subject = ?2", nativeQuery = true)
     Set<PupilEntity> findByTutorAndSubject(Long tutorId, Long subjectId);

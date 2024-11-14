@@ -62,13 +62,13 @@ public class HomeworkFacade {
                 Optional<TaskEntity> task = tasks.stream().filter(taskEntity -> taskEntity.getId().equals(taskId)).findFirst();
                 if (task.isPresent()) {
                     task.get().setAnswer("");
-                    taskDTOs.add(taskFacade.taskToTaskDTO(task.get()));
+                    taskDTOs.add(new TaskDTO(task.get()));
                 }
             }
         } else {
             for (Long taskId : tasksCheckingTypes.keySet()) {
                 Optional<TaskEntity> task = tasks.stream().filter(taskEntity -> taskEntity.getId().equals(taskId)).findFirst();
-                task.ifPresent(taskEntity -> taskDTOs.add(taskFacade.taskToTaskDTO(taskEntity)));
+                task.ifPresent(taskEntity -> taskDTOs.add(new TaskDTO(taskEntity)));
             }
         }
 

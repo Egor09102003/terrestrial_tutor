@@ -1,16 +1,15 @@
 package com.example.terrestrial_tutor.entity;
 
-import com.example.terrestrial_tutor.dto.HomeworkAnswersDTO;
-import com.google.gson.JsonSyntaxException;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.*;
 
 import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
-import com.google.gson.Gson;
 
 /**
  * Сущность ответа ученика на задание
@@ -20,7 +19,6 @@ import com.google.gson.Gson;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "homework_solutions", schema = "public")
 public class AttemptEntity {
@@ -29,8 +27,6 @@ public class AttemptEntity {
     @SequenceGenerator(name = "hibernate_sequence", sequenceName = "hibernate_sequence", allocationSize = 10)
     private Long id;
 
-    @Column(name = "answers", columnDefinition="text")
-    String answers;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "homework")
@@ -44,7 +40,7 @@ public class AttemptEntity {
     PupilEntity pupil;
 
     @Column(name = "attempt_number")
-    Integer attemptNumber = 0;
+    Integer attemptNumber = 1;
 
     @Column(name = "status")
     HomeworkStatus status = HomeworkStatus.IN_PROGRESS;
@@ -52,20 +48,12 @@ public class AttemptEntity {
     @Column(name = "solution_date")
     Long solutionDate = new Date().toInstant().toEpochMilli();
 
-    public HomeworkAnswersDTO getAnswers() {
-        try {
-            HomeworkAnswersDTO answers = new Gson().fromJson(this.answers, HomeworkAnswersDTO.class);
-            return answers;
-        } catch (Exception e) {
-            return new HomeworkAnswersDTO();
-        }
-    }
+    @OneToMany(mappedBy = "attempt", cascade = CascadeType.ALL)
+    List<AnswerEntity> answers = new ArrayList<>();
 
-    public String getJSONAnswers() {
-        return this.answers;
-    }
-
-    public void setAnswers(HomeworkAnswersDTO answers) {
-        this.answers = new Gson().toJson(answers);
+    public AttemptEntity(PupilEntity pupil, Integer attemptNumber, HomeworkEntity homework) {
+        this.pupil = pupil;
+        this.attemptNumber = attemptNumber;
+        this.homework = homework;
     }
 }

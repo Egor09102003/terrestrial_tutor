@@ -1,21 +1,28 @@
 package com.example.terrestrial_tutor.service.impl;
 
+import com.example.terrestrial_tutor.entity.AnswerEntity;
+import com.example.terrestrial_tutor.entity.AttemptEntity;
+import com.example.terrestrial_tutor.entity.HomeworkEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
+import com.example.terrestrial_tutor.entity.TaskEntity;
 import com.example.terrestrial_tutor.exceptions.UserExistException;
 import com.example.terrestrial_tutor.payload.request.RegistrationRequest;
 import com.example.terrestrial_tutor.repository.PupilRepository;
 import com.example.terrestrial_tutor.repository.TutorRepository;
 import com.example.terrestrial_tutor.security.JWTAuthenticationFilter;
+import com.example.terrestrial_tutor.service.AdminService;
 import com.example.terrestrial_tutor.service.PupilService;
+import com.example.terrestrial_tutor.service.TaskService;
+import com.example.terrestrial_tutor.service.TutorService;
+
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -25,44 +32,35 @@ public class PupilServiceImpl implements PupilService {
 
     public static final Logger LOG = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
 
-    @Autowired
     @NonNull
     TutorRepository tutorRepository;
-    @Autowired
     @NonNull
     PupilRepository pupilRepository;
+    @NonNull
+    TaskService taskService;
+    @NonNull
+    TutorService tutorService;
+    @NonNull
+    AdminService adminService;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public PupilEntity addNewPupil(RegistrationRequest userIn) {
+    public PupilEntity createPupil(RegistrationRequest registrationRequest) {
         PupilEntity pupil = new PupilEntity();
-        pupil.setEmail(userIn.getEmail());
-        pupil.setName(userIn.getName());
-        pupil.setSurname(userIn.getSurname());
-        pupil.setPatronymic(userIn.getPatronymic());
-        pupil.setUsername(userIn.getEmail());
-        pupil.setPassword(passwordEncoder.encode(userIn.getPassword()));
-        pupil.setRole(userIn.getRole());
+        pupil.setEmail(registrationRequest.getEmail());
+        pupil.setName(registrationRequest.getName());
+        pupil.setSurname(registrationRequest.getSurname());
+        pupil.setPatronymic(registrationRequest.getPatronymic());
+        pupil.setUsername(registrationRequest.getEmail());
+        pupil.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
+        pupil.setRole(registrationRequest.getRole());
 
-        try {
-            LOG.info("Saving User {}", userIn.getEmail());
-            if (tutorRepository.findTutorEntityByUsername(userIn.getEmail()) != null
-                    || pupilRepository.findPupilEntityByUsername(userIn.getEmail()) != null) {
-                throw new UserExistException("Login " + pupil.getUsername() + "already exist");
-            } else {
-                return pupilRepository.save(pupil);
-            }
-        } catch (Exception ex) {
-            LOG.error("Error during registration");
-            throw new UserExistException("The Login " + pupil.getUsername() + "already exist");
-        }
-    }
-
-    public PupilEntity getCurrentPupil(Principal principal) {
-        String username = principal.getName();
-        try {
-            return pupilRepository.findPupilEntityByUsername(username);
-        } catch (Exception ex) {
-            throw new UserExistException("Login " + username + "not found");
+        if (tutorService.findTutorByUsername(pupil.getUsername()) != null ||
+            adminService.findAdminByUsername(pupil.getUsername()) != null ||
+            findPupilByUsername(pupil.getUsername()) != null) 
+        {
+            throw new UserExistException("Login " + pupil.getUsername() + "already exist");
+        } else {
+            return pupilRepository.save(pupil);
         }
     }
 
@@ -88,15 +86,29 @@ public class PupilServiceImpl implements PupilService {
         return pupilRepository.findPupilEntityById(id);
     }
 
-    public List<PupilEntity> getByIds(Iterable<Long> ids) {
-        return pupilRepository.findAllById(ids);
-    }
-
     public Set<PupilEntity> getByTutor(Long tutorId) {
         return pupilRepository.findByTutor(tutorId);
     }
 
     public Set<PupilEntity> getByTutorAndSubject(Long tutorId, Long subjectId) {
         return pupilRepository.findByTutorAndSubject(tutorId, subjectId);
+    }
+
+    public AttemptEntity saveAnswers(HashMap<Long, String> answers, AttemptEntity attempt) {
+        HomeworkEntity homework = attempt.getHomework();
+        for (TaskEntity task : homework.getTasks()) {
+            if (answers.containsKey(task.getId())) {
+                AnswerEntity answer = new AnswerEntity();
+                answer.setAnswer(answers.get(task.getId()));
+                answer.setTask(task);
+                answer.setAttempt(attempt);
+                attempt.getAnswers().add(answer);
+            }
+        }
+        return attempt;
+    }
+
+    public PupilEntity findPupilByUsername(String username) {
+        return pupilRepository.findPupilEntityByUsername(username);
     }
 }

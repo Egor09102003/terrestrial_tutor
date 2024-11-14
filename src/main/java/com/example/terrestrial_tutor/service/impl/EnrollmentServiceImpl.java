@@ -1,7 +1,6 @@
 package com.example.terrestrial_tutor.service.impl;
 
 import com.example.terrestrial_tutor.TerrestrialTutorApplication;
-import com.example.terrestrial_tutor.entity.EnrollmentEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TutorEntity;

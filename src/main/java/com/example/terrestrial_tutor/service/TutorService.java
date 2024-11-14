@@ -89,4 +89,9 @@ public interface TutorService {
      * @return tutor entities
      */
     public List<TutorEntity> getTutorByIds(List<Long> tutorIds);
+
+    /**
+     * Get tutor by username
+     */
+    TutorEntity findTutorByUsername(String username);
 }

@@ -47,11 +47,17 @@ public class HomeworkEntity {
     @JoinColumn(name = "tutors")
     Set<TutorEntity> tutors = new HashSet<>();
 
-    @Column(name = "task_checking_types", columnDefinition="text")
-    String taskCheckingTypes;
-
     @OneToMany(mappedBy = "homework", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<AttemptEntity> answerEntities;
 
+    @OneToMany(mappedBy = "homework", cascade = CascadeType.ALL)
+    List<TaskCheckingEntity> taskCheckingTypes = new ArrayList<>();
+
     LocalDate deadLine;
+
+    public List<TaskEntity> getTasks() {
+        return this.taskCheckingTypes.stream()
+                .map(TaskCheckingEntity::getTask)
+                .toList();
+    }
 }

@@ -1,6 +1,8 @@
 package com.example.terrestrial_tutor.repository;
 
 import com.example.terrestrial_tutor.entity.AttemptEntity;
+import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -17,7 +19,7 @@ public interface AttemptRepository extends JpaRepository<AttemptEntity, Long> {
      * @param number   номер попытки
      * @return сущность попытки
      */
-    AttemptEntity findFirstByPupilIdAndHomeworkIdAndAttemptNumber(Long pupil, Long homework, int number);
+    AttemptEntity findFirstByPupilIdAndHomeworkIdAndAttemptNumberAndStatus(Long pupil, Long homework, int number, HomeworkStatus status);
 
     /**
      * Find last pupil attempt in homework

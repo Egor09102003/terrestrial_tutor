@@ -2,6 +2,7 @@ package com.example.terrestrial_tutor.web.controller;
 
 import com.example.terrestrial_tutor.TerrestrialTutorApplication;
 import com.example.terrestrial_tutor.annotations.Api;
+import com.example.terrestrial_tutor.dto.AttemptDTO;
 import com.example.terrestrial_tutor.dto.PupilDTO;
 import com.example.terrestrial_tutor.dto.TutorListDTO;
 import com.example.terrestrial_tutor.dto.facade.PupilFacade;
@@ -9,6 +10,8 @@ import com.example.terrestrial_tutor.dto.facade.TutorListFacade;
 import com.example.terrestrial_tutor.entity.*;
 import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 import com.example.terrestrial_tutor.payload.request.AddSubjectRequest;
+import com.example.terrestrial_tutor.repository.AttemptRepository;
+import com.example.terrestrial_tutor.service.AttemptService;
 import com.example.terrestrial_tutor.service.EnrollmentService;
 import com.example.terrestrial_tutor.service.HomeworkService;
 import com.example.terrestrial_tutor.service.PupilService;
@@ -31,11 +34,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityExistsException;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import java.util.Optional;
 
 
 
@@ -48,23 +49,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Api
 public class PupilController {
 
-    @Autowired
     @NonNull
     PupilService pupilService;
-    @Autowired
     @NonNull
     TutorService tutorService;
-    @Autowired
     @NonNull
     HomeworkService homeworkService;
-    @Autowired
+    @NonNull
     private PupilFacade pupilFacade;
-    @Autowired
+    @NonNull
     private SubjectService subjectService;
-    @Autowired
+    @NonNull
     private TutorListFacade tutorListFacade;
-    @Autowired
+    @NonNull
     EnrollmentService enrollmentService;
+    @NonNull
+    AttemptService attemptService;
     static final Logger log =
             LoggerFactory.getLogger(TerrestrialTutorApplication.class);
 
@@ -93,9 +93,14 @@ public class PupilController {
 
     @GetMapping("/pupil")
     @Secured("hasAnyRole({'PUPIL'})")
-    public ResponseEntity<PupilDTO> getCurrentPupil(Principal principal) {
-        PupilDTO pupilDTO = pupilFacade.pupilToPupilDTO(pupilService.getCurrentPupil(principal));
-        return new ResponseEntity<>(pupilDTO, HttpStatus.OK);
+    public ResponseEntity<?> getCurrentPupil(Principal principal) {
+        try {
+            PupilEntity currentPupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            PupilDTO pupilDTO = pupilFacade.pupilToPupilDTO(currentPupil);
+            return new ResponseEntity<>(pupilDTO, HttpStatus.OK);
+        } catch (ClassCastException e) {
+            return new ResponseEntity<>("Invalid current user", HttpStatus.UNPROCESSABLE_ENTITY);
+        }
     }
 
     @GetMapping("/pupil/all")
@@ -109,35 +114,6 @@ public class PupilController {
         return new ResponseEntity<>(pupilsDTO, HttpStatus.OK);
     }
 
-    /**\
-     * @deprecated
-     * @param addSubjectRequest subject
-     * @return list of pupils
-     */
-    @PostMapping("/pupil/add/subjects")
-    @Secured("hasAnyRole({'ADMIN'})")
-    @Deprecated
-    public ResponseEntity<List<PupilDTO>> addSubjects(@RequestBody AddSubjectRequest addSubjectRequest) {
-        String subject = addSubjectRequest.getSubject();
-        List<Long> ids = addSubjectRequest.getIds();
-        List<PupilEntity> pupils = pupilService.findPupilsByIds(ids);
-        List<PupilDTO> pupilsDTO = new ArrayList<>();
-        for (PupilEntity pupil : pupils) {
-            SubjectEntity currentSubject = subjectService.findSubjectByName(subject);
-            if (currentSubject != null && !pupil.getSubjects().contains(currentSubject)) {
-                pupil.getSubjects().add(currentSubject);
-                //currentSubject.getPupils().add(pupil);
-                subjectService.updateSubject(currentSubject);
-            } else {
-                throw new EntityExistsException();
-            }
-            pupilService.updatePupil(pupil);
-            pupilsDTO.add(pupilFacade.pupilToPupilDTO(pupil));
-        }
-
-        return new ResponseEntity<>(pupilsDTO, HttpStatus.OK);
-    }
-
     @GetMapping("/pupils/check/list/{homeworkId}")
     public ResponseEntity<List<PupilDTO>> getPupilByIds(@PathVariable Long homeworkId, @RequestParam List<Long> pupilIds) {
         List<PupilEntity> pupils = pupilService.findPupilsByIds(pupilIds);
@@ -147,10 +123,9 @@ public class PupilController {
             try {
                 AttemptEntity bestAttempt = null;
                 int lastAttemptNumber = 1;
-                for (AttemptEntity attempt: pupil.getAnswers()) {
+                for (AttemptEntity attempt: pupil.getHomeworkAttempts()) {
                     HomeworkEntity homework = attempt.getHomework();
                     if (homework != null && homework.getId().equals(homeworkId)
-                        && !attempt.getAnswers().getAnswersStatuses().isEmpty()
                         && attempt.getAttemptNumber() != -1
                         && attempt.getStatus() == HomeworkStatus.FINISHED
                     )
@@ -166,7 +141,6 @@ public class PupilController {
 
                 if (bestAttempt != null && enrollmentService.checkEnrollment(pupil, bestAttempt.getHomework().getSubject(), tutor)) {
                     PupilDTO pupilDTO = pupilFacade.pupilToPupilDTO(pupil);
-                    pupilDTO.setAttempt(bestAttempt.getAnswers());
                     pupilDTO.setLastAttemptNumber(lastAttemptNumber);
                     pupilDTOs.add(pupilDTO);
                 }
@@ -187,4 +161,48 @@ public class PupilController {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }    
+
+    @PostMapping("/pupil/attempt")
+    public ResponseEntity<?> saveAttemptAnswers(@RequestParam Long homeworkId, @RequestBody HashMap<Long, String> answers) {
+        try {
+            PupilEntity pupil;
+            pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            AttemptEntity currentAttempt = attemptService.getLastActiveAttempt(homeworkId, pupil);
+            currentAttempt = attemptService.saveAnswers(currentAttempt, answers);
+            return new ResponseEntity<>(new AttemptDTO(currentAttempt), HttpStatus.OK);
+        } catch (Exception e) {
+           return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY); 
+        }
+    }
+
+    @GetMapping("/pupil/attempt")
+    public ResponseEntity<?> getActiveAttempt(@RequestParam Long homeworkId) {
+        try {
+            PupilEntity pupil;
+            pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            AttemptEntity attempt = attemptService.getLastActiveAttempt(homeworkId, pupil);
+            return new ResponseEntity<>(new AttemptDTO(attempt), HttpStatus.OK);
+        } catch (Exception e) {
+           return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY); 
+        }
+        
+    }
+
+    @GetMapping("/pupil/attempt/finished")
+    public ResponseEntity<?> getFinishedAttempt(@RequestParam(required = false) Optional<Integer> attemptNumber, 
+        @RequestParam Long homeworkId) 
+    {
+        try {
+            PupilEntity pupil;
+            pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            AttemptEntity attempt = attemptService.getFinishedAttempt(attemptNumber, homeworkId, pupil);
+            return new ResponseEntity<>(new AttemptDTO(attempt), HttpStatus.OK);
+        } catch (ClassCastException e) {
+           return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY); 
+        } catch (NullPointerException e) {
+            return new ResponseEntity<>("Invalid attempt number", HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+    
 }

@@ -126,7 +126,7 @@ public class AuthController {
         }
         User newUser = null;
         if (registrationRequest.getRole() == ERole.PUPIL) {
-            newUser = pupilService.addNewPupil(registrationRequest);
+            newUser = pupilService.createPupil(registrationRequest);
         } else if (registrationRequest.getRole() == ERole.TUTOR) {
             newUser = tutorService.addNewTutor(registrationRequest);
         } else {

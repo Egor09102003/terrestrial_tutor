@@ -7,6 +7,9 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -76,6 +79,12 @@ public class TaskEntity {
 
     @Column(name = "crdate")
     Long crdate;
+
+    @OneToMany(mappedBy = "task")
+    List<TaskCheckingEntity> taskCheckingTypes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "task")
+    List<AnswerEntity> pupilAnswers = new ArrayList<>();
 
     public String getRightAnswer() {
         return new Gson().fromJson(this.answer, String[].class)[0];

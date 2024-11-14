@@ -14,13 +14,12 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Класс сущности ученика
+ * Pupil entity
  */
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "pupils", schema = "public")
 public class PupilEntity implements User {
@@ -38,20 +37,20 @@ public class PupilEntity implements User {
     List<HomeworkEntity> homeworkList;
 
     @Column(name = "price")
-    Integer price;
+    Integer lessonPprice;
 
     @ManyToOne()
     @JoinColumn(name = "support")
     SupportEntity support;
 
-    @OneToMany(mappedBy = "pupil")
+    @OneToMany(mappedBy = "pupil", fetch = FetchType.EAGER)
     List<EnrollmentEntity> enrollments;
 
     @OneToMany(mappedBy = "pupil", fetch = FetchType.LAZY)
     List<PaymentEntity> payments = new ArrayList<>();
 
     @OneToMany(mappedBy = "pupil", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    List<AttemptEntity> answers = new ArrayList<>();
+    List<AttemptEntity> homeworkAttempts = new ArrayList<>();
 
     @NonNull
     @Column(name = "username")

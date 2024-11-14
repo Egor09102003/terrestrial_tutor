@@ -13,13 +13,12 @@ import java.util.List;
 public class PupilDTO {
     Long id;
     Double balance;
-    Integer price;
+    Integer lessonPrice;
     List<String> subjects;
-    List<String> tutors;
+    List<Long> tutors;
     String username;
     String name;
     String surname;
     String patronymic;
-    HomeworkAnswersDTO attempt;
     Integer lastAttemptNumber;
 }

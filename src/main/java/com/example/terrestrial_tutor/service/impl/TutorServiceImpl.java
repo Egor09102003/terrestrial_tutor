@@ -126,4 +126,8 @@ public class TutorServiceImpl implements TutorService {
     public List<TutorEntity> getTutorByIds(List<Long> tutorIds) {
         return tutorRepository.findAllById(tutorIds);
     }
+
+    public TutorEntity findTutorByUsername(String username) {
+        return tutorRepository.findTutorEntityByUsername(username);
+    }
 }

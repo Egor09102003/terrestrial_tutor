@@ -1,9 +1,10 @@
 package com.example.terrestrial_tutor.service;
 
+import com.example.terrestrial_tutor.entity.AttemptEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.payload.request.RegistrationRequest;
 
-import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +18,7 @@ public interface PupilService {
      * @param userIn запрос на регистрацию
      * @return ученик
      */
-    PupilEntity addNewPupil(RegistrationRequest userIn);
+    PupilEntity createPupil(RegistrationRequest userIn);
 
     /**
      * Поиск ученика по id
@@ -45,15 +46,6 @@ public interface PupilService {
     PupilEntity verifyPupil(Long id);
 
     /**
-     * Поиск текущего авторизованного ученика
-     *
-     * @param principal авторизированный пользователь
-     * @return ученик
-     */
-
-    PupilEntity getCurrentPupil(Principal principal);
-
-    /**
      * Обновление данных ученика
      *
      * @param pupil ученик
@@ -68,14 +60,6 @@ public interface PupilService {
      */
 
     List<PupilEntity> findAllPupils();
-
-    /**
-     * Get pupil by ids
-     * 
-     * @param ids pupil ids
-     * @return pupil entities
-     */
-    List<PupilEntity> getByIds(Iterable<Long> ids);
 
     /**
      * Get all tutor pupils
@@ -93,4 +77,6 @@ public interface PupilService {
      * @return set of pupil entities
      */
     Set<PupilEntity> getByTutorAndSubject(Long tutorId, Long subjectId);
+
+    AttemptEntity saveAnswers(HashMap<Long, String> answers, AttemptEntity attempt);
 }
