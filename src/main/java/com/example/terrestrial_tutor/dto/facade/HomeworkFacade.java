@@ -1,36 +1,33 @@
 package com.example.terrestrial_tutor.dto.facade;
 
 import com.example.terrestrial_tutor.dto.HomeworkDTO;
-import com.example.terrestrial_tutor.dto.TaskDTO;
+import com.example.terrestrial_tutor.dto.TaskCheckingDTO;
 import com.example.terrestrial_tutor.entity.*;
-import com.example.terrestrial_tutor.entity.enums.ERole;
 import com.example.terrestrial_tutor.service.*;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
+
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Класс для перевода HomeworkEntity в HomeworkDTO и обратно
  */
 
 @Component
+@AllArgsConstructor
 public class HomeworkFacade {
 
-    @Autowired
-    TaskFacade taskFacade;
-    @Autowired
+    @NonNull
     SubjectService subjectService;
-    @Autowired
-    HomeworkService homeworkService;
-    @Autowired
+    @NonNull
     PupilService pupilService;
-    @Autowired
-    TaskService taskService;
+    @NonNull
+    TaskCheckingFacade taskCheckingFacade;
+    @NonNull
+    HomeworkService homeworkService;
 
     /**
      * Метод для перевода сущности дз в DTO
@@ -50,29 +47,11 @@ public class HomeworkFacade {
                 map(PupilEntity::getId).
                 toList());
         homeworkDTO.setTargetTime(homework.getTargetTime());
-
-        Map<Long, String> tasksCheckingTypes = new Gson().fromJson(homework.getTaskCheckingTypes(), (new TypeToken<Map<Long, String>>() {
-        }.getType()));
-        homeworkDTO.setTasksCheckingTypes(tasksCheckingTypes);
-        LinkedList<TaskDTO> taskDTOs = new LinkedList<>();
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<TaskEntity> tasks = taskService.getByIds(tasksCheckingTypes.keySet());
-        if (user.getRole() == ERole.PUPIL) {
-            for (Long taskId : tasksCheckingTypes.keySet()) {
-                Optional<TaskEntity> task = tasks.stream().filter(taskEntity -> taskEntity.getId().equals(taskId)).findFirst();
-                if (task.isPresent()) {
-                    task.get().setAnswer("");
-                    taskDTOs.add(new TaskDTO(task.get()));
-                }
-            }
-        } else {
-            for (Long taskId : tasksCheckingTypes.keySet()) {
-                Optional<TaskEntity> task = tasks.stream().filter(taskEntity -> taskEntity.getId().equals(taskId)).findFirst();
-                task.ifPresent(taskEntity -> taskDTOs.add(new TaskDTO(taskEntity)));
-            }
-        }
-
-        homeworkDTO.setTasks(taskDTOs);
+        homeworkDTO.setTaskChecking(new LinkedList<>(
+            homework.getTaskCheckingTypes().stream()
+                    .map(checking -> taskCheckingFacade.taskCheckingToTaskCheckingDTO(checking))
+                    .toList()
+        ));
         return homeworkDTO;
     }
 
@@ -89,17 +68,10 @@ public class HomeworkFacade {
         homework.setName(homeworkDTO.getName());
         homework.setDeadLine(homeworkDTO.getDeadLine());
         homework.setSubject(subjectService.findSubjectByName(homeworkDTO.getSubject()));
-        homework.setPupils(homeworkDTO.getPupilIds().stream()
-                .map(id -> pupilService.findPupilById(id)).collect(Collectors.toSet()));
-        if (homeworkDTO.getTasksCheckingTypes() != null) {
-            LinkedHashMap<Long, String> tasksCheckingTypes = new LinkedHashMap<>();
-            for (TaskDTO task : homeworkDTO.getTasks()) {
-                if (homeworkDTO.getTasksCheckingTypes().containsKey(task.getId())) {
-                    tasksCheckingTypes.put(task.getId(), homeworkDTO.getTasksCheckingTypes().get(task.getId()));
-                }
-            }
-            homework.setTaskCheckingTypes(new Gson().toJson(tasksCheckingTypes));
-        }
+        homework.setPupils(new HashSet<>(pupilService.findPupilsByIds(homeworkDTO.getPupilIds())));
+        for(TaskCheckingDTO checking : homeworkDTO.getTaskChecking()) {
+            homework.getTaskCheckingTypes().add(taskCheckingFacade.taskCheckingDTOToTaskChecking(checking));
+        } 
 
         return homework;
     }

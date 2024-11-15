@@ -12,6 +12,8 @@ public interface AttemptService {
 
     AttemptEntity getFinishedAttempt(Optional<Integer> attemptNumber, Long homeworkId, PupilEntity pupil);
 
-    AttemptEntity saveAnswers(AttemptEntity attempt, HashMap<Long, String> answers)
+    AttemptEntity saveAnswers(AttemptEntity attempt, HashMap<Long, String> answers);
+
+    AttemptEntity finishAttempt(AttemptEntity attempt, HashMap<Long, String> answers);
 
 }

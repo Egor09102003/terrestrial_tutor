@@ -2,7 +2,6 @@ package com.example.terrestrial_tutor.service;
 
 import java.util.List;
 
-import com.example.terrestrial_tutor.entity.EnrollmentEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TutorEntity;

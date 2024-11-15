@@ -19,10 +19,6 @@ export class PupilService {
     return this.http.get(this.PUPIL_API);
   }
 
-  addSubjects(subject: string | undefined, ids: number[] | undefined): Observable<any> {
-    return this.http.post(this.PUPIL_API + `add/subjects/`, {subject, ids});
-  }
-
   sendAnswers(answers: {[key: number]: string}, homeworkId: number, attempt: number) {
     return this.http.post(this.PUPIL_API + `homework/${homeworkId}/${attempt}`, answers);
   }

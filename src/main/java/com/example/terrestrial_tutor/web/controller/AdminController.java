@@ -1,7 +1,6 @@
 package com.example.terrestrial_tutor.web.controller;
 
 import com.example.terrestrial_tutor.annotations.Api;
-import com.example.terrestrial_tutor.dto.EnrollmentDTO;
 import com.example.terrestrial_tutor.dto.PupilDTO;
 import com.example.terrestrial_tutor.dto.TutorListDTO;
 import com.example.terrestrial_tutor.dto.facade.EnrollmentFacade;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.security.auth.Subject;
 
 /**
  * Контроллер для администратора

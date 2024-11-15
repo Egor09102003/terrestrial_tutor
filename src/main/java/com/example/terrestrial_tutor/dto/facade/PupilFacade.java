@@ -5,7 +5,10 @@ import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TutorEntity;
 import com.example.terrestrial_tutor.service.PupilService;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
+
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
@@ -15,11 +18,12 @@ import java.util.LinkedList;
  */
 
 @Component
+@AllArgsConstructor
 public class PupilFacade {
 
-    @Autowired
+    @NonNull
     PupilService pupilService;
-    @Autowired
+    @NonNull
     HomeworkFacade homeworkFacade;
 
     /**

@@ -50,4 +50,8 @@ public class AdminServiceImpl implements AdminService {
     public AdminEntity findAdminById(Long id) {
         return adminRepository.findAdminEntityById(id);
     }
+
+    public AdminEntity findAdminByUsername(String username) {
+        return adminRepository.findAdminEntityByUsername(username);
+    }
 }

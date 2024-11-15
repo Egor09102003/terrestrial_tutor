@@ -23,4 +23,12 @@ public interface AdminService {
      */
 
     AdminEntity findAdminById(Long id);
+
+    /**
+     * Get admin by username
+     * 
+     * @param username
+     * @return
+     */
+    AdminEntity findAdminByUsername(String username);
 }

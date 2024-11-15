@@ -1,6 +1,5 @@
 package com.example.terrestrial_tutor.service.impl;
 
-import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.SupportEntity;
 import com.example.terrestrial_tutor.exceptions.UserExistException;
 import com.example.terrestrial_tutor.payload.request.RegistrationRequest;

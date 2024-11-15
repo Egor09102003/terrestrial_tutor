@@ -1,10 +1,9 @@
 package com.example.terrestrial_tutor.service.impl;
 
-import com.example.terrestrial_tutor.entity.AnswerEntity;
 import com.example.terrestrial_tutor.entity.AttemptEntity;
 import com.example.terrestrial_tutor.entity.HomeworkEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
-import com.example.terrestrial_tutor.entity.TaskEntity;
+import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 import com.example.terrestrial_tutor.exceptions.UserExistException;
 import com.example.terrestrial_tutor.payload.request.RegistrationRequest;
 import com.example.terrestrial_tutor.repository.PupilRepository;
@@ -22,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -94,18 +93,14 @@ public class PupilServiceImpl implements PupilService {
         return pupilRepository.findByTutorAndSubject(tutorId, subjectId);
     }
 
-    public AttemptEntity saveAnswers(HashMap<Long, String> answers, AttemptEntity attempt) {
-        HomeworkEntity homework = attempt.getHomework();
-        for (TaskEntity task : homework.getTasks()) {
-            if (answers.containsKey(task.getId())) {
-                AnswerEntity answer = new AnswerEntity();
-                answer.setAnswer(answers.get(task.getId()));
-                answer.setTask(task);
-                answer.setAttempt(attempt);
-                attempt.getAnswers().add(answer);
+    public List<AttemptEntity> getAttemptsByHomework(PupilEntity pupil, HomeworkEntity homework) {
+        List<AttemptEntity> attemptsByHomework = new ArrayList<>();
+        for (AttemptEntity attempt : pupil.getHomeworkAttempts()) {
+            if (!attempt.getStatus().equals(HomeworkStatus.FINISHED) && attempt.getHomework().equals(homework)) {
+                attemptsByHomework.add(attempt);
             }
         }
-        return attempt;
+        return attemptsByHomework;
     }
 
     public PupilEntity findPupilByUsername(String username) {

@@ -34,7 +34,7 @@ public class PupilEntity implements User {
     Double balance;
 
     @ManyToMany(mappedBy = "pupils", fetch = FetchType.LAZY)
-    List<HomeworkEntity> homeworkList;
+    List<HomeworkEntity> homeworkList = new ArrayList<>();
 
     @Column(name = "price")
     Integer lessonPprice;
@@ -44,7 +44,7 @@ public class PupilEntity implements User {
     SupportEntity support;
 
     @OneToMany(mappedBy = "pupil", fetch = FetchType.EAGER)
-    List<EnrollmentEntity> enrollments;
+    List<EnrollmentEntity> enrollments = new ArrayList<>();
 
     @OneToMany(mappedBy = "pupil", fetch = FetchType.LAZY)
     List<PaymentEntity> payments = new ArrayList<>();

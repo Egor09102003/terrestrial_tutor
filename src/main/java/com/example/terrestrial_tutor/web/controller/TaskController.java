@@ -68,7 +68,7 @@ public class TaskController {
                 Optional.ofNullable(id),
                 Optional.ofNullable(subjectService.findSubjectByName(subject))
         );
-        TasksResponse tasksResponse = new TasksResponse(tasksList.getTotalElements(), tasksList.getContent().stream().map(task -> new TaskDTO(task)).toList());
+        TasksResponse tasksResponse = new TasksResponse(tasksList.getTotalElements(), tasksList.getContent().stream().map(task -> taskFacade.taskToTaskDTO(task)).toList());
         return new ResponseEntity<>(tasksResponse, HttpStatus.OK);
     }
 
@@ -102,7 +102,7 @@ public class TaskController {
     @GetMapping("/task/{id}")
     public ResponseEntity<TaskDTO> getTasksById(@PathVariable Long id) {
         TaskEntity task = taskService.getTaskById(id);
-        return new ResponseEntity<>(new TaskDTO(task), HttpStatus.OK);
+        return new ResponseEntity<>(taskFacade.taskToTaskDTO(task), HttpStatus.OK);
     }
 
     /**
@@ -135,7 +135,7 @@ public class TaskController {
         tasksList.sort(Comparator.comparingLong(TaskEntity::getId));
         List<TaskDTO> tasksDTO = new ArrayList<>();
         for (TaskEntity task : tasksList) {
-            tasksDTO.add(new TaskDTO(task));
+            tasksDTO.add(taskFacade.taskToTaskDTO(task));
         }
         return tasksDTO;
     }
@@ -154,7 +154,7 @@ public class TaskController {
         } else {
             tasks = taskService.getByIds(taskIds);
         }
-        List<TaskDTO> taskDTOs = tasks.stream().map(task -> new TaskDTO(task)).toList();
+        List<TaskDTO> taskDTOs = tasks.stream().map(task -> taskFacade.taskToTaskDTO(task)).toList();
         return new ResponseEntity<>(taskDTOs, HttpStatus.OK);
     }
     

@@ -1,17 +1,12 @@
 package com.example.terrestrial_tutor.entity;
 
-import com.example.terrestrial_tutor.dto.HomeworkAnswersDTO;
-import com.google.gson.JsonSyntaxException;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Date;
 
 import javax.persistence.*;
 
-import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 import com.example.terrestrial_tutor.entity.enums.TaskStatuses;
-import com.google.gson.Gson;
 
 /**
  * Сущность ответа ученика на задание

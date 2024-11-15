@@ -20,5 +20,5 @@ public class PupilDTO {
     String name;
     String surname;
     String patronymic;
-    Integer lastAttemptNumber;
+    List<AttemptDTO> homeworkAttempts;
 }

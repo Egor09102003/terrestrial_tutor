@@ -1,13 +1,11 @@
 package com.example.terrestrial_tutor.service;
 
-import com.example.terrestrial_tutor.dto.HomeworkAnswersDTO;
-import com.example.terrestrial_tutor.entity.AttemptEntity;
 import com.example.terrestrial_tutor.entity.HomeworkEntity;
+import com.example.terrestrial_tutor.entity.PupilEntity;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 
 /**
  * Сервис для работы с домашними работами
@@ -37,14 +35,6 @@ public interface HomeworkService {
     List<HomeworkEntity> getAllHomeworks();
 
     /**
-     * Get last pupil answers and create attempt if doesnt exist
-     *
-     * @param homeworkId id дз
-     * @return дз DTO
-     */
-    HomeworkAnswersDTO initHomework(Long homeworkId);
-
-    /**
      * Поиск дз по id
      *
      * @param id id
@@ -58,15 +48,6 @@ public interface HomeworkService {
      * @param id id
      */
     Long deleteHomeworkById(Long id);
-
-    /**
-     * Сохранение ответов на дз
-     *
-     * @param answers    ответы ученика
-     * @param idHomework id дз
-     * @return дз DTO
-     */
-    HomeworkAnswersDTO checkingAndSaveAnswers(Map<Long, String> answers, Long idHomework);
 
     /**
      * Find homeworks by pupil id and subject name
@@ -86,15 +67,6 @@ public interface HomeworkService {
     HomeworkEntity getHomeworkByIdForCurrentPupil(Long id);
 
     /**
-     * Check all answers and set status finished for attempt
-     * 
-     * @param answers
-     * @param homeworkId
-     * @return
-     */
-    HomeworkAnswersDTO checkAndFinish(Map<Long, String> answers, Long homeworkId);
-
-    /**
      * Get homework right answers
      * 
      * @param homeworkId
@@ -102,76 +74,5 @@ public interface HomeworkService {
      */
     HashMap<Long, String> getHomeworkAnswers(Long homeworkId);
 
-    /**
-     * Get pupil's completed homeworks
-     * 
-     * @param id
-     * @return
-     */
-    Map<Long, Long> getCompletedHomework(Long id);
-
-    /**
-     * Get last or else attempt
-     * 
-     * @param homeworkId
-     * @param attemptNumber
-     * @return
-     */
-    HomeworkAnswersDTO getPupilAnswers(Long homeworkId, Long pupilId, Optional<Integer> attemptNumber);
-
-    /**
-     * Get all attempts
-     *
-     * @return - all saved attempts
-     */
-    List<AttemptEntity> getAllAttempts();
-
-    /**
-     * Save attempt
-     *
-     * @param attemptEntity attempt
-     */
-    void saveAttempt(AttemptEntity attemptEntity);
-
-    /**
-     * Set checked statuses for attempt
-     *
-     * @param updatedAnswers HomeworkAnswersDTO typed answers statuses
-     * @param pupilId pupil id
-     * @param homeworkId homework id
-     * @return HomeworkAnswersDTO typed updated statuses
-     * @throws Exception if attempt doesnt exists
-     */
-    HomeworkAnswersDTO manuallyChecking(
-            HomeworkAnswersDTO updatedAnswers,
-            Long pupilId,
-            Long homeworkId
-    ) throws Exception;
-
-    /**
-     * Repair homework
-     */
-    void repairHomeworks();
-
-    /**
-     * Repair attempts
-     */
-    public void repairAttemptNumber();
-
-    /**
-     * Get last finished homework
-     *
-     * @param homeworkId homework id
-     * @param pupilId pupil id
-     * @return last finished attempt entity
-     */
-    public AttemptEntity getLastFinishedAttempt(Long homeworkId, Long pupilId);
-
-    /**
-     * Update attempt points
-     * 
-     * @param attempt attempt entity
-     * @return updated attempt
-     */
-    AttemptEntity updateAttemptPoints(AttemptEntity attempt);
+    Set<HomeworkEntity> getCompletedHomework(PupilEntity pupil);
 }

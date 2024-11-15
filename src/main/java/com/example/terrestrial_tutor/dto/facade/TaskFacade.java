@@ -3,11 +3,16 @@ package com.example.terrestrial_tutor.dto.facade;
 import com.example.terrestrial_tutor.dto.TaskDTO;
 import com.example.terrestrial_tutor.entity.SupportEntity;
 import com.example.terrestrial_tutor.entity.TaskEntity;
+import com.example.terrestrial_tutor.entity.User;
 import com.example.terrestrial_tutor.entity.enums.AnswerTypes;
+import com.example.terrestrial_tutor.entity.enums.ERole;
 import com.example.terrestrial_tutor.service.SubjectService;
-import com.example.terrestrial_tutor.service.TaskService;
 import com.google.gson.Gson;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
+
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
@@ -16,11 +21,10 @@ import java.util.LinkedList;
  * Класс для перевода сущности задания в сущность DTO
  */
 @Component
+@AllArgsConstructor
 public class TaskFacade {
 
-    @Autowired
-    TaskService taskService;
-    @Autowired
+    @NonNull
     SubjectService subjectService;
 
     /**
@@ -35,6 +39,10 @@ public class TaskFacade {
         if (task.getAnswer() != null) {
             answers = new Gson().fromJson(task.getAnswer(), LinkedList.class);
         }
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (user.getRole() == ERole.PUPIL) {
+            answers = null;
+        }
         TaskDTO taskDTO = new TaskDTO(
                 task.getId(),
                 task.getName(),
@@ -47,13 +55,15 @@ public class TaskFacade {
                 task.getLevel2(),
                 task.getTable(),
                 task.getAnalysis(),
-                task.getCost());
+                task.getCost(), 
+                null);
         taskDTO.setFiles(task.getFiles());
         return taskDTO;
     }
 
     public TaskEntity taskDTOToTask(TaskDTO taskDTO, SupportEntity support) {
         TaskEntity taskEntity = new TaskEntity();
+        taskEntity.setId(taskDTO.getId());
         taskEntity.setName(taskDTO.getName());
         taskEntity.setChecking(taskDTO.getChecking());
         taskEntity.setAnswerType(AnswerTypes.valueOf(taskDTO.getAnswerType()));

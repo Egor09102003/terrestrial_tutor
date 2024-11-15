@@ -3,7 +3,6 @@ package com.example.terrestrial_tutor.service.impl;
 import com.example.terrestrial_tutor.entity.AnswerEntity;
 import com.example.terrestrial_tutor.entity.AttemptEntity;
 import com.example.terrestrial_tutor.entity.TaskEntity;
-import com.example.terrestrial_tutor.entity.enums.AnswerTypes;
 import com.example.terrestrial_tutor.repository.AnswerRepository;
 import com.example.terrestrial_tutor.security.JWTAuthenticationFilter;
 import com.example.terrestrial_tutor.service.AnswerService;

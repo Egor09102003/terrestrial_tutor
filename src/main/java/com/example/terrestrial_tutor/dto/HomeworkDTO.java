@@ -1,7 +1,6 @@
 package com.example.terrestrial_tutor.dto;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 
 import java.time.LocalDate;
@@ -17,10 +16,7 @@ public class HomeworkDTO {
     String name;
     Long targetTime;
     List<Long> pupilIds = new ArrayList<>();
-    Map<Long, String> tasksCheckingTypes;
+    LinkedList<TaskCheckingDTO> taskChecking = new LinkedList<>();
     LocalDate deadLine;
-    @NonNull
     String subject;
-    LinkedList<TaskDTO> tasks = new LinkedList<>();
-    Integer lastAttempt = 0;
 }

@@ -154,4 +154,13 @@ public class TutorController {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
+
+    // @GetMapping("/tutor/homework/{homeworkId}/attempts")
+    // public ResponseEntity<List<PupilDTO>> getAttemptsForChecking(@PathVariable Long homeworkId, @RequestParam List<Long> pupilIds) {
+    //     List<PupilEntity> pupils = pupilService.findPupilsByIds(pupilIds);
+
+
+
+    //     return new ResponseEntity<>(pupilDTOs, HttpStatus.OK);
+    // }
 }

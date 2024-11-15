@@ -9,12 +9,11 @@ import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
 import com.example.terrestrial_tutor.exceptions.CustomException;
 import com.example.terrestrial_tutor.repository.TaskRepository;
 import com.example.terrestrial_tutor.service.SubjectService;
-import com.example.terrestrial_tutor.service.SupportService;
 import com.example.terrestrial_tutor.service.TaskService;
 import com.example.terrestrial_tutor.specification.task.TaskSpecifications;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,18 +26,16 @@ import java.util.*;
 import static com.example.terrestrial_tutor.entity.enums.TaskCheckingType.*;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class TaskServiceImpl implements TaskService {
 
-    @Autowired
+    @NonNull
     TaskRepository taskRepository;
 
-    @Autowired
+    @NonNull
     SubjectService subjectService;
-    @Autowired
+    @NonNull
     private TaskFacade taskFacade;
-    @Autowired
-    private SupportService supportService;
 
     /**
      * Функция вывода листа заданий по учебному прдмету и уровню выбора 1

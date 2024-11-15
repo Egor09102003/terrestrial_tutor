@@ -2,7 +2,6 @@ package com.example.terrestrial_tutor.web.controller;
 
 import com.example.terrestrial_tutor.TerrestrialTutorApplication;
 import com.example.terrestrial_tutor.annotations.Api;
-import com.example.terrestrial_tutor.dto.HomeworkAnswersDTO;
 import com.example.terrestrial_tutor.dto.SelectionDTO;
 import com.example.terrestrial_tutor.dto.TutorListDTO;
 import com.example.terrestrial_tutor.dto.facade.HomeworkFacade;
@@ -18,10 +17,10 @@ import com.example.terrestrial_tutor.service.SubjectService;
 import com.example.terrestrial_tutor.service.TaskService;
 import com.example.terrestrial_tutor.service.TutorService;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -39,18 +38,18 @@ import java.util.*;
 @Controller
 @Api
 public class HomeworkController {
-    @Autowired
+    @NonNull
     HomeworkService homeworkService;
-    @Autowired
+    @NonNull
     TaskService taskService;
-    @Autowired
-    HomeworkFacade homeworkFacade;
-    @Autowired
+    @NonNull
     SubjectService subjectService;
-    @Autowired
+    @NonNull
     TutorListFacade tutorListFacade;
-    @Autowired
+    @NonNull
     TutorService tutorService;
+    @NonNull
+    HomeworkFacade homeworkFacade;
 
     static final Logger log =
             LoggerFactory.getLogger(TerrestrialTutorApplication.class);
@@ -110,22 +109,6 @@ public class HomeworkController {
     }
 
     /**
-     * Добавление ответов на дз
-     *
-     * @param answers    ответы
-     * @param homeworkId id дз
-     * @return дз с добавленной попыткой
-     */
-    @PutMapping("/homework/save/{homeworkId}")
-    @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
-    public ResponseEntity<HomeworkAnswersDTO> getCheckingAnswers(@RequestBody Map<Long, String> answers,
-                                                                 @PathVariable Long homeworkId
-                                                                 ) {
-        HomeworkAnswersDTO homeworkAnswersDTO = homeworkService.checkingAndSaveAnswers(answers, homeworkId);
-        return new ResponseEntity<>(homeworkAnswersDTO, HttpStatus.OK);
-    }
-
-    /**
      * Поиск дз по id
      *
      * @param id id дз
@@ -144,46 +127,16 @@ public class HomeworkController {
      * @return список выполненных дз ученика
      */
     @GetMapping("/pupil/{id}/homework/completed")
-    public ResponseEntity<Map<Long, Long>> getCompletedHomework(@PathVariable Long id) {
-        return new ResponseEntity<>(homeworkService.getCompletedHomework(id), HttpStatus.OK);
-    }
-
-    /**
-     * Get last not finished attempt or create new
-     *
-     * @param id - homework id
-     * @return - current attempt
-     */
-    @GetMapping(value = {"/homework/{id}/init"})
-    public ResponseEntity<HomeworkAnswersDTO> initHomework(@PathVariable Long id) {
-        return new ResponseEntity<>(homeworkService.initHomework(id), HttpStatus.OK);
-    }
-
-    /**
-     * Get attempt results
-     *
-     * @param pupilId - pupil id
-     * @param attempt - attempt id, if skipped, will be returned last attempt
-     * @return - attempt answers and statuses
-     */
-    @GetMapping(value = {"/homework/{homeworkId}/answers/{attempt}", "/homework/{homeworkId}/answers"})
-    public ResponseEntity<HomeworkAnswersDTO> getPupilAttempts(@PathVariable Long homeworkId,
-                                                                 @PathVariable Optional<Integer> attempt,
-                                                                 @RequestParam Optional<Long> pupilId) {
-        Long id;
-        if (pupilId.isEmpty()) {
-            try {
-                PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-                id = pupil.getId();
-            } catch(Exception e) {
-                return new ResponseEntity<>(new HomeworkAnswersDTO(), HttpStatus.NOT_FOUND);
-            }
-        } else {
-            id = pupilId.get();
+    public ResponseEntity<?> getCompletedHomework(@PathVariable Long id) {
+        try {
+            PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Set<HomeworkEntity> homeworks = homeworkService.getCompletedHomework(pupil);
+            List<HomeworkDTO> homeworkDTOs = homeworks.stream().map(homework -> homeworkFacade.homeworkToHomeworkDTO(homework)).toList();
+            return new ResponseEntity<>(homeworkDTOs, HttpStatus.OK);
+        } catch (ClassCastException e) {
+            return new ResponseEntity<>("Invalid user.", HttpStatus.UNPROCESSABLE_ENTITY);
         }
-        HomeworkAnswersDTO answersDTO = homeworkService.getPupilAnswers(homeworkId, id, attempt);
-        answersDTO.setOrdering(new LinkedHashSet<>(answersDTO.getAnswersStatuses().keySet()));
-        return new ResponseEntity<>(answersDTO, HttpStatus.OK);
+        
     }
 
     /**
@@ -232,22 +185,6 @@ public class HomeworkController {
         }
         return new ResponseEntity<>(homeworkDTOs, HttpStatus.OK);
     }
-    
-    /**
-     * Set finish status for homework
-     * 
-     * @param homeworkId - homework id
-     * @param answers - pupil answers
-     * @return answers DTO
-     */
-    @PutMapping("homework/finish/{homeworkId}")
-    public ResponseEntity<HomeworkAnswersDTO> finishHomework(@PathVariable Long homeworkId, @RequestBody Map<Long, String> answers) {
-        try {
-            return new ResponseEntity<>(homeworkService.checkAndFinish(answers, homeworkId), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new HomeworkAnswersDTO(), HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-    }
 
     /**
      * Get homeworks answers (only if homework solution exists)
@@ -272,31 +209,6 @@ public class HomeworkController {
             homeworkFacade.homeworkToHomeworkDTO(homeworkService.getHomeworkByIdForCurrentPupil(id)),
             HttpStatus.OK
         );
-    }
-
-    @GetMapping("/homeworks/repair")
-    public ResponseEntity<String> getRepairHomeworks() {
-        try {
-            homeworkService.repairAttemptNumber();
-            return new ResponseEntity<>("All attempts repaired", HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-    }
-
-    @PatchMapping("homework/{homeworkId}/pupil/{pupilId}")
-    public ResponseEntity<HomeworkAnswersDTO> patchPupilAttempt(
-            @PathVariable Long homeworkId,
-            @PathVariable Long pupilId,
-            @RequestBody HomeworkAnswersDTO updatedAnswers) {
-        try {
-            return new ResponseEntity<>(
-                    homeworkService.manuallyChecking(updatedAnswers, pupilId, homeworkId),
-                    HttpStatus.OK
-            );
-        } catch (Exception e) {
-            return new ResponseEntity<>(new HomeworkAnswersDTO(), HttpStatus.UNPROCESSABLE_ENTITY);
-        }
     }
 
     /**
