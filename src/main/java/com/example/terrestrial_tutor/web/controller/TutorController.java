@@ -5,10 +5,10 @@ import com.example.terrestrial_tutor.annotations.Api;
 import com.example.terrestrial_tutor.dto.HomeworkDTO;
 import com.example.terrestrial_tutor.dto.PupilDTO;
 import com.example.terrestrial_tutor.dto.SubjectDTO;
-import com.example.terrestrial_tutor.dto.TutorListDTO;
-import com.example.terrestrial_tutor.dto.facade.HomeworkFacade;
-import com.example.terrestrial_tutor.dto.facade.PupilFacade;
-import com.example.terrestrial_tutor.dto.facade.TutorListFacade;
+import com.example.terrestrial_tutor.dto.TutorDTO;
+import com.example.terrestrial_tutor.dto.facade.HomeworkMapper;
+import com.example.terrestrial_tutor.dto.facade.PupilMapper;
+import com.example.terrestrial_tutor.dto.facade.TutorMapper;
 import com.example.terrestrial_tutor.entity.*;
 import com.example.terrestrial_tutor.service.HomeworkService;
 import com.example.terrestrial_tutor.service.PupilService;
@@ -53,11 +53,11 @@ public class TutorController {
     @NonNull
     TutorService tutorService;
     @Autowired
-    private PupilFacade pupilFacade;
+    private PupilMapper pupilMapper;
     @Autowired
-    private HomeworkFacade homeworkFacade;
+    private HomeworkMapper homeworkMapper;
     @Autowired
-    private TutorListFacade tutorListFacade;
+    private TutorMapper tutorMapper;
     @Autowired
     @NonNull
     SubjectService subjectService;
@@ -80,7 +80,7 @@ public class TutorController {
         for (PupilEntity pupil : pupils) {
             for (SubjectEntity pupilSubject : pupil.getSubjects()) {
                 if (pupilSubject.getName().equals(subject)) {
-                    pupilsDTO.add(pupilFacade.pupilToPupilDTO(pupil));
+                    pupilsDTO.add(pupilMapper.toDTO(pupil));
                 }
             }
         }
@@ -118,14 +118,14 @@ public class TutorController {
         List<HomeworkDTO> homeworkDTOs = new ArrayList<>();
         List<HomeworkEntity> homeworks = homeworkService.getAllHomeworksTutor();
         for (HomeworkEntity homework : homeworks) {
-            homeworkDTOs.add(homeworkFacade.homeworkToHomeworkDTO(homework));
+            homeworkDTOs.add(homeworkMapper.homeworkToHomeworkDTO(homework, true));
         }
         return new ResponseEntity<>(homeworkDTOs, HttpStatus.OK);
     }
 
     @GetMapping("/tutors")
-    public ResponseEntity<List<TutorListDTO>> getAllTutors() {
-        return new ResponseEntity<>(tutorListFacade.tutorListToDTO(tutorService.getAllTutors()), HttpStatus.OK);
+    public ResponseEntity<List<TutorDTO>> getAllTutors() {
+        return new ResponseEntity<>(tutorMapper.tutorListToDTO(tutorService.getAllTutors()), HttpStatus.OK);
     }
 
     /**
@@ -146,7 +146,7 @@ public class TutorController {
             }
             List<PupilDTO> pupilDTOs = new ArrayList<>();
             for (PupilEntity pupil : pupils) {
-                pupilDTOs.add(pupilFacade.pupilToPupilDTO(pupil));
+                pupilDTOs.add(pupilMapper.toDTO(pupil));
             }
             return new ResponseEntity<>(pupilDTOs, HttpStatus.OK);
         } catch (Exception e) {
@@ -155,12 +155,16 @@ public class TutorController {
         }
     }
 
-    // @GetMapping("/tutor/homework/{homeworkId}/attempts")
-    // public ResponseEntity<List<PupilDTO>> getAttemptsForChecking(@PathVariable Long homeworkId, @RequestParam List<Long> pupilIds) {
-    //     List<PupilEntity> pupils = pupilService.findPupilsByIds(pupilIds);
+     @GetMapping("/tutor/homework/{homeworkId}/attempts")
+     public ResponseEntity<List<PupilDTO>> getAttemptsForChecking(@PathVariable Long homeworkId) {
+        TutorEntity tutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        HomeworkEntity homework = homeworkService.getHomeworkById(homeworkId);
+         List<PupilEntity> pupils = pupilService.findByTutorAndHomework(tutor, homework);
+         List<PupilDTO> pupilDTOs = new ArrayList<>();
+         for (PupilEntity pupil : pupils) {
+             pupilDTOs.add(pupilMapper.toDTOWithAttempt(pupil));
+         }
 
-
-
-    //     return new ResponseEntity<>(pupilDTOs, HttpStatus.OK);
-    // }
+         return new ResponseEntity<>(pupilDTOs, HttpStatus.OK);
+     }
 }

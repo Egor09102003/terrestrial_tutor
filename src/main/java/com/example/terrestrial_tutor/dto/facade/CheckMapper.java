@@ -16,7 +16,7 @@ import java.util.HashMap;
  * Класс для перевода CheckEntity в CheckDTO
  */
 @Component
-public class CheckFacade {
+public class CheckMapper {
 
     @Autowired
     PupilService pupilService;

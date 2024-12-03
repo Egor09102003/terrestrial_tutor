@@ -1,13 +1,19 @@
 package com.example.terrestrial_tutor.entity;
 
-import lombok.*;
+import com.example.terrestrial_tutor.entity.enums.TaskStatuses;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-
-import com.example.terrestrial_tutor.entity.enums.TaskStatuses;
-
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.sql.Timestamp;
 /**
  * Сущность ответа ученика на задание
  */
@@ -18,7 +24,7 @@ import com.example.terrestrial_tutor.entity.enums.TaskStatuses;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "pupil_answers", schema = "public")
-public class AnswerEntity {
+public class AnswerEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
     @SequenceGenerator(name = "hibernate_sequence", sequenceName = "hibernate_sequence", allocationSize = 10)
@@ -28,7 +34,7 @@ public class AnswerEntity {
     String answer;
 
     @ManyToOne
-    @JoinColumn(name = "task")
+    @JoinColumn(name = "task_id")
     TaskEntity task;
 
     @ManyToOne
@@ -40,6 +46,8 @@ public class AnswerEntity {
 
     @Column(name = "status")
     TaskStatuses status = TaskStatuses.ON_CHECKING;
+
+    
 
     public AnswerEntity (AttemptEntity attempt, String answer, TaskEntity task) {
         this.attempt = attempt;

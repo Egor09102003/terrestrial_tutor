@@ -15,6 +15,7 @@ import {checkingTypes} from "../../../models/CheckingTypes";
 import { TaskCardComponent } from '../../task/card/task.card.component/task.card.component';
 import { waitForAsync } from '@angular/core/testing';
 import { Pupil } from 'src/app/models/Pupil';
+import {AdminService} from "../../admin/services/admin.service";
 
 @Component({
   selector: 'app-hw-constructor',
@@ -33,6 +34,7 @@ export class HwConstructorComponent implements OnInit {
               private fb: UntypedFormBuilder,
               private tutorDataService: TutorDataService,
               private route: ActivatedRoute,
+              private adminService: AdminService,
               ) { }
 
   homework: Homework | null = null;
@@ -173,7 +175,7 @@ export class HwConstructorComponent implements OnInit {
         queryParamsHandling: 'merge'
       });
     });
-    
+
   }
 
   checkCollapse(i: number) {

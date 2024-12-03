@@ -13,6 +13,6 @@ import lombok.Setter;
 public class EnrollmentDTO {
     Long id;
     String subject;
-    TutorListDTO tutor;
+    TutorDTO tutor;
     PupilDTO pupil;
 }

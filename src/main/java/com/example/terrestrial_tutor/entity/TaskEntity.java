@@ -5,11 +5,16 @@ import com.google.gson.Gson;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
+import java.sql.Timestamp;import java.util.List;
 import java.util.Set;
 
 /**
@@ -22,7 +27,7 @@ import java.util.Set;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "tasks", schema = "public")
-public class TaskEntity {
+public class TaskEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
@@ -77,14 +82,12 @@ public class TaskEntity {
     @Column(name = "cost")
     Integer cost;
 
-    @Column(name = "crdate")
-    Long crdate;
-
     @OneToMany(mappedBy = "task")
     List<TaskCheckingEntity> taskCheckingTypes = new ArrayList<>();
 
     @OneToMany(mappedBy = "task")
     List<AnswerEntity> pupilAnswers = new ArrayList<>();
+
 
     public String getRightAnswer() {
         return new Gson().fromJson(this.answer, String[].class)[0];

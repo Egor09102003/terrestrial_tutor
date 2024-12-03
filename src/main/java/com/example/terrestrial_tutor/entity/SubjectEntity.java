@@ -4,7 +4,12 @@ import javax.persistence.*;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -18,7 +23,7 @@ import java.util.*;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "subjects", schema = "public")
-public class SubjectEntity {
+public class SubjectEntity  implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
@@ -41,6 +46,8 @@ public class SubjectEntity {
 
     @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     List<HomeworkEntity> homeworkList;
+
+    
 
     public Set<TutorEntity> getTutors() {
         return new HashSet<TutorEntity>(this.enrollments

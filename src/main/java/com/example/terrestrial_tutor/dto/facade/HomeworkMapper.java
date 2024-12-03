@@ -18,14 +18,14 @@ import java.util.*;
 
 @Component
 @AllArgsConstructor
-public class HomeworkFacade {
+public class HomeworkMapper {
 
     @NonNull
     SubjectService subjectService;
     @NonNull
     PupilService pupilService;
     @NonNull
-    TaskCheckingFacade taskCheckingFacade;
+    TaskCheckingMapper taskCheckingMapper;
     @NonNull
     HomeworkService homeworkService;
 
@@ -36,7 +36,7 @@ public class HomeworkFacade {
      * @return дз DTO
      */
 
-    public HomeworkDTO homeworkToHomeworkDTO(HomeworkEntity homework) {
+    public HomeworkDTO homeworkToHomeworkDTO(HomeworkEntity homework, boolean withAnswers) {
         HomeworkDTO homeworkDTO = new HomeworkDTO();
         homeworkDTO.setId(homework.getId());
         homeworkDTO.setSubject(homework.getSubject().getName());
@@ -47,32 +47,12 @@ public class HomeworkFacade {
                 map(PupilEntity::getId).
                 toList());
         homeworkDTO.setTargetTime(homework.getTargetTime());
-        homeworkDTO.setTaskChecking(new LinkedList<>(
-            homework.getTaskCheckingTypes().stream()
-                    .map(checking -> taskCheckingFacade.taskCheckingToTaskCheckingDTO(checking))
-                    .toList()
-        ));
+        LinkedHashMap<Long, TaskCheckingDTO> taskCheckingDTOMap = new LinkedHashMap<>();
+        for (Map.Entry<Long, TaskCheckingEntity> entry : homework.getTaskCheckingTypes().entrySet()) {
+            TaskCheckingDTO taskCheckingDTO = taskCheckingMapper.toTaskCheckingDTO(entry.getValue(), withAnswers);
+            taskCheckingDTOMap.put(entry.getKey(), taskCheckingDTO);
+        }
+        homeworkDTO.setTaskChecking(taskCheckingDTOMap);
         return homeworkDTO;
-    }
-
-    /**
-     * Метод для перевода DTO дз в сущность
-     *
-     * @param homeworkDTO домашнее задание DTO
-     * @return сущность домашнего задания
-     */
-
-    public HomeworkEntity homeworkDTOToHomework(HomeworkDTO homeworkDTO) {
-        HomeworkEntity homework = new HomeworkEntity();
-        homework.setId(homeworkDTO.getId());
-        homework.setName(homeworkDTO.getName());
-        homework.setDeadLine(homeworkDTO.getDeadLine());
-        homework.setSubject(subjectService.findSubjectByName(homeworkDTO.getSubject()));
-        homework.setPupils(new HashSet<>(pupilService.findPupilsByIds(homeworkDTO.getPupilIds())));
-        for(TaskCheckingDTO checking : homeworkDTO.getTaskChecking()) {
-            homework.getTaskCheckingTypes().add(taskCheckingFacade.taskCheckingDTOToTaskChecking(checking));
-        } 
-
-        return homework;
     }
 }

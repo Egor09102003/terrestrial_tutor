@@ -4,8 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
-
-
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -20,7 +19,7 @@ import java.util.*;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "homeworks", schema = "public")
-public class HomeworkEntity {
+public class HomeworkEntity  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
     @SequenceGenerator(name = "hibernate_sequence", sequenceName = "hibernate_sequence", allocationSize = 10)
@@ -50,13 +49,14 @@ public class HomeworkEntity {
     @OneToMany(mappedBy = "homework", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<AttemptEntity> answerEntities;
 
-    @OneToMany(mappedBy = "homework", cascade = CascadeType.ALL)
-    List<TaskCheckingEntity> taskCheckingTypes = new ArrayList<>();
+    @OneToMany(mappedBy = "homework", cascade = CascadeType.ALL, orphanRemoval = true)
+    @MapKeyColumn(name = "task_id")
+    Map<Long, TaskCheckingEntity> taskCheckingTypes = new HashMap<>();
 
     LocalDate deadLine;
 
     public List<TaskEntity> getTasks() {
-        return this.taskCheckingTypes.stream()
+        return this.taskCheckingTypes.values().stream()
                 .map(TaskCheckingEntity::getTask)
                 .toList();
     }

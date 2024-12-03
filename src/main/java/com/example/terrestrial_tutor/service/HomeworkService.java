@@ -1,11 +1,11 @@
 package com.example.terrestrial_tutor.service;
 
+import com.example.terrestrial_tutor.dto.TaskCheckingDTO;
 import com.example.terrestrial_tutor.entity.HomeworkEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
+import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Сервис для работы с домашними работами
@@ -18,7 +18,7 @@ public interface HomeworkService {
      * @param homework дз
      * @return сохраненное дз
      */
-    HomeworkEntity saveHomework(HomeworkEntity homework);
+    HomeworkEntity saveHomework(HomeworkEntity homework, LinkedHashMap<Long, TaskCheckingType> taskCheckingTypes);
 
     /**
      * Поиск всех дз по репетитору

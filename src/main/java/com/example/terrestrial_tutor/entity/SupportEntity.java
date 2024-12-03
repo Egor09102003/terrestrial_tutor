@@ -5,10 +5,15 @@ import javax.persistence.*;
 import com.example.terrestrial_tutor.entity.enums.ERole;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
+import java.sql.Timestamp;import java.util.List;
 
 /**
  * Класс сущности тех поддержки
@@ -20,7 +25,7 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "supports", schema = "public")
-public class SupportEntity implements User {
+public class SupportEntity implements User, Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
@@ -69,6 +74,8 @@ public class SupportEntity implements User {
     @NonNull
     @Column(name = "username")
     String username;
+
+    
 
     /**
      * Конструктор сущности тех поддержки

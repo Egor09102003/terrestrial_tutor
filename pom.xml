@@ -114,7 +114,7 @@
                     <user>tutor</user>
                     <password>tErRrEsTrIaLtUtOr</password>
                 </configuration>
-                </plugin>
+            </plugin>
         </plugins>
     </build>
 

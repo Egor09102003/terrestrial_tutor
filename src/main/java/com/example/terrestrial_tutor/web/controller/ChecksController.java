@@ -2,7 +2,7 @@ package com.example.terrestrial_tutor.web.controller;
 
 import com.example.terrestrial_tutor.annotations.Api;
 import com.example.terrestrial_tutor.dto.CheckDTO;
-import com.example.terrestrial_tutor.dto.facade.CheckFacade;
+import com.example.terrestrial_tutor.dto.facade.CheckMapper;
 import com.example.terrestrial_tutor.entity.CheckEntity;
 import com.example.terrestrial_tutor.entity.enums.ERole;
 import com.example.terrestrial_tutor.service.AdminService;
@@ -33,7 +33,7 @@ public class ChecksController {
     @Autowired
     AdminService adminService;
     @Autowired
-    private CheckFacade checkFacade;
+    private CheckMapper checkMapper;
 
     /**
      * Вывести все проверки
@@ -45,7 +45,7 @@ public class ChecksController {
     public ResponseEntity<List<CheckDTO>> checks() {
         List<CheckDTO> checkList = checkService.getAllChecks()
                 .stream()
-                .map(checkFacade::checkToCheckDTO)
+                .map(checkMapper::checkToCheckDTO)
                 .toList();
         return new ResponseEntity<>(checkList, HttpStatus.OK);
     }

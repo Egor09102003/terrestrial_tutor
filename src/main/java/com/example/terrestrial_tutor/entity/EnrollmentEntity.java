@@ -2,10 +2,15 @@ package com.example.terrestrial_tutor.entity;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 
 import javax.persistence.*;
-
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.sql.Timestamp;
 /**
  * Класс сущности администратора
  */
@@ -18,7 +23,7 @@ import javax.persistence.*;
 @Table(name = "enrollments", schema = "public", uniqueConstraints = {
         @UniqueConstraint(name = "uniq_record", columnNames = {"tutor", "pupil", "subject"})
 })
-public class EnrollmentEntity {
+public class EnrollmentEntity  implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "enrollments_sequence")
@@ -40,4 +45,6 @@ public class EnrollmentEntity {
     @ManyToOne
     @JoinColumn(name = "subject")
     SubjectEntity subject;
+
+    
 }

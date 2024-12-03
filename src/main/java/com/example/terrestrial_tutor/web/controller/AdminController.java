@@ -2,10 +2,10 @@ package com.example.terrestrial_tutor.web.controller;
 
 import com.example.terrestrial_tutor.annotations.Api;
 import com.example.terrestrial_tutor.dto.PupilDTO;
-import com.example.terrestrial_tutor.dto.TutorListDTO;
-import com.example.terrestrial_tutor.dto.facade.EnrollmentFacade;
-import com.example.terrestrial_tutor.dto.facade.PupilFacade;
-import com.example.terrestrial_tutor.dto.facade.TutorListFacade;
+import com.example.terrestrial_tutor.dto.TutorDTO;
+import com.example.terrestrial_tutor.dto.facade.EnrollmentMapper;
+import com.example.terrestrial_tutor.dto.facade.PupilMapper;
+import com.example.terrestrial_tutor.dto.facade.TutorMapper;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TutorEntity;
@@ -36,13 +36,13 @@ public class AdminController {
     @Autowired
     SubjectService subjectService;
     @Autowired
-    TutorListFacade tutorListFacade;
+    TutorMapper tutorMapper;
     @Autowired
-    private PupilFacade pupilFacade;
+    private PupilMapper pupilMapper;
     @Autowired
     EnrollmentService enrollmentService;
     @Autowired
-    EnrollmentFacade enrollmentFacade;
+    EnrollmentMapper enrollmentMapper;
 
     /**
      * Поиск репетиторов по заданному предмету
@@ -52,8 +52,8 @@ public class AdminController {
      */
     @GetMapping("/admin/subject/{subject}/find/tutors")
     @Secured("hasAnyRole({'ADMIN'})")
-    public ResponseEntity<List<TutorListDTO>> findTutorsBySubject(@PathVariable String subject) {
-        return new ResponseEntity<>(tutorListFacade.tutorListToDTO(subjectService.findSubjectTutors(subject)), HttpStatus.OK);
+    public ResponseEntity<List<TutorDTO>> findTutorsBySubject(@PathVariable String subject) {
+        return new ResponseEntity<>(tutorMapper.tutorListToDTO(subjectService.findSubjectTutors(subject)), HttpStatus.OK);
     }
 
     /**
@@ -74,7 +74,7 @@ public class AdminController {
         List<PupilDTO> pupilsDTO = tutor.getPupils()
                 .stream()
                 .filter(pupil -> pupil.getSubjects().contains(subjectEntity))
-                .map(pupil -> pupilFacade.pupilToPupilDTO(pupil))
+                .map(pupil -> pupilMapper.toDTO(pupil))
                 .toList();
         return new ResponseEntity<>(pupilsDTO, HttpStatus.OK);
     }
@@ -96,7 +96,7 @@ public class AdminController {
                     .map(SubjectEntity::getName)
                     .toList();
             if (!pupilSubjects.contains(subject) && pupil.getVerification()) {
-                resultPupils.add(pupilFacade.pupilToPupilDTO(pupil));
+                resultPupils.add(pupilMapper.toDTO(pupil));
             }
         }
         return new ResponseEntity<>(resultPupils, HttpStatus.OK);
@@ -112,7 +112,7 @@ public class AdminController {
      */
     @PostMapping("/admin/tutor/add/subject/{subject}")
     @Secured("hasAnyRole({'ADMIN'})")
-    public ResponseEntity<List<TutorListDTO>> addSubjectToTutor(@PathVariable String subject, @RequestBody List<Long> tutorIds) throws Exception {
+    public ResponseEntity<List<TutorDTO>> addSubjectToTutor(@PathVariable String subject, @RequestBody List<Long> tutorIds) throws Exception {
         List<TutorEntity> tutors = new ArrayList<>();
         for (Long tutorId : tutorIds) {
             tutors.add(tutorService.findTutorById(tutorId));
@@ -124,7 +124,7 @@ public class AdminController {
         } catch (Exception e) {
             throw new Exception(e);
         }
-        return new ResponseEntity<>(tutorListFacade.tutorListToDTO(subjectService.findSubjectByName(subject).getTutors()), HttpStatus.OK);
+        return new ResponseEntity<>(tutorMapper.tutorListToDTO(subjectService.findSubjectByName(subject).getTutors()), HttpStatus.OK);
     }
 
     /**
@@ -135,9 +135,9 @@ public class AdminController {
      */
     @GetMapping("/admin/find/tutors/new/{subject}")
     @Secured("hasAnyRole({'ADMIN'})")
-    public ResponseEntity<List<TutorListDTO>> findTutorsWithoutSubject(@PathVariable String subject) {
+    public ResponseEntity<List<TutorDTO>> findTutorsWithoutSubject(@PathVariable String subject) {
         List<TutorEntity> filtredTutors = tutorService.findTutorsWithoutSubject(subject);
-        List<TutorListDTO> result = tutorListFacade.tutorListToDTO(filtredTutors);
+        List<TutorDTO> result = tutorMapper.tutorListToDTO(filtredTutors);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
@@ -156,7 +156,7 @@ public class AdminController {
             return new ResponseEntity<>(
                     enrollmentService.saveAll(subject.getId(), tutorId, pupilIds)
                             .stream()
-                            .map(pupilEntity -> pupilFacade.pupilToPupilDTO(pupilEntity))
+                            .map(pupilEntity -> pupilMapper.toDTO(pupilEntity))
                             .toList(),
                     HttpStatus.OK
             );

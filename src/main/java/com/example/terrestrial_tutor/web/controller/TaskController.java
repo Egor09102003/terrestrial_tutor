@@ -2,7 +2,7 @@ package com.example.terrestrial_tutor.web.controller;
 
 import com.example.terrestrial_tutor.annotations.Api;
 import com.example.terrestrial_tutor.dto.TaskDTO;
-import com.example.terrestrial_tutor.dto.facade.TaskFacade;
+import com.example.terrestrial_tutor.dto.facade.TaskMapper;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TaskEntity;
 import com.example.terrestrial_tutor.payload.response.TasksResponse;
@@ -42,7 +42,7 @@ public class TaskController {
     UploadFilesService uploadFilesService;
 
     @Autowired
-    TaskFacade taskFacade;
+    TaskMapper taskMapper;
 
     /**
      * Поиск всех заданий
@@ -68,7 +68,7 @@ public class TaskController {
                 Optional.ofNullable(id),
                 Optional.ofNullable(subjectService.findSubjectByName(subject))
         );
-        TasksResponse tasksResponse = new TasksResponse(tasksList.getTotalElements(), tasksList.getContent().stream().map(task -> taskFacade.taskToTaskDTO(task)).toList());
+        TasksResponse tasksResponse = new TasksResponse(tasksList.getTotalElements(), tasksList.getContent().stream().map(task -> taskMapper.taskToTaskDTO(task)).toList());
         return new ResponseEntity<>(tasksResponse, HttpStatus.OK);
     }
 
@@ -102,7 +102,7 @@ public class TaskController {
     @GetMapping("/task/{id}")
     public ResponseEntity<TaskDTO> getTasksById(@PathVariable Long id) {
         TaskEntity task = taskService.getTaskById(id);
-        return new ResponseEntity<>(taskFacade.taskToTaskDTO(task), HttpStatus.OK);
+        return new ResponseEntity<>(taskMapper.taskToTaskDTO(task), HttpStatus.OK);
     }
 
     /**
@@ -135,7 +135,7 @@ public class TaskController {
         tasksList.sort(Comparator.comparingLong(TaskEntity::getId));
         List<TaskDTO> tasksDTO = new ArrayList<>();
         for (TaskEntity task : tasksList) {
-            tasksDTO.add(taskFacade.taskToTaskDTO(task));
+            tasksDTO.add(taskMapper.taskToTaskDTO(task));
         }
         return tasksDTO;
     }
@@ -154,7 +154,7 @@ public class TaskController {
         } else {
             tasks = taskService.getByIds(taskIds);
         }
-        List<TaskDTO> taskDTOs = tasks.stream().map(task -> taskFacade.taskToTaskDTO(task)).toList();
+        List<TaskDTO> taskDTOs = tasks.stream().map(task -> taskMapper.taskToTaskDTO(task)).toList();
         return new ResponseEntity<>(taskDTOs, HttpStatus.OK);
     }
     

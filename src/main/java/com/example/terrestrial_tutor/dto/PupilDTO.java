@@ -1,5 +1,6 @@
 package com.example.terrestrial_tutor.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +11,7 @@ import java.util.List;
  */
 @Getter
 @Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PupilDTO {
     Long id;
     Double balance;
@@ -20,5 +22,5 @@ public class PupilDTO {
     String name;
     String surname;
     String patronymic;
-    List<AttemptDTO> homeworkAttempts;
+    AttemptDTO lastAttempt;
 }

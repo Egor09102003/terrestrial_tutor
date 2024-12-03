@@ -1,14 +1,14 @@
 package com.example.terrestrial_tutor.dto.facade;
 
 import com.example.terrestrial_tutor.dto.PupilDTO;
+import com.example.terrestrial_tutor.entity.AttemptEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.TutorEntity;
-import com.example.terrestrial_tutor.service.PupilService;
 
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
@@ -18,22 +18,28 @@ import java.util.LinkedList;
  */
 
 @Component
-@AllArgsConstructor
-public class PupilFacade {
+@RequiredArgsConstructor
+public class PupilMapper {
 
     @NonNull
-    PupilService pupilService;
-    @NonNull
-    HomeworkFacade homeworkFacade;
+    private final AttemptMapper attemptMapper;
 
-    /**
-     * Метод перевода сущности ученика в DTO
-     *
-     * @param pupil ученик
-     * @return DTO
-     */
+    public PupilDTO toDTO(PupilEntity pupil) {
+        return getDto(pupil);
+    }
 
-    public PupilDTO pupilToPupilDTO(PupilEntity pupil) {
+    public PupilDTO toDTOWithAttempt(PupilEntity pupil) {
+        PupilDTO pupilDTO = getDto(pupil);
+        for (AttemptEntity attempt : pupil.getHomeworkAttempts()) {
+            if (pupilDTO.getLastAttempt() == null ||
+                    pupilDTO.getLastAttempt().getAttemptNumber() > pupilDTO.getLastAttempt().getAttemptNumber()) {
+                pupilDTO.setLastAttempt(attemptMapper.attemptToAttemptDTO(attempt, true));
+            }
+        }
+        return pupilDTO;
+    }
+
+    private static PupilDTO getDto(PupilEntity pupil) {
         PupilDTO pupilDTO = new PupilDTO();
         pupilDTO.setId(pupil.getId());
         pupilDTO.setBalance(pupil.getBalance());
@@ -56,6 +62,7 @@ public class PupilFacade {
         pupilDTO.setName(pupil.getName());
         pupilDTO.setSurname(pupil.getSurname());
         pupilDTO.setPatronymic(pupil.getPatronymic());
+        pupilDTO.setLastAttempt(null);
 
         return pupilDTO;
     }

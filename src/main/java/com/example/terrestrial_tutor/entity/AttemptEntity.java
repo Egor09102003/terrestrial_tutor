@@ -1,15 +1,20 @@
 package com.example.terrestrial_tutor.entity;
 
-import lombok.*;
+import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-
-import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.LocalDateTime;
+import java.util.*;
 
 /**
  * Сущность ответа ученика на задание
@@ -21,7 +26,7 @@ import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "homework_solutions", schema = "public")
-public class AttemptEntity {
+public class AttemptEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
     @SequenceGenerator(name = "hibernate_sequence", sequenceName = "hibernate_sequence", allocationSize = 10)
@@ -49,7 +54,10 @@ public class AttemptEntity {
     Long solutionDate = new Date().toInstant().toEpochMilli();
 
     @OneToMany(mappedBy = "attempt", cascade = CascadeType.ALL)
-    List<AnswerEntity> answers = new ArrayList<>();
+    @MapKeyColumn(name = "task_id")
+    Map<Long, AnswerEntity> answers = new HashMap<>();
+
+    
 
     public AttemptEntity(PupilEntity pupil, Integer attemptNumber, HomeworkEntity homework) {
         this.pupil = pupil;

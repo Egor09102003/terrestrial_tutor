@@ -3,8 +3,10 @@ package com.example.terrestrial_tutor.service;
 import com.example.terrestrial_tutor.entity.AttemptEntity;
 import com.example.terrestrial_tutor.entity.HomeworkEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
+import com.example.terrestrial_tutor.entity.TutorEntity;
 import com.example.terrestrial_tutor.payload.request.RegistrationRequest;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -79,4 +81,6 @@ public interface PupilService {
     Set<PupilEntity> getByTutorAndSubject(Long tutorId, Long subjectId);
 
     List<AttemptEntity> getAttemptsByHomework(PupilEntity pupil, HomeworkEntity homework);
+
+    List<PupilEntity> findByTutorAndHomework(TutorEntity tutor, HomeworkEntity homework);
 }

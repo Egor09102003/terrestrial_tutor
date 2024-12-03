@@ -9,6 +9,7 @@ import com.example.terrestrial_tutor.entity.TaskEntity;
 import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
 import com.example.terrestrial_tutor.entity.enums.TaskStatuses;
+import com.example.terrestrial_tutor.exceptions.AttemptFinishedException;
 import com.example.terrestrial_tutor.repository.AttemptRepository;
 import com.example.terrestrial_tutor.repository.HomeworkRepository;
 import com.example.terrestrial_tutor.security.JWTAuthenticationFilter;
@@ -18,11 +19,9 @@ import com.example.terrestrial_tutor.service.AttemptService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+import javax.lang.model.UnknownEntityException;
 import javax.persistence.EntityExistsException;
 
 import org.slf4j.Logger;
@@ -42,33 +41,21 @@ public class AttemptServiceImpl implements AttemptService {
     @NonNull
     AnswerService answerService;
 
-    public static final Logger LOG = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
+    public static final Logger LOG = LoggerFactory.getLogger(AttemptServiceImpl.class);
 
     public AttemptEntity getLastActiveAttempt(Long homeworkId, PupilEntity pupil) {
         AttemptEntity attempt = attemptRepository.findLastAttempt(homeworkId, pupil.getId());
-        HomeworkEntity homewrok = homeworkRepository.findById(homeworkId).orElse(null);
-        if (homewrok == null) {
+        HomeworkEntity homework = homeworkRepository.findById(homeworkId).orElse(null);
+        if (homework == null) {
             throw new EntityExistsException("No such homework.");
         }
         if (attempt == null) {
-            attempt = new AttemptEntity(pupil, 1, homewrok);
-            save(attempt);
+            attempt = new AttemptEntity(pupil, 1, homework);
         }
         if (attempt.getStatus() == HomeworkStatus.FINISHED) {
-            attempt = new AttemptEntity(pupil, attempt.getAttemptNumber() + 1, homewrok);
-            initializeAttemptAnswers(attempt);
-            save(attempt);
+            attempt = new AttemptEntity(pupil, attempt.getAttemptNumber() + 1, homework);
         }
-        return attempt;
-    }
-
-    private AttemptEntity initializeAttemptAnswers(AttemptEntity attempt) {
-        List<AnswerEntity> answers = new ArrayList<>();
-        for (TaskEntity task : attempt.getHomework().getTasks()) {
-            answers.add(new AnswerEntity(attempt, null, task));
-        }
-        attempt.setAnswers(answers);
-        return attempt;
+        return save(attempt);
     }
 
     public AttemptEntity getFinishedAttempt(Optional<Integer> attemptNumber, Long homeworkId, PupilEntity pupil) {
@@ -92,53 +79,44 @@ public class AttemptServiceImpl implements AttemptService {
     }
 
     public AttemptEntity saveAnswers(AttemptEntity attempt, HashMap<Long, String> answers) {
-        List<TaskCheckingEntity> taskCheckingtypes = attempt.getHomework().getTaskCheckingTypes();
-        for (int i = 0; i < attempt.getAnswers().size(); i++) {
-            AnswerEntity currentAnswer = attempt.getAnswers().get(i);
-            String answerString = answers.get(currentAnswer.getTask().getId());
-            currentAnswer.setAnswer(answerString == null ? currentAnswer.getAnswer() : answerString);
-            TaskCheckingEntity checking = taskCheckingtypes.stream()
-                    .filter(type -> type.getTask().getId().equals(currentAnswer.getTask().getId()))
-                    .findFirst().orElse(null);
-            if (checking != null && checking.getCheckingType().equals(TaskCheckingType.INSTANCE)) {
-                if (answerService.checkAnswer(currentAnswer)) {
-                    currentAnswer.setStatus(TaskStatuses.RIGHT);
-                    currentAnswer.setPoints(currentAnswer.getTask().getCost());
-                } else {
-                    currentAnswer.setStatus(TaskStatuses.WRONG);
-                    currentAnswer.setPoints(0);
+        if (attempt.getStatus() != HomeworkStatus.FINISHED) {
+            Map<Long, TaskCheckingEntity> taskCheckingTypes = attempt.getHomework().getTaskCheckingTypes();
+            attempt.setAttemptPoints(0L);
+            for (Long taskId : taskCheckingTypes.keySet()) {
+                AnswerEntity currentAnswer = attempt.getAnswers().get(taskId);
+                if (currentAnswer == null) {
+                    currentAnswer = new AnswerEntity(attempt, null, taskCheckingTypes.get(taskId).getTask());
                 }
-                attempt.getAnswers().set(i, currentAnswer);
+                if (answers.containsKey(taskId)) {
+                    currentAnswer.setAnswer(answers.get(taskId));
+                    Boolean isRight = answerService.checkAnswer(currentAnswer);
+                    if (isRight) {
+                        attempt.setAttemptPoints(
+                                attempt.getAttemptPoints() +
+                                        taskCheckingTypes.get(taskId).getTask().getCost().longValue()
+                        );
+                    }
+                    currentAnswer.setPoints(isRight ? currentAnswer.getTask().getCost() : 0);
+                    switch (taskCheckingTypes.get(taskId).getCheckingType()) {
+                        case AUTO, INSTANCE:
+                            currentAnswer.setStatus(isRight ? TaskStatuses.RIGHT : TaskStatuses.WRONG);
+                            break;
+                        default:
+                            currentAnswer.setStatus(TaskStatuses.ON_CHECKING);
+                            break;
+                    }
+                }
+                attempt.getAnswers().put(taskId, currentAnswer);
             }
-            
+
+            return save(attempt);
+        } else {
+            throw new AttemptFinishedException("Attempt has already been finished.");
         }
-        return save(attempt);
     } 
 
     public AttemptEntity finishAttempt(AttemptEntity attempt, HashMap<Long, String> answers) {
-        List<TaskCheckingEntity> taskCheckingtypes = attempt.getHomework().getTaskCheckingTypes();
-        for (int i = 0; i < attempt.getAnswers().size(); i++) {
-            AnswerEntity currentAnswer = attempt.getAnswers().get(i);
-            String answerString = answers.get(currentAnswer.getTask().getId());
-            currentAnswer.setAnswer(answerString == null ? currentAnswer.getAnswer() : answerString);
-            TaskCheckingEntity checking = taskCheckingtypes.stream()
-                    .filter(type -> type.getTask().getId().equals(currentAnswer.getTask().getId()))
-                    .findFirst().orElse(null);
-            if (checking != null) {
-                Boolean isRight = answerService.checkAnswer(currentAnswer);
-                currentAnswer.setPoints(isRight ? currentAnswer.getTask().getCost() : 0);
-                switch (checking.getCheckingType()) {
-                    case AUTO, MANUALLY:
-                        currentAnswer.setStatus(isRight ? TaskStatuses.RIGHT : TaskStatuses.WRONG);
-                        break;
-                    default:
-                        currentAnswer.setStatus(TaskStatuses.ON_CHECKING);
-                        break;
-                }
-            }
-            attempt.getAnswers().set(i, currentAnswer);
-            
-        }
+        attempt = saveAnswers(attempt, answers);
         attempt.setStatus(HomeworkStatus.FINISHED);
         return save(attempt);
     }

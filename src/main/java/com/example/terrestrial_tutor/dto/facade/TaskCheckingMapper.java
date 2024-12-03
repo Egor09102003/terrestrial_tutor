@@ -13,10 +13,10 @@ import lombok.NonNull;
 
 @Component
 @AllArgsConstructor
-public class TaskCheckingFacade {
+public class TaskCheckingMapper {
 
     @NonNull
-    TaskFacade taskFacade;
+    TaskMapper taskMapper;
     @NonNull
     HomeworkService homeworkService;
     @NonNull
@@ -24,22 +24,17 @@ public class TaskCheckingFacade {
     @NonNull
     TaskService taskService;
 
-    public TaskCheckingDTO taskCheckingToTaskCheckingDTO (TaskCheckingEntity taskChecking) {
+    public TaskCheckingDTO toTaskCheckingDTO (TaskCheckingEntity taskChecking, boolean withAnswers) {
         TaskCheckingDTO taskCheckingDTO = new TaskCheckingDTO();
         taskCheckingDTO.setCheckingType(taskChecking.getCheckingType());
         taskCheckingDTO.setId(taskChecking.getId());
         taskCheckingDTO.setHomework(taskChecking.getHomework().getId());
-        taskCheckingDTO.setTask(taskFacade.taskToTaskDTO(taskChecking.getTask()));
+        if (withAnswers) {
+            taskCheckingDTO.setTask(taskMapper.taskToTaskDTO(taskChecking.getTask()));
+        } else {
+            taskCheckingDTO.setTask(taskMapper.taskToTaskDTOWithoutAnswers(taskChecking.getTask()));
+        }
         return taskCheckingDTO;
-    }
-
-    public TaskCheckingEntity taskCheckingDTOToTaskChecking(TaskCheckingDTO taskCheckingDTO) {
-        TaskCheckingEntity taskCheckinging = new TaskCheckingEntity();
-        taskCheckinging.setId(taskCheckingDTO.getId());
-        taskCheckinging.setCheckingType(taskCheckingDTO.getCheckingType());
-        taskCheckinging.setHomework(homeworkService.getHomeworkById(taskCheckingDTO.getHomework()));
-        taskCheckinging.setTask(taskService.getTaskById(taskCheckingDTO.getTask().getId()));
-        return taskCheckinging;
     }
     
 }

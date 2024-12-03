@@ -4,14 +4,15 @@ import com.example.terrestrial_tutor.entity.enums.ERole;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.*;
 
 /**
  * Pupil entity
@@ -22,7 +23,7 @@ import java.util.Set;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "pupils", schema = "public")
-public class PupilEntity implements User {
+public class PupilEntity implements User, Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
@@ -85,6 +86,8 @@ public class PupilEntity implements User {
 
     @Transient
     private GrantedAuthority authorities;
+
+    
 
     /**
      * Конструктор сущности ученика

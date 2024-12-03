@@ -1,8 +1,13 @@
 package com.example.terrestrial_tutor.repository;
 
+import com.example.terrestrial_tutor.entity.HomeworkEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
+
+import java.util.List;
 import java.util.Set;
 
+import com.example.terrestrial_tutor.entity.SubjectEntity;
+import com.example.terrestrial_tutor.entity.TutorEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -32,4 +37,6 @@ public interface PupilRepository extends JpaRepository<PupilEntity, Long> {
 
     @Query(value = "SELECT DISTINCT on(pupils.id) * FROM pupils JOIN enrollments e on pupils.id = e.pupil AND e.tutor = ?1", nativeQuery = true)
     Set<PupilEntity> findByTutor(Long tutorId);
+
+    List<PupilEntity> findDistinctByHomeworkListContainsAndEnrollmentsTutorAndEnrollmentsSubject(HomeworkEntity homework, TutorEntity tutor, SubjectEntity subject);
 }

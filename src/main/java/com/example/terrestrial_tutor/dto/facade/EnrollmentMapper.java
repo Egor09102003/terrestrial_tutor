@@ -13,19 +13,19 @@ import lombok.NonNull;
  */
 @Component
 @AllArgsConstructor
-public class EnrollmentFacade {
+public class EnrollmentMapper {
 
-    @NonNull 
-    TutorListFacade tutorListFacade;
     @NonNull
-    PupilFacade pupilFacade;
+    TutorMapper tutorMapper;
+    @NonNull
+    PupilMapper pupilMapper;
 
     public EnrollmentDTO enrollToEnrollDTO(EnrollmentEntity enroll) {
         return new EnrollmentDTO(
             enroll.getId(),
             enroll.getSubject().getName(),
-            tutorListFacade.tutorToTutorDTO(enroll.getTutor()),
-            pupilFacade.pupilToPupilDTO(enroll.getPupil())
+            tutorMapper.tutorToTutorDTO(enroll.getTutor()),
+            pupilMapper.toDTO(enroll.getPupil())
         );
     }
     

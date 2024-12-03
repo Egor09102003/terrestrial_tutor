@@ -1,7 +1,7 @@
 package com.example.terrestrial_tutor.service.impl;
 
 import com.example.terrestrial_tutor.dto.TaskDTO;
-import com.example.terrestrial_tutor.dto.facade.TaskFacade;
+import com.example.terrestrial_tutor.dto.facade.TaskMapper;
 import com.example.terrestrial_tutor.entity.SubjectEntity;
 import com.example.terrestrial_tutor.entity.SupportEntity;
 import com.example.terrestrial_tutor.entity.TaskEntity;
@@ -35,7 +35,7 @@ public class TaskServiceImpl implements TaskService {
     @NonNull
     SubjectService subjectService;
     @NonNull
-    private TaskFacade taskFacade;
+    private TaskMapper taskMapper;
 
     /**
      * Функция вывода листа заданий по учебному прдмету и уровню выбора 1
@@ -157,11 +157,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     public TaskEntity addNewTask(TaskDTO dto, SupportEntity support) {
-        TaskEntity task = taskFacade.taskDTOToTask(dto, support);
+        TaskEntity task = taskMapper.taskDTOToTask(dto, support);
         if (task.getId() != null && dto.getId() != 0) {
             return taskRepository.saveAndFlush(task);
         }
-        task.setCrdate(new Date().toInstant().toEpochMilli());
         return taskRepository.saveAndFlush(task);
     }
 

@@ -6,7 +6,13 @@ import com.example.terrestrial_tutor.entity.enums.ERole;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
+
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -19,7 +25,7 @@ import java.util.*;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "tutors", schema = "public")
-public class TutorEntity implements User {
+public class TutorEntity implements User, Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
@@ -32,7 +38,7 @@ public class TutorEntity implements User {
     @ManyToMany(mappedBy = "tutors", fetch = FetchType.LAZY)
     Set<HomeworkEntity> homeworkList;
 
-    @OneToMany(mappedBy = "tutor")
+    @OneToMany(mappedBy = "tutor", fetch = FetchType.EAGER)
     List<EnrollmentEntity> enrollments;
 
     @NonNull
@@ -65,6 +71,8 @@ public class TutorEntity implements User {
     @NonNull
     @Column(name = "verification")
     Boolean verification = false;
+
+    
 
     @Transient
     private GrantedAuthority authorities;

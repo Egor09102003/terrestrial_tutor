@@ -3,19 +3,14 @@ package com.example.terrestrial_tutor.web.controller;
 import com.example.terrestrial_tutor.TerrestrialTutorApplication;
 import com.example.terrestrial_tutor.annotations.Api;
 import com.example.terrestrial_tutor.dto.SelectionDTO;
-import com.example.terrestrial_tutor.dto.TutorListDTO;
-import com.example.terrestrial_tutor.dto.facade.HomeworkFacade;
-import com.example.terrestrial_tutor.dto.facade.TutorListFacade;
-import com.example.terrestrial_tutor.entity.HomeworkEntity;
-import com.example.terrestrial_tutor.entity.PupilEntity;
-import com.example.terrestrial_tutor.entity.SubjectEntity;
-import com.example.terrestrial_tutor.entity.TaskEntity;
-import com.example.terrestrial_tutor.entity.TutorEntity;
+import com.example.terrestrial_tutor.dto.TutorDTO;
+import com.example.terrestrial_tutor.dto.facade.HomeworkMapper;
+import com.example.terrestrial_tutor.dto.facade.TutorMapper;
+import com.example.terrestrial_tutor.entity.*;
 import com.example.terrestrial_tutor.dto.HomeworkDTO;
-import com.example.terrestrial_tutor.service.HomeworkService;
-import com.example.terrestrial_tutor.service.SubjectService;
-import com.example.terrestrial_tutor.service.TaskService;
-import com.example.terrestrial_tutor.service.TutorService;
+import com.example.terrestrial_tutor.entity.enums.ERole;
+import com.example.terrestrial_tutor.payload.request.HomeworkSaveRequest;
+import com.example.terrestrial_tutor.service.*;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -45,32 +40,32 @@ public class HomeworkController {
     @NonNull
     SubjectService subjectService;
     @NonNull
-    TutorListFacade tutorListFacade;
+    TutorMapper tutorMapper;
     @NonNull
     TutorService tutorService;
     @NonNull
-    HomeworkFacade homeworkFacade;
+    HomeworkMapper homeworkMapper;
+    @NonNull
+    PupilService pupilService;
 
     static final Logger log =
             LoggerFactory.getLogger(TerrestrialTutorApplication.class);
 
-    //todo контроллер для обработки завершенной домашки
-
     /**
      * Сохранение дз
      *
-     * @param homeworkDTO дз
+     * @param homeworkSaveRequest дз
      * @return сохраненное дз
      */
     @PostMapping("/homework/save")
     @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
-    public ResponseEntity<HomeworkDTO> saveHomework(@RequestBody HomeworkDTO homeworkDTO) {
-        HomeworkEntity updatedHomework = homeworkFacade.homeworkDTOToHomework(homeworkDTO);
+    public ResponseEntity<HomeworkDTO> saveHomework(@RequestBody HomeworkSaveRequest homeworkSaveRequest) {
+        HomeworkEntity updatedHomework = getHomeworkFromRequest(homeworkSaveRequest);
         HomeworkEntity currentHomework = homeworkService.getHomeworkById(updatedHomework.getId());
         TutorEntity currentTutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (currentHomework != null) {
-            Set<PupilEntity> updatedPupils = new HashSet<>();
-            updatedPupils.addAll(currentHomework.getPupils());
+            updatedHomework.setTaskCheckingTypes(currentHomework.getTaskCheckingTypes());
+            Set<PupilEntity> updatedPupils = new HashSet<>(currentHomework.getPupils());
             updatedPupils.addAll(updatedHomework.getPupils());
             List<Long> currentPupilIds = currentTutor.getPupils().stream().map(PupilEntity::getId).toList();
             for (PupilEntity pupil : currentHomework.getPupils()) {
@@ -80,18 +75,22 @@ public class HomeworkController {
                     updatedPupils.remove(pupil);
                 }
             }
-            currentHomework.setName(updatedHomework.getName());
-            currentHomework.setSoluteTime(updatedHomework.getSoluteTime());
-            currentHomework.setTargetTime(updatedHomework.getTargetTime());
-            currentHomework.setTaskCheckingTypes(updatedHomework.getTaskCheckingTypes());
-            currentHomework.setDeadLine(updatedHomework.getDeadLine());
-            currentHomework.setPupils(updatedPupils);
+            updatedHomework.setPupils(updatedPupils);
         } else {
-            currentHomework = updatedHomework;
-            currentHomework.getTutors().add(currentTutor);
+            updatedHomework.getTutors().add(currentTutor);
         }
-        currentHomework = homeworkService.saveHomework(currentHomework);
-        return new ResponseEntity<>(homeworkFacade.homeworkToHomeworkDTO(currentHomework), HttpStatus.OK);
+        updatedHomework = homeworkService.saveHomework(updatedHomework, homeworkSaveRequest.getTaskChecking());
+        return new ResponseEntity<>(homeworkMapper.homeworkToHomeworkDTO(updatedHomework, true), HttpStatus.OK);
+    }
+
+    private HomeworkEntity getHomeworkFromRequest(HomeworkSaveRequest homeworkSaveRequest) {
+        HomeworkEntity homework = new HomeworkEntity();
+        homework.setId(homeworkSaveRequest.getId());
+        homework.setSubject(subjectService.findSubjectByName(homeworkSaveRequest.getSubject()));
+        homework.setName(homeworkSaveRequest.getName());
+        homework.setPupils(new HashSet<>(pupilService.findPupilsByIds(homeworkSaveRequest.getPupilIds())));
+        homework.setTargetTime(homeworkSaveRequest.getTargetTime());
+        return homework;
     }
 
     /**
@@ -117,26 +116,8 @@ public class HomeworkController {
     @GetMapping("/homework/{id}")
     public ResponseEntity<HomeworkDTO> getHomeworkById(@PathVariable Long id) {
         HomeworkEntity homework = homeworkService.getHomeworkById(id);
-        return new ResponseEntity<>(homeworkFacade.homeworkToHomeworkDTO(homework), HttpStatus.OK);
-    }
-
-    /**
-     * Контроллер для отдачи списка выполненных дз ученика
-     *
-     * @param id - id ученика
-     * @return список выполненных дз ученика
-     */
-    @GetMapping("/pupil/{id}/homework/completed")
-    public ResponseEntity<?> getCompletedHomework(@PathVariable Long id) {
-        try {
-            PupilEntity pupil = (PupilEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            Set<HomeworkEntity> homeworks = homeworkService.getCompletedHomework(pupil);
-            List<HomeworkDTO> homeworkDTOs = homeworks.stream().map(homework -> homeworkFacade.homeworkToHomeworkDTO(homework)).toList();
-            return new ResponseEntity<>(homeworkDTOs, HttpStatus.OK);
-        } catch (ClassCastException e) {
-            return new ResponseEntity<>("Invalid user.", HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-        
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return new ResponseEntity<>(homeworkMapper.homeworkToHomeworkDTO(homework, user.getRole() != ERole.PUPIL), HttpStatus.OK);
     }
 
     /**
@@ -163,7 +144,7 @@ public class HomeworkController {
         List<HomeworkDTO> allHomeworksDto = new ArrayList<>();
         for(HomeworkEntity homework : allHomeworks) {
             if (!homework.getName().isEmpty()) {
-                allHomeworksDto.add(homeworkFacade.homeworkToHomeworkDTO(homework));
+                allHomeworksDto.add(homeworkMapper.homeworkToHomeworkDTO(homework, true));
             }
         }
         return new ResponseEntity<>(allHomeworksDto, HttpStatus.OK);
@@ -180,21 +161,11 @@ public class HomeworkController {
     public ResponseEntity<List<HomeworkDTO>> getHomeworksByPupilAndSubject(@PathVariable Long pupilId, @PathVariable String subject) {
         List<HomeworkEntity> homeworks = homeworkService.getHomeworksByPupilAndSubject(pupilId, subject);
         List<HomeworkDTO> homeworkDTOs = new ArrayList<>();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         for (HomeworkEntity homeworkEntity : homeworks) {
-            homeworkDTOs.add(homeworkFacade.homeworkToHomeworkDTO(homeworkEntity));
+            homeworkDTOs.add(homeworkMapper.homeworkToHomeworkDTO(homeworkEntity, user.getRole() != ERole.PUPIL));
         }
         return new ResponseEntity<>(homeworkDTOs, HttpStatus.OK);
-    }
-
-    /**
-     * Get homeworks answers (only if homework solution exists)
-     *
-     * @param homeworkId - homework id
-     * @return - answers map
-     */
-    @GetMapping("homework/{homeworkId}/answers/right")
-    public ResponseEntity<HashMap<Long, String>> getHomeworkRightAnswers(@PathVariable Long homeworkId) {
-        return new ResponseEntity<>(homeworkService.getHomeworkAnswers(homeworkId), HttpStatus.OK);
     }
 
     /**
@@ -206,7 +177,7 @@ public class HomeworkController {
     @GetMapping("/homework/pupil/{id}")
     public ResponseEntity<HomeworkDTO> getHomework(@PathVariable Long id) {
         return new ResponseEntity<>(
-            homeworkFacade.homeworkToHomeworkDTO(homeworkService.getHomeworkByIdForCurrentPupil(id)),
+            homeworkMapper.homeworkToHomeworkDTO(homeworkService.getHomeworkByIdForCurrentPupil(id), false),
             HttpStatus.OK
         );
     }
@@ -218,9 +189,9 @@ public class HomeworkController {
      * @return list of TutorListDTO
      */
     @GetMapping("/homework/{homeworkId}/tutors")
-    public ResponseEntity<List<TutorListDTO>> getHomeworkTutors(@PathVariable Long homeworkId) {
+    public ResponseEntity<List<TutorDTO>> getHomeworkTutors(@PathVariable Long homeworkId) {
         List<TutorEntity> tutors = new ArrayList<>(homeworkService.getHomeworkById(homeworkId).getTutors());
-        return new ResponseEntity<>(tutorListFacade.tutorListToDTO(tutors), HttpStatus.OK);
+        return new ResponseEntity<>(tutorMapper.tutorListToDTO(tutors), HttpStatus.OK);
     }
 
     @PatchMapping("homework/{homeworkId}/set/tutors")
@@ -228,8 +199,8 @@ public class HomeworkController {
         HomeworkEntity homework = homeworkService.getHomeworkById(homeworkId);
         List<TutorEntity> tutors = tutorService.getTutorByIds(tutorIds);
         homework.setTutors(new HashSet<>(tutors));
-        homeworkService.saveHomework(homework);
-        return new ResponseEntity<>(homeworkFacade.homeworkToHomeworkDTO(homework), HttpStatus.OK);
+        homeworkService.saveHomework(homework, null);
+        return new ResponseEntity<>(homeworkMapper.homeworkToHomeworkDTO(homework, true), HttpStatus.OK);
     }
     
 }

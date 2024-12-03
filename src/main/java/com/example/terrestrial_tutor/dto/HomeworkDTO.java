@@ -1,5 +1,6 @@
 package com.example.terrestrial_tutor.dto;
 
+import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,7 +17,7 @@ public class HomeworkDTO {
     String name;
     Long targetTime;
     List<Long> pupilIds = new ArrayList<>();
-    LinkedList<TaskCheckingDTO> taskChecking = new LinkedList<>();
+    LinkedHashMap<Long, TaskCheckingDTO> taskChecking = new LinkedHashMap<>();
     LocalDate deadLine;
     String subject;
 }

@@ -3,6 +3,7 @@ package com.example.terrestrial_tutor.service.impl;
 import com.example.terrestrial_tutor.entity.AttemptEntity;
 import com.example.terrestrial_tutor.entity.HomeworkEntity;
 import com.example.terrestrial_tutor.entity.PupilEntity;
+import com.example.terrestrial_tutor.entity.TutorEntity;
 import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 import com.example.terrestrial_tutor.exceptions.UserExistException;
 import com.example.terrestrial_tutor.payload.request.RegistrationRequest;
@@ -105,5 +106,9 @@ public class PupilServiceImpl implements PupilService {
 
     public PupilEntity findPupilByUsername(String username) {
         return pupilRepository.findPupilEntityByUsername(username);
+    }
+
+    public List<PupilEntity> findByTutorAndHomework(TutorEntity tutor, HomeworkEntity homework) {
+        return pupilRepository.findDistinctByHomeworkListContainsAndEnrollmentsTutorAndEnrollmentsSubject(homework, tutor, homework.getSubject());
     }
 }

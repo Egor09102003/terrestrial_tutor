@@ -1,8 +1,9 @@
 package com.example.terrestrial_tutor.service.impl;
 
-import com.example.terrestrial_tutor.TerrestrialTutorApplication;
+import com.example.terrestrial_tutor.dto.TaskCheckingDTO;
 import com.example.terrestrial_tutor.entity.*;
 import com.example.terrestrial_tutor.entity.enums.ERole;
+import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
 import com.example.terrestrial_tutor.repository.*;
 import com.example.terrestrial_tutor.service.*;
 
@@ -35,12 +36,34 @@ public class HomeworkServiceImpl implements HomeworkService {
     @NonNull
     AttemptService attemptService;
 
-    static final Logger log =
-            LoggerFactory.getLogger(TerrestrialTutorApplication.class);
+    @NonNull
+    TaskService taskService;
 
-    public HomeworkEntity saveHomework(HomeworkEntity homework) {
-        homework = homeworkRepository.save(homework);
-        return homework;
+    static final Logger log =
+            LoggerFactory.getLogger(HomeworkServiceImpl.class);
+
+    public HomeworkEntity saveHomework(HomeworkEntity homework, LinkedHashMap<Long, TaskCheckingType> taskCheckingTypes) {
+        if (taskCheckingTypes != null) {
+            setCheckingTypes(homework, taskCheckingTypes);
+        }
+        return homeworkRepository.save(homework);
+    }
+
+    private void setCheckingTypes(HomeworkEntity homework, LinkedHashMap<Long, TaskCheckingType> taskCheckingTypes) {
+        Map<Long, TaskCheckingEntity> taskCheckingEntities = new HashMap<>();
+        for (Map.Entry<Long, TaskCheckingType> entry : taskCheckingTypes.entrySet()) {
+            TaskCheckingEntity taskCheckingEntity;
+            if (homework.getTaskCheckingTypes().containsKey(entry.getKey())) {
+                taskCheckingEntity = homework.getTaskCheckingTypes().get(entry.getKey());
+            } else {
+                taskCheckingEntity = new TaskCheckingEntity();
+                taskCheckingEntity.setHomework(homework);
+                taskCheckingEntity.setTask(taskService.getTaskById(entry.getKey()));
+            }
+            taskCheckingEntity.setCheckingType(entry.getValue());
+            taskCheckingEntities.put(entry.getKey(), taskCheckingEntity);
+        }
+        homework.setTaskCheckingTypes(taskCheckingEntities);
     }
 
     public HomeworkEntity getHomeworkById(Long id) {

@@ -17,32 +17,26 @@ import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
 
-/**
- * Класс для перевода сущности задания в сущность DTO
- */
 @Component
 @AllArgsConstructor
-public class TaskFacade {
+public class TaskMapper {
 
     @NonNull
     SubjectService subjectService;
-
-    /**
-     * Метод для перевода сущности задания в сущность DTO
-     *
-     * @param task задание
-     * @return задание DTO
-     */
 
     public TaskDTO taskToTaskDTO(TaskEntity task) {
         LinkedList<?> answers = new LinkedList<>();
         if (task.getAnswer() != null) {
             answers = new Gson().fromJson(task.getAnswer(), LinkedList.class);
         }
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (user.getRole() == ERole.PUPIL) {
-            answers = null;
-        }
+        return getTaskDTO(task, answers);
+    }
+
+    public TaskDTO taskToTaskDTOWithoutAnswers(TaskEntity task) {
+        return getTaskDTO(task, null);
+    }
+
+    private static TaskDTO getTaskDTO(TaskEntity task, LinkedList<?> answers) {
         TaskDTO taskDTO = new TaskDTO(
                 task.getId(),
                 task.getName(),
@@ -55,7 +49,7 @@ public class TaskFacade {
                 task.getLevel2(),
                 task.getTable(),
                 task.getAnalysis(),
-                task.getCost(), 
+                task.getCost(),
                 null);
         taskDTO.setFiles(task.getFiles());
         return taskDTO;
