@@ -1,6 +1,6 @@
 import {Subject} from "./Subject";
 
-export interface Task {
+export class Task {
   id: number
   name: string;
   checking: number;

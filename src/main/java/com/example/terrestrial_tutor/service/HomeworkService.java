@@ -18,7 +18,7 @@ public interface HomeworkService {
      * @param homework дз
      * @return сохраненное дз
      */
-    HomeworkEntity saveHomework(HomeworkEntity homework, LinkedHashMap<Long, TaskCheckingType> taskCheckingTypes);
+    HomeworkEntity saveHomework(HomeworkEntity homework, LinkedHashMap<Long, TaskCheckingDTO> taskCheckingTypes);
 
     /**
      * Поиск всех дз по репетитору

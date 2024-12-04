@@ -3,6 +3,7 @@ package com.example.terrestrial_tutor.web.controller;
 import com.example.terrestrial_tutor.TerrestrialTutorApplication;
 import com.example.terrestrial_tutor.annotations.Api;
 import com.example.terrestrial_tutor.dto.SelectionDTO;
+import com.example.terrestrial_tutor.dto.TaskCheckingDTO;
 import com.example.terrestrial_tutor.dto.TutorDTO;
 import com.example.terrestrial_tutor.dto.facade.HomeworkMapper;
 import com.example.terrestrial_tutor.dto.facade.TutorMapper;
@@ -60,6 +61,7 @@ public class HomeworkController {
     @PostMapping("/homework/save")
     @Secured("hasAnyRole({'TUTOR', 'ADMIN'})")
     public ResponseEntity<HomeworkDTO> saveHomework(@RequestBody HomeworkSaveRequest homeworkSaveRequest) {
+        matchTasksOrder(homeworkSaveRequest);
         HomeworkEntity updatedHomework = getHomeworkFromRequest(homeworkSaveRequest);
         HomeworkEntity currentHomework = homeworkService.getHomeworkById(updatedHomework.getId());
         TutorEntity currentTutor = (TutorEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -81,6 +83,16 @@ public class HomeworkController {
         }
         updatedHomework = homeworkService.saveHomework(updatedHomework, homeworkSaveRequest.getTaskChecking());
         return new ResponseEntity<>(homeworkMapper.homeworkToHomeworkDTO(updatedHomework, true), HttpStatus.OK);
+    }
+
+    private void matchTasksOrder(HomeworkSaveRequest homeworkSaveRequest) {
+        LinkedHashMap<Long, TaskCheckingDTO> taskCheckingDTOs = new LinkedHashMap<>();
+        for (Long taskId : homeworkSaveRequest.getTaskIds()) {
+            if (homeworkSaveRequest.getTaskChecking().containsKey(taskId)) {
+                taskCheckingDTOs.put(taskId, homeworkSaveRequest.getTaskChecking().get(taskId));
+            }
+        }
+        homeworkSaveRequest.setTaskChecking(taskCheckingDTOs);
     }
 
     private HomeworkEntity getHomeworkFromRequest(HomeworkSaveRequest homeworkSaveRequest) {

@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.sql.Date;
 import java.sql.Time;
+import java.time.LocalDateTime;
 
 /**
  * Не актуально
@@ -20,10 +21,17 @@ import java.sql.Time;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "payments", schema = "public")
 public class PaymentEntity {
-    @Id
+     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
     @SequenceGenerator(name = "hibernate_sequence", sequenceName = "hibernate_sequence", allocationSize = 10)
     private Long id;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     @ManyToOne()
     @JoinColumn(name = "pupil")

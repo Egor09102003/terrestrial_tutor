@@ -1,19 +1,17 @@
-package com.example.terrestrial_tutor.dto;
+package com.example.terrestrial_tutor.payload.request;
 
+import com.example.terrestrial_tutor.dto.TaskCheckingDTO;
 import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 
-/**
- * Класс DTO дз
- */
-@Getter
-@Setter
-public class HomeworkDTO {
+@Data
+public class HomeworkSaveRequest {
     Long id;
     String name;
     Long targetTime;
@@ -21,6 +19,5 @@ public class HomeworkDTO {
     LinkedHashMap<Long, TaskCheckingDTO> taskChecking = new LinkedHashMap<>();
     LocalDate deadLine;
     String subject;
-    LocalDateTime createdAt;
     LinkedList<Long> taskIds = new LinkedList<>();
 }

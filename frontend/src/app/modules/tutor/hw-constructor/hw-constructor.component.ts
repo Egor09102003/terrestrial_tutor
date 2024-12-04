@@ -1,5 +1,4 @@
-import {Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
-import {dataService} from "../services/data.service";
+import {ChangeDetectorRef, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {TutorService} from "../services/tutor.service";
 import {Homework} from "../../../models/Homework";
@@ -7,15 +6,14 @@ import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {Task} from "../../../models/Task";
 import {CodemirrorComponent} from "@ctrl/ngx-codemirror";
 import {throwError} from "rxjs";
-import {TutorDataService} from "../storage/tutor.data.service";
-import {CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray} from "@angular/cdk/drag-drop";
+import {CdkDragDrop, CdkDropList, moveItemInArray} from "@angular/cdk/drag-drop";
 import {catchError} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
 import {checkingTypes} from "../../../models/CheckingTypes";
-import { TaskCardComponent } from '../../task/card/task.card.component/task.card.component';
-import { waitForAsync } from '@angular/core/testing';
-import { Pupil } from 'src/app/models/Pupil';
-import {AdminService} from "../../admin/services/admin.service";
+import {TaskCardComponent} from '../../task/card/task.card.component/task.card.component';
+import {Pupil} from 'src/app/models/Pupil';
+import {TaskChecking} from "../../../models/TaskChecking";
+import {HomeworkService} from "../../homework/services/homework.service.";
 
 @Component({
   selector: 'app-hw-constructor',
@@ -29,18 +27,16 @@ export class HwConstructorComponent implements OnInit {
   @ViewChildren('cdkDropList') cdkDropList: CdkDropList ;
 
   constructor(private tutorService: TutorService,
-              private dataService: dataService,
               private router: Router,
               private fb: UntypedFormBuilder,
-              private tutorDataService: TutorDataService,
               private route: ActivatedRoute,
-              private adminService: AdminService,
+              private homeworkService: HomeworkService,
+              private cdr: ChangeDetectorRef
               ) { }
 
-  homework: Homework | null = null;
-  //@ts-ignore
+  homework: Homework;
   hwForm: UntypedFormGroup;
-  currentTasks: Task[] = [];
+  currentTasks: number[] = [];
   pageLoaded: boolean = false;
   errorMessage = "";
   tutorId: number|null = null;
@@ -52,9 +48,9 @@ export class HwConstructorComponent implements OnInit {
   ngOnInit(): void {
     let hwId = Number(this.route.snapshot.paramMap.get('hwId'));
     this.tutorId = Number(this.route.snapshot.paramMap.get('id'));
-    this.tutorService.getHomework(hwId).subscribe(homework => {
+    this.homeworkService.getHomeworkById(hwId).subscribe(homework => {
       this.homework = homework;
-      this.tutorService.getAllCurrentPupils(this.homework?.subject ?? '', this.tutorId ?? -1).subscribe(pupils => {
+      this.tutorService.getAllCurrentPupils(this.homework.subject ?? '', this.tutorId ?? -1).subscribe(pupils => {
           this.pupils = pupils
           this.selectedPupils = this.pupils.filter(pupil => homework.pupilIds.indexOf(pupil.id) !== -1) ?? [];
         }
@@ -70,12 +66,7 @@ export class HwConstructorComponent implements OnInit {
   }
 
   initFields() {
-    if (this.homework) {
-      this.currentTasks = this.homework.tasks;
-      for (let i in this.currentTasks) {
-        this.state.push(true);
-      }
-    }
+    // this.currentTasks = Array.from(this.homework.taskChecking.keys());
   }
 
   initForm(): void {
@@ -83,28 +74,27 @@ export class HwConstructorComponent implements OnInit {
       name: [this.homework?.name, Validators.compose([Validators.required])],
       deadLine: [this.homework?.deadLine, /*Validators.compose([Validators.required])*/],
       targetTime: ['', /*Validators.compose([Validators.required])*/],
-      tasks: [this.homework?.tasks, Validators.required]
+      tasks: [this.homework.taskChecking, Validators.required]
     });
     if (this.homework != null)
       this.pageLoaded = true;
   }
 
   addTasks(): void {
-    this.saveHomework();
+    this.getFromForm();
     this.router.navigate([`/tutor/${this.tutorId}/constructor/${this.homework?.id}/hw/add/task`], {
       queryParamsHandling: 'merge'
     })
   }
 
-  saveHomework() {
+  getFromForm() {
     this.homework!.name = this.hwForm.controls['name'].value;
     this.homework!.deadLine = this.hwForm.controls['deadLine'].value;
     this.homework!.targetTime = this.hwForm.controls['targetTime'].value;
-    this.tutorDataService.setHomework(this.homework);
   }
 
   submit() {
-    this.saveHomework();
+    this.getFromForm();
     this.pageLoaded = false;
     if (this.homework) {
       this.tutorService.saveHomework(this.homework).pipe(catchError((error: HttpErrorResponse) => {
@@ -113,13 +103,12 @@ export class HwConstructorComponent implements OnInit {
         return throwError(error);
       })).subscribe(id => {
         this.pageLoaded = true;
-        this.tutorDataService.setHomework(null);
         sessionStorage.removeItem("homeworkId");
         clearInterval(this.homeworkUpdate);
-        this.router.navigate([`tutor/${this.tutorId}`], {
-          queryParams: {tab: this.route.snapshot.queryParamMap.get('tab') ?? 2},
-          queryParamsHandling: 'merge'
-        });
+        // this.router.navigate([`tutor/${this.tutorId}`], {
+        //   queryParams: {tab: this.route.snapshot.queryParamMap.get('tab') ?? 2},
+        //   queryParamsHandling: 'merge'
+        // });
       });
     }
   }
@@ -135,36 +124,26 @@ export class HwConstructorComponent implements OnInit {
   }
 
   setChecking(index: number, type: string) {
-    this.homework!.tasksCheckingTypes[index] = type;
+    // if (
+    //
+    // )
+    // this.homework.taskChecking.get(index).checkingType = type;
   }
 
   getChecking(index: number) {
-    return this.homework?.tasksCheckingTypes[index] == 'AUTO' ? 'Авто' :
-      this.homework?.tasksCheckingTypes[index] == 'INSTANCE' ? 'Моментальная' : 'Ручная';
+    // return this.homework?.taskChecking[index].checkingType == 'AUTO' ? 'Авто' :
+    //   this.homework?.taskChecking[index].checkingType == 'INSTANCE' ? 'Моментальная' : 'Ручная';
   }
 
   addPupils() {
-    this.saveHomework();
+    this.getFromForm();
     this.router.navigate([`tutor/${this.tutorId}/constructor/${this.homework?.id}/add/pup`], {
       queryParamsHandling: 'merge'
     });
   }
 
   onDrop(event: CdkDragDrop<Task[]>) {
-    let tasks = this.homework?.tasks;
-    let updatedCheckingMap: {[key: number]: string} = {};
-    if (tasks) {
-      moveItemInArray(tasks, event.previousIndex, event.currentIndex);
-      if (this.homework) {
-        this.homework.tasks = tasks;
-      }
-      if (this.homework?.tasksCheckingTypes) {
-        for (let task of tasks) {
-          updatedCheckingMap[task.id] = <string>this.homework?.tasksCheckingTypes[task.id];
-        }
-        this.homework.tasksCheckingTypes = updatedCheckingMap;
-      }
-    }
+    moveItemInArray(this.homework.taskIds, event.previousIndex, event.currentIndex);
   }
 
   deleteHomework() {
@@ -193,14 +172,11 @@ export class HwConstructorComponent implements OnInit {
     this.state[index] = state;
   }
 
-  savePupils(pupilIds: number[]) {
-
-  }
-
   ngOnDestroy() {
     clearInterval(this.homeworkUpdate);
   }
 
   public readonly Object = Object;
   public readonly checkingTypes = checkingTypes;
+  protected readonly Array = Array;
 }

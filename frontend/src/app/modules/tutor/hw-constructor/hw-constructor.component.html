@@ -10,18 +10,27 @@
       <button class="col-12 mb-3 m-md-2 col-md-auto btn btn-primary" (click)="addTasks()">Выбрать задания</button>
 
       @if (pupils) {
-        <pupils-select-modal 
-            class="p-0 mb-3 m-md-2 col-12 col-md-auto btn btn-primary" 
-            (resultPupilIds)="homework ? homework.pupilIds = $event : homework = null" 
+        <pupils-select-modal
+            class="p-0 mb-3 m-md-2 col-12 col-md-auto btn btn-primary"
+            (resultPupilIds)="homework.pupilIds = $event"
             [currentPupils]="selectedPupils"
             [pupils]="pupils"
         >
         </pupils-select-modal>
       }
 
-      <button class="col-12 mb-3 m-md-2 col-md-auto btn btn-primary" [disabled]="hwForm.invalid" (click)="submit()">Сохранить домашку</button>
+      <button class="col-12 mb-3 m-md-2 col-md-auto btn btn-primary"
+              [disabled]="hwForm.invalid"
+              (click)="submit()"
+      >
+        Сохранить домашку
+      </button>
 
-      <button class="col-12 mb-3 m-md-2 col-md-auto btn btn-primary" (click)="deleteHomework()">Удалить домашку</button>
+      <button class="col-12 mb-3 m-md-2 col-md-auto btn btn-primary"
+              (click)="deleteHomework()"
+      >
+        Удалить домашку
+      </button>
     </div>
 
 
@@ -33,7 +42,9 @@
         </div>
 
         <div class="row mb-3 justify-content-start text-center">
-          <input class="col-12 m-0" [ngClass]="{'is-invalid': hwForm.controls['name'].invalid && hwForm.controls['name'].touched}" formControlName="name" placeholder="Введите название">
+          <input class="col-12 m-0"
+                 [ngClass]="{'is-invalid': hwForm.controls['name'].invalid}"
+                 formControlName="name" placeholder="Введите название">
           <div class="invalid-feedback">Название обязательно</div>
         </div>
       </div>
@@ -44,7 +55,7 @@
         </div>
 
         <div class="row mb-3 justify-content-start text-center">
-          <input type="date" class="m-0" formControlName="deadLine" [value]="homework?.deadLine"/>
+          <input type="date" class="m-0" formControlName="deadLine" [value]="homework.deadLine"/>
           <div class="invalid-feedback col-4">Название обязательно</div>
         </div>
       </div>
@@ -52,20 +63,29 @@
     </form>
 
     <div class="container col-12 mx-auto mt-4" cdkDropList (cdkDropListDropped)="onDrop($event)">
-      <div *ngFor="let task of currentTasks let i = index">
-        <div class="row col-12 m-3" cdkDrag [cdkDragDisabled]="!state[i]">
-          <h3 class="text-end col-1">{{i + 1}}.</h3>
-          <div ngbDropdown class="col-3">
-            <button type="button" class="drop-btn btn-primary drop-btn p-2 col-12" ngbDropdownToggle>
-              {{ getChecking(task.id) }}
-            </button>
-            <div ngbDropdownMenu class="text-center col-12">
-              <button *ngFor="let checkingType of checkingTypes | keyvalue" class="nav-btn col-12" type="button" ngbDropdownItem (click)="setChecking(task.id, checkingType.key)">{{checkingType.value}}</button>
+      @for (taskId of homework.taskIds; track taskId; let i = $index) {
+        @let checking = homework.taskChecking[taskId];
+        @if (checking) {
+          <div class="row col-12 m-3" cdkDragLockAxis="y" cdkDrag [cdkDragDisabled]="!taskCard.isCollapsed">
+            <h3 class="text-end col-1">{{i + 1}}.</h3>
+            <div ngbDropdown class="col-3">
+              <button type="button" class="drop-btn btn-primary drop-btn p-2 col-12" ngbDropdownToggle>
+                {{ checking.checkingType}}
+              </button>
+              <div id="task-{{i}}" ngbDropdownMenu class="text-center col-12">
+                <button *ngFor="let checkingType of checkingTypes | keyvalue"
+                        (click)="checking.checkingType=checkingType.value"
+                        class="nav-btn col-12" type="button"
+                        ngbDropdownItem
+                >
+                  {{checkingType.value}}
+                </button>
+              </div>
             </div>
+            <task-card #taskCard class="col-8" [task]="checking.task"></task-card>
           </div>
-          <task-card (state)="updateDrag($event, i)" class="col-8" [task]="task"></task-card>
-        </div>
-      </div>
+        }
+      }
     </div>
   </div>
 </div>

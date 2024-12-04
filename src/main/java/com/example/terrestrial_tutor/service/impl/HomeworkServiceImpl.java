@@ -42,16 +42,16 @@ public class HomeworkServiceImpl implements HomeworkService {
     static final Logger log =
             LoggerFactory.getLogger(HomeworkServiceImpl.class);
 
-    public HomeworkEntity saveHomework(HomeworkEntity homework, LinkedHashMap<Long, TaskCheckingType> taskCheckingTypes) {
+    public HomeworkEntity saveHomework(HomeworkEntity homework, LinkedHashMap<Long, TaskCheckingDTO> taskCheckingTypes) {
         if (taskCheckingTypes != null) {
             setCheckingTypes(homework, taskCheckingTypes);
         }
         return homeworkRepository.save(homework);
     }
 
-    private void setCheckingTypes(HomeworkEntity homework, LinkedHashMap<Long, TaskCheckingType> taskCheckingTypes) {
-        Map<Long, TaskCheckingEntity> taskCheckingEntities = new HashMap<>();
-        for (Map.Entry<Long, TaskCheckingType> entry : taskCheckingTypes.entrySet()) {
+    private void setCheckingTypes(HomeworkEntity homework, LinkedHashMap<Long, TaskCheckingDTO> taskCheckingTypes) {
+        LinkedHashMap<Long, TaskCheckingEntity> taskCheckingEntities = new LinkedHashMap<>();
+        for (Map.Entry<Long, TaskCheckingDTO> entry : taskCheckingTypes.entrySet()) {
             TaskCheckingEntity taskCheckingEntity;
             if (homework.getTaskCheckingTypes().containsKey(entry.getKey())) {
                 taskCheckingEntity = homework.getTaskCheckingTypes().get(entry.getKey());
@@ -60,7 +60,7 @@ public class HomeworkServiceImpl implements HomeworkService {
                 taskCheckingEntity.setHomework(homework);
                 taskCheckingEntity.setTask(taskService.getTaskById(entry.getKey()));
             }
-            taskCheckingEntity.setCheckingType(entry.getValue());
+            taskCheckingEntity.setCheckingType(entry.getValue().getCheckingType());
             taskCheckingEntities.put(entry.getKey(), taskCheckingEntity);
         }
         homework.setTaskCheckingTypes(taskCheckingEntities);

@@ -1,4 +1,5 @@
 import {Task} from "./Task";
+import {TaskChecking} from "./TaskChecking";
 
 export class Homework {
   [key: string]: any;
@@ -8,7 +9,9 @@ export class Homework {
   pupilIds: number[] = [];
   deadLine?: Date;
   subject: string = '';
-  public tasksCheckingTypes: { [key: number]: string } = {};
-  tasks: Task[] = [];
+  taskChecking: {[key: number]: TaskChecking} = {};
+  taskIds: number[] = [];
+  tasks: Task[];
   lastAttempt: number = 0;
+
 }

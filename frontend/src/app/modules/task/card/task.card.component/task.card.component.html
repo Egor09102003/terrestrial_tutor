@@ -40,7 +40,7 @@
             <div class="answer" *ngIf="task.answerType === 'TABLE'">
                 <task-table table="{{task.answers[0]}}"></task-table>
             </div>
-            
+
             <div class="answer" *ngIf="task.answerType != 'CODE' && task.answerType !== 'TABLE'">{{ task.answers }}</div>
         </div>
         <div class="card-body"><b>Тема 1: </b>{{ task.level1 }}</div>
@@ -48,7 +48,7 @@
         <div class="card-body">
             <b class="row m-0">Картинки: </b>
             <div class="d-inline-block mx-1 mt-1" *ngFor="let image of task.files">
-                <img *ngIf="checkImage(image)" class="mx-auto border-opacity-25 border border-2"
+                <img loading="lazy" *ngIf="checkImage(image)" class="mx-auto border-opacity-25 border border-2"
                         [src]="env.filesPath + image" width="200px" height="auto" alt="">
                 <figcaption *ngIf="checkImage(image)" class="mx-auto text-center" style="
                     width: 200px;

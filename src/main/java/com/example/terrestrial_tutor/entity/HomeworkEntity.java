@@ -2,10 +2,13 @@ package com.example.terrestrial_tutor.entity;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -19,11 +22,19 @@ import java.util.*;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "homeworks", schema = "public")
-public class HomeworkEntity  implements Serializable {
+public class HomeworkEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
     @SequenceGenerator(name = "hibernate_sequence", sequenceName = "hibernate_sequence", allocationSize = 10)
     private Long id;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     @Column(name = "name")
     String name;
@@ -51,7 +62,8 @@ public class HomeworkEntity  implements Serializable {
 
     @OneToMany(mappedBy = "homework", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyColumn(name = "task_id")
-    Map<Long, TaskCheckingEntity> taskCheckingTypes = new HashMap<>();
+    @OrderColumn(name = "order_index")
+    Map<Long, TaskCheckingEntity> taskCheckingTypes = new LinkedHashMap<>();
 
     LocalDate deadLine;
 

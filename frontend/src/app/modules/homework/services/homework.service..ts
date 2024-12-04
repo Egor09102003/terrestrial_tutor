@@ -1,8 +1,10 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import {map, Observable} from "rxjs";
 import { HomeworkAnswers } from "src/app/models/HomeworkAnswers";
 import { EnvironmentService } from "src/environments/environment.service";
+import {TaskChecking} from "../../../models/TaskChecking";
+import {Homework} from "../../../models/Homework";
 
 @Injectable({
   providedIn: 'root'

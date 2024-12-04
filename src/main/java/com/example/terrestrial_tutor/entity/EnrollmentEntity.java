@@ -23,13 +23,20 @@ import java.sql.Timestamp;
 @Table(name = "enrollments", schema = "public", uniqueConstraints = {
         @UniqueConstraint(name = "uniq_record", columnNames = {"tutor", "pupil", "subject"})
 })
-public class EnrollmentEntity  implements Serializable {
+public class EnrollmentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "enrollments_sequence")
     @SequenceGenerator(name = "enrollments_sequence", sequenceName = "enrollments_sequence", allocationSize = 10)
     @Column(columnDefinition = "serial")
     private Long id;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     @NonNull
     @ManyToOne

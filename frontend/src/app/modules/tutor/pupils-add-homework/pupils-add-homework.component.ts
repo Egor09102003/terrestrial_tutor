@@ -5,7 +5,6 @@ import {PupilSelect} from "../../../models/PupilSelect";
 import {Homework} from "../../../models/Homework";
 import {ActivatedRoute, Router} from "@angular/router";
 import {UntypedFormControl} from "@angular/forms";
-import {TutorDataService} from "../storage/tutor.data.service";
 import {TutorService} from "../services/tutor.service";
 
 @Component({
@@ -16,7 +15,6 @@ import {TutorService} from "../services/tutor.service";
 export class PupilsAddHomeworkComponent implements OnInit {
 
   constructor(private pupilService: PupilService,
-              private tutorDataService: TutorDataService,
               private router: Router,
               private tutorService: TutorService,
               private route: ActivatedRoute,
@@ -30,7 +28,6 @@ export class PupilsAddHomeworkComponent implements OnInit {
   filter = new UntypedFormControl('');
 
   ngOnInit(): void {
-    this.homework = this.tutorDataService.getHomework();
     this.currentPupils = this.homework?.pupilIds;
     this.tutorService.getHomework(this.route.snapshot.paramMap.get('hwId')).subscribe(homework => {
       this.homework = homework;

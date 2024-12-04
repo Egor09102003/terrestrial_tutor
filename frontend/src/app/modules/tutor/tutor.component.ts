@@ -1,9 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {TutorService} from "./services/tutor.service";
 import {ActivatedRoute, Router} from "@angular/router";
-import {dataService} from "./services/data.service";
 import {Homework} from "../../models/Homework";
-import {TutorDataService} from "./storage/tutor.data.service";
 import { homeworkProps } from 'src/app/models/HomeworkProps';
 
 @Component({
@@ -15,8 +13,6 @@ export class TutorComponent implements OnInit {
 
   constructor(private tutorService: TutorService,
               private router: Router,
-              private dataService: dataService,
-              private tutorDataService: TutorDataService,
               private route: ActivatedRoute,
               ) { }
 
@@ -58,7 +54,6 @@ export class TutorComponent implements OnInit {
   }
 
   addPupils(homework: Homework) {
-    this.tutorDataService.setHomework(homework);
     sessionStorage.setItem('homeworkId', String(homework.id));
     sessionStorage.setItem('pid', '1');
     this.router.navigate([`tutor/${this.tutorId}/constructor/${homework.id}`]);

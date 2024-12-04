@@ -9,7 +9,7 @@ import {PupilComponent} from "./modules/pupil/pupil.component";
 import {authInterceptorProviders} from "./modules/auth/helper/auth-interceptor.service";
 import {AdminComponent} from "./modules/admin/admin.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {SubjectsComponent} from './modules/subjects/subjects.component';
 import {NgbAccordionModule, NgbAlertModule, NgbModule} from "@ng-bootstrap/ng-bootstrap";
@@ -20,9 +20,6 @@ import { TutorComponent } from './modules/tutor/tutor.component';
 import { HwConstructorComponent } from './modules/tutor/hw-constructor/hw-constructor.component';
 import { BrowseNotificationsComponent } from './modules/modals/browse-notifications.component';
 import { PupilsAddHomeworkComponent } from './modules/tutor/pupils-add-homework/pupils-add-homework.component';
-import {provideStore} from "@ngrx/store";
-import {homeworkFeature} from "./modules/tutor/storage/homework.reducer";
-import {provideStoreDevtools} from "@ngrx/store-devtools";
 import {TaskChoiceComponent} from "./modules/tutor/task-choise/task-choice.component";
 import { HomeworksListComponent } from './modules/pupil/homeworks.list/homeworks.list.component';
 import { HomeworksDisplayingComponent } from './modules/pupil/homeworks.displaying/homeworks.displaying.component';
@@ -44,68 +41,52 @@ import { HomeworkTutorsSetModalComponent } from './modules/admin/homework.tutors
 import { PupilsSelectModalComponent } from './modules/pupil/pupils.select.modal/pupils.select.modal.component';
 import { TaskFilterComponent } from './modules/task/task-filter/task-filter.component';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    AdminComponent,
-    LoginComponent,
-    RegistrationComponent,
-    PupilComponent,
-    PupilHomeworkStatisticComponent,
-    HomeworksListComponent,
-    HomeworksDisplayingComponent,
-    SubjectsComponent,
-    SupportComponent,
-    TaskComponent,
-    TutorComponent,
-    HwConstructorComponent,
-    TaskChoiceComponent,
-    BrowseNotificationsComponent,
-    PupilsAddHomeworkComponent,
-    TaskCardComponent,
-    HomeworkComponent,
-    StatisticContainerComponent,
-    CheckTaskCardComponent,
-    PupilsModalComponent,
-    CheckHomeworksComponent,
-    HomeworkTutorsSetModalComponent,
-    PupilsSelectModalComponent,
-    TaskFilterComponent,
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    FormsModule,
-    NgbAlertModule,
-    NgbModule,
-    CodemirrorModule,
-    NgOptimizedImage,
-    CdkDropList,
-    CdkDrag,
-    LightboxModule,
-    TaskTableComponent,
-    TablesConstructorComponent,
-    CKEditorModule,
-    NgbAccordionModule,
-  ],
-  providers: [
-    authInterceptorProviders,
-    provideStore( {
-      [homeworkFeature.name]: homeworkFeature.reducer,
-    }),
-    provideStoreDevtools({
-      maxAge: 25,
-      logOnly: false,
-      autoPause: true,
-      trace: false,
-      traceLimit: 75
-    }),
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
-  ],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        AdminComponent,
+        LoginComponent,
+        RegistrationComponent,
+        PupilComponent,
+        PupilHomeworkStatisticComponent,
+        HomeworksListComponent,
+        HomeworksDisplayingComponent,
+        SubjectsComponent,
+        SupportComponent,
+        TaskComponent,
+        TutorComponent,
+        HwConstructorComponent,
+        TaskChoiceComponent,
+        BrowseNotificationsComponent,
+        PupilsAddHomeworkComponent,
+        TaskCardComponent,
+        HomeworkComponent,
+        StatisticContainerComponent,
+        CheckTaskCardComponent,
+        PupilsModalComponent,
+        CheckHomeworksComponent,
+        HomeworkTutorsSetModalComponent,
+        PupilsSelectModalComponent,
+        TaskFilterComponent,
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        ReactiveFormsModule,
+        FormsModule,
+        NgbAlertModule,
+        NgbModule,
+        CodemirrorModule,
+        NgOptimizedImage,
+        CdkDropList,
+        CdkDrag,
+        LightboxModule,
+        TaskTableComponent,
+        TablesConstructorComponent,
+        CKEditorModule,
+        NgbAccordionModule], providers: [
+        authInterceptorProviders,
+        { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule {
 }

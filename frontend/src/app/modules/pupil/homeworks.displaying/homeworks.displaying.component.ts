@@ -41,7 +41,7 @@ export class HomeworksDisplayingComponent implements OnInit {
       });
       window.addEventListener('beforeunload', this.prevent);
   }
-  
+
   prevent(event: Event) {
     event.preventDefault();
   }
@@ -136,9 +136,9 @@ export class HomeworksDisplayingComponent implements OnInit {
   }
 
   checkChecking(taskId: number) {
-    if (this.homework?.tasksCheckingTypes[taskId]) {
-      return this.homework?.tasksCheckingTypes[taskId] == 'INSTANCE';
-    }
+    // if (this.homework?.taskChecking[taskId]) {
+    //   return this.homework?.taskChecking[taskId].checkingType == 'INSTANCE';
+    // }
     return false;
   }
 
