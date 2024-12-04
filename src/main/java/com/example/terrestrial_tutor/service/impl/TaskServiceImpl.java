@@ -195,10 +195,12 @@ public class TaskServiceImpl implements TaskService {
         List<TaskEntity> tasks = taskRepository.findAllById(taskIds);
         LinkedList<TaskEntity> sortedTasks = new LinkedList<>();
         for (Long taskId : taskIds) {
-            sortedTasks.add(tasks
+            TaskEntity task = tasks
                 .stream()
-                .filter(task -> task.getId().equals(taskId)).findFirst().get()
-            );
+                .filter(taskEntity -> taskEntity.getId().equals(taskId)).findFirst().orElse(null);
+            if (task != null) {
+                sortedTasks.add(task);
+            }
         }
         return sortedTasks;
     }
