@@ -1,11 +1,9 @@
-import { Component, EventEmitter, Input, Output, ViewChild, ViewEncapsulation } from '@angular/core';
-import { UntypedFormControl } from '@angular/forms';
+import {Component, EventEmitter, Input, Output, ViewChild, ViewEncapsulation} from '@angular/core';
+import {UntypedFormControl} from '@angular/forms';
 import {CodemirrorComponent} from "@ctrl/ngx-codemirror";
-import { TaskSelect } from 'src/app/models/TaskSelect';
 import {Task} from "../../../../models/Task";
-import { answerTypes } from 'src/app/models/AnswerTypes';
-import { EnvironmentService } from 'src/environments/environment.service';
-import { ReturnStatement } from '@angular/compiler';
+import {answerTypes} from 'src/app/models/AnswerTypes';
+import {EnvironmentService} from 'src/environments/environment.service';
 
 @Component({
     selector: 'task-card',
@@ -33,9 +31,12 @@ export class TaskCardComponent {
     }
 
     checkImage(file: string): boolean {
-        return file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.jpeg');
+      let fileExt = file.substring(file.lastIndexOf('.') + 1).toLowerCase();
+      return fileExt === 'png'
+        || fileExt === 'jpg'
+        || fileExt === 'svg';
     }
-    
+
     codemirrorInit() {
         if (this.codemirror != undefined) {
             this.codemirror.codeMirror?.refresh();

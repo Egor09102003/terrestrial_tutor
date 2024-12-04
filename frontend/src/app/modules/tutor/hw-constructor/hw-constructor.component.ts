@@ -8,13 +8,12 @@ import {Task} from "../../../models/Task";
 import {CodemirrorComponent} from "@ctrl/ngx-codemirror";
 import {throwError} from "rxjs";
 import {TutorDataService} from "../storage/tutor.data.service";
-import {CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray} from "@angular/cdk/drag-drop";
+import {CdkDragDrop, CdkDropList, moveItemInArray} from "@angular/cdk/drag-drop";
 import {catchError} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
 import {checkingTypes} from "../../../models/CheckingTypes";
-import { TaskCardComponent } from '../../task/card/task.card.component/task.card.component';
-import { waitForAsync } from '@angular/core/testing';
-import { Pupil } from 'src/app/models/Pupil';
+import {TaskCardComponent} from '../../task/card/task.card.component/task.card.component';
+import {Pupil} from 'src/app/models/Pupil';
 
 @Component({
   selector: 'app-hw-constructor',
@@ -123,7 +122,10 @@ export class HwConstructorComponent implements OnInit {
   }
 
   checkImage(file: string): boolean {
-    return file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.jpeg');
+    let fileExt = file.substring(file.lastIndexOf('.') + 1).toLowerCase();
+    return fileExt === 'png'
+      || fileExt === 'jpg'
+      || fileExt === 'svg';
   }
 
   codemirrorInit() {
@@ -173,7 +175,7 @@ export class HwConstructorComponent implements OnInit {
         queryParamsHandling: 'merge'
       });
     });
-    
+
   }
 
   checkCollapse(i: number) {

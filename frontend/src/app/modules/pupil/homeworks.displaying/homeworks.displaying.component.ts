@@ -41,7 +41,7 @@ export class HomeworksDisplayingComponent implements OnInit {
       });
       window.addEventListener('beforeunload', this.prevent);
   }
-  
+
   prevent(event: Event) {
     event.preventDefault();
   }
@@ -100,7 +100,10 @@ export class HomeworksDisplayingComponent implements OnInit {
   }
 
   checkImage(file: string): boolean {
-    return file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.jpeg');
+    let fileExt = file.substring(file.lastIndexOf('.') + 1).toLowerCase();
+    return fileExt === 'png'
+      || fileExt === 'jpg'
+      || fileExt === 'svg';
   }
 
   momentCheck(task: Task) {

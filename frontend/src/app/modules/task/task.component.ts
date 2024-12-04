@@ -260,7 +260,7 @@ export class TaskComponent implements OnInit {
   }
 
   isImage(file: string) {
-    let fileExt = file.substring(file.lastIndexOf('.') + 1);
+    let fileExt = file.substring(file.lastIndexOf('.') + 1).toLowerCase();
     return fileExt === 'png'
       || fileExt === 'jpg'
       || fileExt === 'svg';
