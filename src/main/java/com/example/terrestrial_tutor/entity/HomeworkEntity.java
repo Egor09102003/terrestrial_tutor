@@ -6,7 +6,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -62,7 +61,7 @@ public class HomeworkEntity {
 
     @OneToMany(mappedBy = "homework", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyColumn(name = "task_id")
-    @OrderColumn(name = "order_index")
+    @OrderBy("orderIndex ASC")
     Map<Long, TaskCheckingEntity> taskCheckingTypes = new LinkedHashMap<>();
 
     LocalDate deadLine;

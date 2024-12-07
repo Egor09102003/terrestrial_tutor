@@ -11,6 +11,6 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @RequestMapping(value = "/api")
-@CrossOrigin
+@CrossOrigin(originPatterns = "**terrestrial-tutor**")
 public @interface Api {
 }

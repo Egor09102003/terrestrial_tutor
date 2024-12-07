@@ -3,17 +3,14 @@ package com.example.terrestrial_tutor.service.impl;
 import com.example.terrestrial_tutor.dto.TaskCheckingDTO;
 import com.example.terrestrial_tutor.entity.*;
 import com.example.terrestrial_tutor.entity.enums.ERole;
-import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
-import com.example.terrestrial_tutor.repository.*;
+import com.example.terrestrial_tutor.repository.HomeworkRepository;
 import com.example.terrestrial_tutor.service.*;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
@@ -51,6 +48,7 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     private void setCheckingTypes(HomeworkEntity homework, LinkedHashMap<Long, TaskCheckingDTO> taskCheckingTypes) {
         LinkedHashMap<Long, TaskCheckingEntity> taskCheckingEntities = new LinkedHashMap<>();
+        Integer i = 0;
         for (Map.Entry<Long, TaskCheckingDTO> entry : taskCheckingTypes.entrySet()) {
             TaskCheckingEntity taskCheckingEntity;
             if (homework.getTaskCheckingTypes().containsKey(entry.getKey())) {
@@ -61,7 +59,9 @@ public class HomeworkServiceImpl implements HomeworkService {
                 taskCheckingEntity.setTask(taskService.getTaskById(entry.getKey()));
             }
             taskCheckingEntity.setCheckingType(entry.getValue().getCheckingType());
+            taskCheckingEntity.setOrderIndex(i);
             taskCheckingEntities.put(entry.getKey(), taskCheckingEntity);
+            i++;
         }
         homework.setTaskCheckingTypes(taskCheckingEntities);
     }

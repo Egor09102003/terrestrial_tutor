@@ -1,20 +1,17 @@
 package com.example.terrestrial_tutor.entity;
 
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
-
-import javax.persistence.*;
-
 import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.io.Serializable;
-import java.sql.Timestamp;
+import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.sql.Timestamp;
 /**
  * Сущность ответа ученика на задание
  */
@@ -50,5 +47,7 @@ public class TaskCheckingEntity {
     @Column(name = "checking_type")
     TaskCheckingType checkingType = TaskCheckingType.INSTANCE;
 
-    
+    @Column(name = "order_index")
+    Integer orderIndex;
+
 }
