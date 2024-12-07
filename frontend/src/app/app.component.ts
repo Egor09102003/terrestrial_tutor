@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewEncapsulation} from '@angular/core';
 import {Router} from "@angular/router";
 import {TokenStorageService} from "./security/token-storage.service";
+import {ToastService} from "./components/toasts/toasts.service";
 
 @Component({
   selector: 'app-root',
@@ -10,8 +11,11 @@ import {TokenStorageService} from "./security/token-storage.service";
 })
 export class AppComponent implements OnInit{
 
-  constructor(private router: Router,
-              private tokenService: TokenStorageService,) {
+  constructor(
+    private router: Router,
+    private tokenService: TokenStorageService,
+    protected toastService: ToastService,
+  ) {
   }
 
   user: {[key: string]: string} | null = {};

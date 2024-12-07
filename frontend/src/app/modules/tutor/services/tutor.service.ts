@@ -1,9 +1,8 @@
-import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders, HttpRequest} from "@angular/common/http";
+import {Injectable} from '@angular/core';
+import {HttpClient} from "@angular/common/http";
 import {EnvironmentService} from "../../../../environments/environment.service";
 import {Observable} from "rxjs";
 import {Homework} from "../../../models/Homework";
-import {RequestHomework} from "../../../models/RequestHomework";
 import {Subject} from "../../../models/Subject";
 
 @Injectable({
@@ -20,10 +19,6 @@ export class TutorService {
 
   getTutorSubjects(): Observable<any> {
     return this.http.get(this.TUTOR_API + 'subjects');
-  }
-
-  saveHomework(homework: Homework | null): Observable<any> {
-    return this.http.post(this.HOMEWORK_API + 'save', homework);
   }
 
   createHomework(subject: Subject): Observable<any> {

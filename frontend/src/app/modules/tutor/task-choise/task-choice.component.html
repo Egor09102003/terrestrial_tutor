@@ -1,20 +1,20 @@
 
 <button class="row m-3 col-2 btn btn-primary" (click)="submit()">Сохранить</button>
 <div class="row m-1"></div>
-<!--<div class="col-12 sticky-top bg-dark row mx-0 m-2">-->
-<!--  <task-filter [bannedFilters]="['subject']" [initialFilters]="{subject: subject}" class="col-12" [page]="page" (total)="maxSize=$event" (tasks)="tasks=$event"></task-filter>-->
-<!--</div>-->
+<div class="col-12 sticky-top bg-dark row mx-0 m-2">
+  <task-filter [bannedFilters]="['subject']" [initialFilters]="{subject: subject}" class="col-12" [page]="page" (total)="maxSize=$event" (tasks)="tasks=$event"></task-filter>
+</div>
 <!--    <button type="button" class="btn btn-primary m-2 col-10" (click)="search()">Найти</button>-->
-<!--<div *ngFor="let task of tasks let i = index">-->
-<!--  <div class="row col-12 mb-2">-->
-<!--    <div class="col-1 checkbox">-->
-<!--      <input class="mx-auto" style="transform:scale(2);" (click)="select($event, task)" type="checkbox" [checked]="selectedTasks[task.id]" />-->
-<!--    </div>-->
-<!--    -->
-<!--    <task-card class="col-11" [task]="task"></task-card>-->
-<!--  </div>-->
-<!--  -->
-<!--</div>-->
+<div *ngFor="let task of tasks let i = index">
+  <div class="row col-12 mb-2">
+    <div class="col-1 checkbox">
+      <input class="mx-auto" style="transform:scale(2);" (click)="select($event, task)" type="checkbox" [checked]="selectedTasks[task.id]" />
+    </div>
+
+    <task-card class="col-11" [task]="task"></task-card>
+  </div>
+
+</div>
 
 <div class="row mt-2 mx-0">
   <ngb-pagination class="mx-auto col-auto" [maxSize]="3" [(page)]="page" [pageSize]="pageSize" [collectionSize]="maxSize" [boundaryLinks]="true" />

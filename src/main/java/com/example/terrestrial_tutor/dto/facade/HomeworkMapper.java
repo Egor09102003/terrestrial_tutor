@@ -21,10 +21,6 @@ import java.util.*;
 public class HomeworkMapper {
 
     @NonNull
-    SubjectService subjectService;
-    @NonNull
-    PupilService pupilService;
-    @NonNull
     TaskCheckingMapper taskCheckingMapper;
     @NonNull
     HomeworkService homeworkService;
@@ -52,7 +48,6 @@ public class HomeworkMapper {
             TaskCheckingDTO taskCheckingDTO = taskCheckingMapper.toTaskCheckingDTO(entry.getValue(), withAnswers);
             taskCheckingDTOMap.put(entry.getKey(), taskCheckingDTO);
         }
-        homeworkDTO.setTaskIds(new LinkedList<>(homework.getTaskCheckingTypes().keySet()));
         homeworkDTO.setTaskChecking(taskCheckingDTOMap);
         homeworkDTO.setCreatedAt(homework.getCreatedAt());
         return homeworkDTO;

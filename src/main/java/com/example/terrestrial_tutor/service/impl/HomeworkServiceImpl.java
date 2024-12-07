@@ -48,7 +48,6 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     private void setCheckingTypes(HomeworkEntity homework, LinkedHashMap<Long, TaskCheckingDTO> taskCheckingTypes) {
         LinkedHashMap<Long, TaskCheckingEntity> taskCheckingEntities = new LinkedHashMap<>();
-        Integer i = 0;
         for (Map.Entry<Long, TaskCheckingDTO> entry : taskCheckingTypes.entrySet()) {
             TaskCheckingEntity taskCheckingEntity;
             if (homework.getTaskCheckingTypes().containsKey(entry.getKey())) {
@@ -59,9 +58,8 @@ public class HomeworkServiceImpl implements HomeworkService {
                 taskCheckingEntity.setTask(taskService.getTaskById(entry.getKey()));
             }
             taskCheckingEntity.setCheckingType(entry.getValue().getCheckingType());
-            taskCheckingEntity.setOrderIndex(i);
+            taskCheckingEntity.setOrderIndex(entry.getValue().getOrderIndex());
             taskCheckingEntities.put(entry.getKey(), taskCheckingEntity);
-            i++;
         }
         homework.setTaskCheckingTypes(taskCheckingEntities);
     }

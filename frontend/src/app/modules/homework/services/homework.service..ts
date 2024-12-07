@@ -1,9 +1,8 @@
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import {map, Observable} from "rxjs";
-import { HomeworkAnswers } from "src/app/models/HomeworkAnswers";
-import { EnvironmentService } from "src/environments/environment.service";
-import {TaskChecking} from "../../../models/TaskChecking";
+import {HttpClient} from "@angular/common/http";
+import {Injectable} from "@angular/core";
+import {Observable} from "rxjs";
+import {HomeworkAnswers} from "src/app/models/HomeworkAnswers";
+import {EnvironmentService} from "src/environments/environment.service";
 import {Homework} from "../../../models/Homework";
 
 @Injectable({
@@ -25,7 +24,7 @@ export class HomeworkService {
     return this.http.get(this.HOMEWORK_API + `pupil/${hwId}`);
   }
 
-  public saveHomework(answers: {[key: number]: string}, hwId: number) {
+  public saveHomeworkAnswers(answers: {[key: number]: string}, hwId: number) {
     return this.http.put(this.HOMEWORK_API + `save/${hwId}`, answers);
   }
 
@@ -79,5 +78,9 @@ export class HomeworkService {
 
   public addHomeworkTutors(homeworkId: number, tutorIds: number[]) {
     return this.http.patch(this.HOMEWORK_API + `${homeworkId}/set/tutors`, tutorIds);
+  }
+
+  saveHomework(homework: Homework | null): Observable<any> {
+    return this.http.post(this.HOMEWORK_API + 'save', homework);
   }
 }

@@ -13,4 +13,5 @@ public class TaskCheckingDTO {
     TaskDTO task;
     TaskCheckingType checkingType;
     Long homework;
+    Integer orderIndex;
 }

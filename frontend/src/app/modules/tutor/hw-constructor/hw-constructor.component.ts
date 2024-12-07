@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {TutorService} from "../services/tutor.service";
 import {Homework} from "../../../models/Homework";
@@ -12,8 +12,8 @@ import {HttpErrorResponse} from "@angular/common/http";
 import {checkingTypes} from "../../../models/CheckingTypes";
 import {TaskCardComponent} from '../../task/card/task.card.component/task.card.component';
 import {Pupil} from 'src/app/models/Pupil';
-import {TaskChecking} from "../../../models/TaskChecking";
 import {HomeworkService} from "../../homework/services/homework.service.";
+import {ToastService} from "../../../components/toasts/toasts.service";
 
 @Component({
   selector: 'app-hw-constructor',
@@ -31,16 +31,15 @@ export class HwConstructorComponent implements OnInit {
               private fb: UntypedFormBuilder,
               private route: ActivatedRoute,
               private homeworkService: HomeworkService,
-              private cdr: ChangeDetectorRef
-              ) { }
+              private toastService: ToastService
+              ) {
+  }
 
   homework: Homework;
   hwForm: UntypedFormGroup;
-  currentTasks: number[] = [];
+  taskIds: number[] = [];
   pageLoaded: boolean = false;
-  errorMessage = "";
   tutorId: number|null = null;
-  state: boolean[] = [];
   homeworkUpdate: any;
   pupils: Pupil[] = [];
   selectedPupils: Pupil[] = [];
@@ -50,23 +49,19 @@ export class HwConstructorComponent implements OnInit {
     this.tutorId = Number(this.route.snapshot.paramMap.get('id'));
     this.homeworkService.getHomeworkById(hwId).subscribe(homework => {
       this.homework = homework;
+
+      this.taskIds = Object.values(this.homework.taskChecking).sort(
+        (checking1, checking2) =>
+          checking1.orderIndex > checking2.orderIndex ? 1 : -1
+      ).map((checking) => checking.task.id);
+
       this.tutorService.getAllCurrentPupils(this.homework.subject ?? '', this.tutorId ?? -1).subscribe(pupils => {
           this.pupils = pupils
           this.selectedPupils = this.pupils.filter(pupil => homework.pupilIds.indexOf(pupil.id) !== -1) ?? [];
         }
       )
-      this.initFields();
       this.initForm();
     });
-
-    /*this.homeworkUpdate = setInterval(() => {
-      this.saveHomework();
-      this.tutorService.saveHomework(this.homework).subscribe();
-    }, 10000);*/
-  }
-
-  initFields() {
-    // this.currentTasks = Array.from(this.homework.taskChecking.keys());
   }
 
   initForm(): void {
@@ -97,53 +92,38 @@ export class HwConstructorComponent implements OnInit {
     this.getFromForm();
     this.pageLoaded = false;
     if (this.homework) {
-      this.tutorService.saveHomework(this.homework).pipe(catchError((error: HttpErrorResponse) => {
-        this.errorMessage = "Ошибка при создании задания";
+      this.homeworkService.saveHomework(this.homework).pipe(catchError((error: HttpErrorResponse) => {
         this.pageLoaded = true;
-        return throwError(error);
+        this.toastService.show({
+          message: "Ошибка при сохранении",
+          classname: "bg-danger",
+          delay: 5000
+        });
+        return throwError(() => error);
       })).subscribe(id => {
         this.pageLoaded = true;
-        sessionStorage.removeItem("homeworkId");
-        clearInterval(this.homeworkUpdate);
-        // this.router.navigate([`tutor/${this.tutorId}`], {
-        //   queryParams: {tab: this.route.snapshot.queryParamMap.get('tab') ?? 2},
-        //   queryParamsHandling: 'merge'
-        // });
+      });
+      this.toastService.show({
+        message: "Домашнее задание сохранено",
+        classname: "bg-success",
+        delay: 5000
       });
     }
   }
 
-  checkImage(file: string): boolean {
-    return file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.jpeg');
-  }
-
-  codemirrorInit() {
-    if (this.codemirror != undefined) {
-      this.codemirror.codeMirror?.refresh();
-    }
-  }
-
-  setChecking(index: number, type: string) {
-    // if (
-    //
-    // )
-    // this.homework.taskChecking.get(index).checkingType = type;
-  }
-
-  getChecking(index: number) {
-    // return this.homework?.taskChecking[index].checkingType == 'AUTO' ? 'Авто' :
-    //   this.homework?.taskChecking[index].checkingType == 'INSTANCE' ? 'Моментальная' : 'Ручная';
-  }
-
-  addPupils() {
-    this.getFromForm();
-    this.router.navigate([`tutor/${this.tutorId}/constructor/${this.homework?.id}/add/pup`], {
+  cancel() {
+    clearInterval(this.homeworkUpdate);
+    this.router.navigate([`tutor/${this.tutorId}`], {
+      queryParams: {tab: this.route.snapshot.queryParamMap.get('tab') ?? 2},
       queryParamsHandling: 'merge'
     });
   }
 
   onDrop(event: CdkDragDrop<Task[]>) {
-    moveItemInArray(this.homework.taskIds, event.previousIndex, event.currentIndex);
+    moveItemInArray(this.taskIds, event.previousIndex, event.currentIndex);
+    for (let i in this.taskIds) {
+      this.homework.taskChecking[this.taskIds[i]].orderIndex = Number(i);
+    }
   }
 
   deleteHomework() {
@@ -153,29 +133,14 @@ export class HwConstructorComponent implements OnInit {
         queryParams: {tab: this.route.snapshot.queryParamMap.get('tab') ?? 2},
         queryParamsHandling: 'merge'
       });
+      this.toastService.show({
+        message: "Домашнее задание удалено",
+        classname: "bg-success",
+        delay: 5000
+      });
     });
 
   }
-
-  checkCollapse(i: number) {
-    let currentDrag = this.cdkDrag.get(i)?.nativeElement;
-    if (!this.taskCollapse.get(i)?.isCollapsed) {
-      if (currentDrag?.draggable) {
-        currentDrag.draggable = false;
-      }
-    } else {
-      currentDrag.draggable = true;
-    }
-  }
-
-  updateDrag(state: boolean, index: number) {
-    this.state[index] = state;
-  }
-
-  ngOnDestroy() {
-    clearInterval(this.homeworkUpdate);
-  }
-
   public readonly Object = Object;
   public readonly checkingTypes = checkingTypes;
   protected readonly Array = Array;

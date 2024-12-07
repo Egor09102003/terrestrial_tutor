@@ -1,15 +1,9 @@
 import {Task} from "./Task";
 
-export class TaskChecking implements Iterator<any> {
+export class TaskChecking {
   id: number;
   homework: number;
   checkingType: string;
-  task: Task
-
-  next(): IteratorResult<Task> {
-    return {
-      done: true,
-      value: this
-    }
-  }
+  task: Task;
+  orderIndex: number;
 }

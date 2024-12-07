@@ -1,11 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import {PupilService} from "../../pupil/services/pupil.service";
+import {Component, OnInit} from '@angular/core';
 import {Pupil} from "../../../models/Pupil";
 import {PupilSelect} from "../../../models/PupilSelect";
 import {Homework} from "../../../models/Homework";
 import {ActivatedRoute, Router} from "@angular/router";
 import {UntypedFormControl} from "@angular/forms";
-import {TutorService} from "../services/tutor.service";
+import {HomeworkService} from "../../homework/services/homework.service.";
 
 @Component({
   selector: 'app-pupils-add-homework',
@@ -14,9 +13,9 @@ import {TutorService} from "../services/tutor.service";
 })
 export class PupilsAddHomeworkComponent implements OnInit {
 
-  constructor(private pupilService: PupilService,
+  constructor(
               private router: Router,
-              private tutorService: TutorService,
+              private homeworkService: HomeworkService,
               private route: ActivatedRoute,
               ) { }
 
@@ -29,16 +28,19 @@ export class PupilsAddHomeworkComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentPupils = this.homework?.pupilIds;
-    this.tutorService.getHomework(this.route.snapshot.paramMap.get('hwId')).subscribe(homework => {
-      this.homework = homework;
-      this.currentPupils = this.homework?.pupilIds;
-      /*this.tutorService.getAllCurrentPupils(this.homework?.subject ?? '').subscribe(pupils => {
-        this.fillPupils(pupils);
-      })*/
-    });
-    this.filter.valueChanges.subscribe((text) => {
-      this.search(text);
-    });
+    let hwId = this.route.snapshot.paramMap.get('hwId');
+    if (hwId) {
+      this.homeworkService.getHomeworkById(Number(hwId)).subscribe(homework => {
+        this.homework = homework;
+        this.currentPupils = this.homework?.pupilIds;
+        /*this.tutorService.getAllCurrentPupils(this.homework?.subject ?? '').subscribe(pupils => {
+          this.fillPupils(pupils);
+        })*/
+      });
+      this.filter.valueChanges.subscribe((text) => {
+        this.search(text);
+      });
+    }
   }
 
   fillPupils(pupils: Pupil[]) {
@@ -82,7 +84,7 @@ export class PupilsAddHomeworkComponent implements OnInit {
     this.pageLoaded = false
     if (this.homework) {
       this.homework.pupilIds = this.getSelectedPupilsIds();
-      this.tutorService.saveHomework(this.homework).subscribe(() => {
+      this.homeworkService.saveHomework(this.homework).subscribe(() => {
         let tutorId = this.route.snapshot.paramMap.get('id');
         this.pageLoaded = true;
         this.router.navigate([`tutor/${tutorId}/constructor/${this.homework?.id}`], {

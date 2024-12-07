@@ -3,7 +3,9 @@ package com.example.terrestrial_tutor.entity;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -18,22 +20,23 @@ import java.util.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "homeworks", schema = "public")
+@SQLDelete(sql = "update homeworks set deleted=true where id=?")
+@Where(clause = "deleted = false")
 public class HomeworkEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
     @SequenceGenerator(name = "hibernate_sequence", sequenceName = "hibernate_sequence", allocationSize = 10)
-    private Long id;
+    Long id;
 
     @CreationTimestamp
     @Column(updatable = false)
-    private LocalDateTime createdAt;
+    LocalDateTime createdAt;
 
     @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    LocalDateTime updatedAt;
 
     @Column(name = "name")
     String name;
@@ -65,6 +68,9 @@ public class HomeworkEntity {
     Map<Long, TaskCheckingEntity> taskCheckingTypes = new LinkedHashMap<>();
 
     LocalDate deadLine;
+
+    @Column(name = "deleted", nullable = false)
+    private Boolean deleted = false;
 
     public List<TaskEntity> getTasks() {
         return this.taskCheckingTypes.values().stream()

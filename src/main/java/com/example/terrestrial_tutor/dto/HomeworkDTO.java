@@ -1,12 +1,13 @@
 package com.example.terrestrial_tutor.dto;
 
-import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Класс DTO дз
@@ -22,5 +23,4 @@ public class HomeworkDTO {
     LocalDate deadLine;
     String subject;
     LocalDateTime createdAt;
-    LinkedList<Long> taskIds = new LinkedList<>();
 }

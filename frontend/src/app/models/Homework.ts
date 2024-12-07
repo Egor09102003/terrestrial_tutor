@@ -10,7 +10,6 @@ export class Homework {
   deadLine?: Date;
   subject: string = '';
   taskChecking: {[key: number]: TaskChecking} = {};
-  taskIds: number[] = [];
   tasks: Task[];
   lastAttempt: number = 0;
 
