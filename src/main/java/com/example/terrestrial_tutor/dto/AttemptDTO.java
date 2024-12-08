@@ -4,7 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
 
@@ -22,5 +24,5 @@ public class AttemptDTO {
     Integer attemptNumber;
     HomeworkStatus status;
     Long solutionDate;
-    List<AnswerDTO> answers = new ArrayList<>();
+    Map<Long, AnswerDTO> answers = new HashMap<>();
 }

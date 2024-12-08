@@ -3,7 +3,7 @@ import {Task} from "../../../models/Task";
 import {CodemirrorComponent} from "@ctrl/ngx-codemirror";
 import {ActivatedRoute, Router} from "@angular/router";
 import {Homework} from "../../../models/Homework";
-import {answerTypes} from "../../../models/AnswerTypes";
+import {answerTypes} from "../../../models/enums/AnswerTypes";
 import {HomeworkService} from "../../homework/services/homework.service.";
 import {TaskChecking} from "../../../models/TaskChecking";
 

@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, SimpleChange } from '@angular/core';
-import { TaskFilters } from 'src/app/models/TaskFilters';
+import { TaskFilters } from 'src/app/models/enums/TaskFilters';
 import {Task} from "../../../models/Task";
 import { TaskService } from '../services/task.service';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -38,7 +38,7 @@ export class TaskFilterComponent {
     this.filters = this.initialFilters;
     for (let filter of Object.keys(this.taskFilters)) {
       this.filterForm.addControl(
-        filter, 
+        filter,
         new FormControl(this.filters[filter] ?? '')
       )
     }

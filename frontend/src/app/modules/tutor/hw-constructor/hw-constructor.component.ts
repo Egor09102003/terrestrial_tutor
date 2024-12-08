@@ -9,7 +9,7 @@ import {throwError} from "rxjs";
 import {CdkDragDrop, CdkDropList, moveItemInArray} from "@angular/cdk/drag-drop";
 import {catchError} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
-import {checkingTypes} from "../../../models/CheckingTypes";
+import {checkingTypes} from "../../../models/enums/CheckingTypes";
 import {TaskCardComponent} from '../../task/card/task.card.component/task.card.component';
 import {Pupil} from 'src/app/models/Pupil';
 import {HomeworkService} from "../../homework/services/homework.service.";

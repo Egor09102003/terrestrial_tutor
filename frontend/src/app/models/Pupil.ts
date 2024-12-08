@@ -1,5 +1,5 @@
 import { Homework } from "./Homework";
-import { HomeworkAnswers } from "./HomeworkAnswers";
+import {Attempt} from "./Attempt";
 
 export interface Pupil {
   [key: string]: any;
@@ -13,6 +13,6 @@ export interface Pupil {
   name: string;
   surname: string;
   patronymic: string;
-  attempt: HomeworkAnswers;
+  attempt: Attempt;
   lastAttemptNumber: number
 }

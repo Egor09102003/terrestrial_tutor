@@ -14,7 +14,7 @@ import { TutorService } from '../tutor/services/tutor.service';
 import { TutorListSelect } from 'src/app/models/TutorListSelect';
 import { HomeworkService } from '../homework/services/homework.service.';
 import { Homework } from 'src/app/models/Homework';
-import { homeworkProps } from 'src/app/models/HomeworkProps';
+import { homeworkProps } from 'src/app/models/enums/HomeworkProps';
 
 @Component({
   selector: 'app-admin',
@@ -69,7 +69,7 @@ export class AdminComponent implements OnInit {
 
   getTutorPupilsBySubject() {
     this.isNewDataLoaded = false;
-    
+
       this.pupilService.getAll().subscribe(pupils => {
         this.pupils = pupils;
         if (this.currentTutor) {

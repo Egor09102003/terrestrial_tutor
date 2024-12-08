@@ -1,9 +1,9 @@
 import {HttpClient} from "@angular/common/http";
 import {Injectable} from "@angular/core";
 import {Observable} from "rxjs";
-import {HomeworkAnswers} from "src/app/models/HomeworkAnswers";
 import {EnvironmentService} from "src/environments/environment.service";
 import {Homework} from "../../../models/Homework";
+import {Attempt} from "../../../models/Attempt";
 
 @Injectable({
   providedIn: 'root'
@@ -20,10 +20,6 @@ export class HomeworkService {
     return this.http.get(this.HOMEWORKS_API + `${pupilId}/${subject}`);
   }
 
-  public getHomeworkByIdForPupil(hwId: number): Observable<any> {
-    return this.http.get(this.HOMEWORK_API + `pupil/${hwId}`);
-  }
-
   public saveHomeworkAnswers(answers: {[key: number]: string}, hwId: number) {
     return this.http.put(this.HOMEWORK_API + `save/${hwId}`, answers);
   }
@@ -32,16 +28,8 @@ export class HomeworkService {
     return this.http.put(this.HOMEWORK_API + `finish/${hwId}`, answers);
   }
 
-  public initLastAttempt(hwId: number): Observable<any> {
-    return this.http.get(this.HOMEWORK_API + `${hwId}/init`);
-  }
-
   public initAttempt(hwId: number, attempt: number): Observable<any> {
     return this.http.get(this.HOMEWORK_API + `${hwId}/init/${attempt}`);
-  }
-
-  public getHomeworkRightAnswers(homeworkId: number): Observable<any> {
-    return this.http.get(this.HOMEWORK_API + `${homeworkId}/answers/right`);
   }
 
   public getHomeworkById(homeworkId: number): Observable<any> {
@@ -64,7 +52,7 @@ export class HomeworkService {
     });
   }
 
-  public updateAttemptStat(homeworkId: number, pupilId: number, updatedStatuses: HomeworkAnswers): Observable<any> {
+  public updateAttemptStat(homeworkId: number, pupilId: number, updatedStatuses: Attempt): Observable<any> {
     return this.http.patch(this.HOMEWORK_API + `${homeworkId}/pupil/${pupilId}`, updatedStatuses);
   }
 
@@ -80,7 +68,7 @@ export class HomeworkService {
     return this.http.patch(this.HOMEWORK_API + `${homeworkId}/set/tutors`, tutorIds);
   }
 
-  saveHomework(homework: Homework | null): Observable<any> {
+  public saveHomework(homework: Homework | null): Observable<any> {
     return this.http.post(this.HOMEWORK_API + 'save', homework);
   }
 }

@@ -4,7 +4,6 @@ import { StatisticService } from '../../homework/services/statistic.service';
 import { ActivatedRoute } from '@angular/router';
 import { Homework } from 'src/app/models/Homework';
 import { Task } from 'src/app/models/Task';
-import { HomeworkAnswers } from 'src/app/models/HomeworkAnswers';
 import { HomeworkService } from '../../homework/services/homework.service.';
 
 @Component({
@@ -15,7 +14,6 @@ import { HomeworkService } from '../../homework/services/homework.service.';
 export class CheckHomeworksComponent implements OnInit {
 
     homework: Homework;
-    pupilAnswers: HomeworkAnswers;
     tasks: Task[] = [];
     statistic = {
         percent: 0,
@@ -39,7 +37,7 @@ export class CheckHomeworksComponent implements OnInit {
         this.statisticService.init(homeworkId, this.pupilId);
         this.statisticService.pageLoaded.subscribe(pageLoaded => {
             this.homework = this.statisticService.homework;
-            this.pupilAnswers = this.statisticService.pupilAnswers;
+            // this.pupilAnswers = this.statisticService.pupilAnswers;
             this.tasks = this.statisticService.tasks;
             this.attempts = this.statisticService.attempts;
             this.rightAnswers = this.statisticService.rightAnswers;
@@ -48,15 +46,15 @@ export class CheckHomeworksComponent implements OnInit {
     }
 
     changeStatus(task: Task, data: {status?: string, points?: any}) {
-        if (data.status) {
-            this.pupilAnswers.answersStatuses[task.id].status = data.status;
-        }
-        if (data.points) {
-            this.pupilAnswers.answersStatuses[task.id].points = Number(data.points.target.value) ?? 0;
-        }
+        // if (data.status) {
+        //     this.pupilAnswers.answersStatuses[task.id].status = data.status;
+        // }
+        // if (data.points) {
+        //     this.pupilAnswers.answersStatuses[task.id].points = Number(data.points.target.value) ?? 0;
+        // }
     }
 
     updateStatus() {
-        this.homeworkService.updateAttemptStat(this.homework.id ?? -1, this.pupilId, this.pupilAnswers).subscribe(pupilAnswers => this.pupilAnswers = pupilAnswers);
+        // this.homeworkService.updateAttemptStat(this.homework.id ?? -1, this.pupilId, this.pupilAnswers).subscribe(pupilAnswers => this.pupilAnswers = pupilAnswers);
     }
 }

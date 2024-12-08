@@ -1,21 +1,21 @@
-<div *ngIf="pageLoaded" class="container-fluid px-3 pb-3">
-    <div class="container-fluid mx-auto p-3  min-vh-100 border-opacity-25 rounded-4 border border-2 col-12 plate text-le">
-        <statistic-container (tasksUpdate)="tasks = $event" (updatedAnswers)="pupilAnswers = $event" [pupilId]="pupilId" [pageLoaded]="pageLoaded" [homework]="homework" [attempts]="attempts" [pupilAnswers]="pupilAnswers"></statistic-container>
-        <div class="d-inline m-3" *ngFor="let task of tasks">
-            @if (pupilAnswers.answersStatuses[task.id]) {
-                <check-task-card [rightAnswers]="rightAnswers" [pupilAnswers]="pupilAnswers" [task]="task"></check-task-card>
-                <div class="row mt-1 mx-0">
-                    <button (click)="changeStatus(task, {status: 'RIGHT'})" class="btn col-1 btn-primary align-middle">
-                        <i class="h2 mx-1 bi bi-check2"></i>
-                    </button>
-                    <button (click)="changeStatus(task, {status: 'WRONG'})" class="mx-2 col-1 btn btn-primary align-middle">
-                        <i class="h2 mx-1 bi-x-circle"></i>
-                    </button>
-                        <input [ngModel]="pupilAnswers.answersStatuses[task.id].points" class="col-1" type="number" min="0" max="{{task.cost}}" [ngModel]="" (input)="changeStatus(task, {points: $event})" placeholder="Балл">
-                </div>
-                <button (click)="updateStatus()" class="mt-1 col-3 mb-5 btn btn-primary">Сохранить</button>
-            }
-        </div>
-    </div>
-</div>
-  
+<!--<div *ngIf="pageLoaded" class="container-fluid px-3 pb-3">-->
+<!--    <div class="container-fluid mx-auto p-3  min-vh-100 border-opacity-25 rounded-4 border border-2 col-12 plate text-le">-->
+<!--        <statistic-container (tasksUpdate)="tasks = $event" (updatedAnswers)="pupilAnswers = $event" [pupilId]="pupilId" [pageLoaded]="pageLoaded" [homework]="homework" [attempts]="attempts" [pupilAnswers]="pupilAnswers"></statistic-container>-->
+<!--        <div class="d-inline m-3" *ngFor="let task of tasks">-->
+<!--            @if (pupilAnswers.answersStatuses[task.id]) {-->
+<!--                <check-task-card [rightAnswers]="rightAnswers" [pupilAnswers]="pupilAnswers" [task]="task"></check-task-card>-->
+<!--                <div class="row mt-1 mx-0">-->
+<!--                    <button (click)="changeStatus(task, {status: 'RIGHT'})" class="btn col-1 btn-primary align-middle">-->
+<!--                        <i class="h2 mx-1 bi bi-check2"></i>-->
+<!--                    </button>-->
+<!--                    <button (click)="changeStatus(task, {status: 'WRONG'})" class="mx-2 col-1 btn btn-primary align-middle">-->
+<!--                        <i class="h2 mx-1 bi-x-circle"></i>-->
+<!--                    </button>-->
+<!--                        <input [ngModel]="pupilAnswers.answersStatuses[task.id].points" class="col-1" type="number" min="0" max="{{task.cost}}" [ngModel]="" (input)="changeStatus(task, {points: $event})" placeholder="Балл">-->
+<!--                </div>-->
+<!--                <button (click)="updateStatus()" class="mt-1 col-3 mb-5 btn btn-primary">Сохранить</button>-->
+<!--            }-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+<!-- -->

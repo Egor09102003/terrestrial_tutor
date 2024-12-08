@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {TutorService} from "./services/tutor.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {Homework} from "../../models/Homework";
-import { homeworkProps } from 'src/app/models/HomeworkProps';
+import { homeworkProps } from 'src/app/models/enums/HomeworkProps';
 
 @Component({
   selector: 'app-tutor',

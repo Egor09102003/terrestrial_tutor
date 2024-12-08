@@ -3,7 +3,7 @@ import {TokenStorageService} from "../../security/token-storage.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {TaskService} from "../task/services/task.service";
 import {Task} from "../../models/Task";
-import {TaskFilters} from "../../models/TaskFilters";
+import {TaskFilters} from "../../models/enums/TaskFilters";
 
 @Component({
   selector: 'app-support',

@@ -12,20 +12,20 @@
                             {{pupilField.value}}
                         </th>
                     }
-                    <th> 
+                    <th>
                         Кол-во попыток
                     </th>
-                    <th> 
+                    <th>
                         Балл лучшей попытки
                     </th>
-                    <th> 
+                    <th>
                         Номер лучшей попытки
                     </th>
                 </thead>
                 <tbody>
                     @for(pupil of pupils; track pupil) {
                         <tr
-                            (click)="modal.dismiss()" 
+                            (click)="modal.dismiss()"
                             [routerLink]="['/tutor/' + tutorId + '/homework/checking']"
                             [queryParams]="{homework: homeworkId, pupil: pupil.id}"
                         >
@@ -41,7 +41,7 @@
                                 {{getAttemptPoints(pupil.attempt)}}
                             </td>
                             <td>
-                                {{pupil.attempt.attemptCount}}
+<!--                                {{pupil.attempt.attemptCount}}-->
                             </td>
                         </tr>
                     }

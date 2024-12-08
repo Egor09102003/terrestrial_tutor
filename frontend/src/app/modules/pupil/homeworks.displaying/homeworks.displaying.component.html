@@ -1,68 +1,116 @@
 <div class="container-fluid px-3 pb-3">
-  <div *ngIf="pageLoaded" [formGroup]="tasksAnswers" class="container-fluid mx-auto p-3  min-vh-100 border-opacity-25 rounded-4 border border-2 col-12 plate text-le">
+  <div *ngIf="pageLoaded" [formGroup]="taskAnswers" class="container-fluid mx-auto p-3  min-vh-100 border-opacity-25 rounded-4 border border-2 col-12 plate text-le">
     <div class="row mx-0 mb-5">
       <h1>{{ homework.name }}</h1>
       <button type="button" class="btn btn-primary col-7 col-md-4 col-lg-3" (click)="submit()">Отправить</button>
     </div>
-    <div class="d-inline" *ngFor="let task of homework?.tasks">
+    @for(taskChecking of homework.taskChecking | keyvalue; track taskChecking) {
+      <div class="d-inline">
+        @let pupilAnswer = attempt.answers[taskChecking.value.task.id];
+        @let task = taskChecking.value.task;
 
-      <h3><u>Название: {{ task?.name }}</u></h3>
-      <h3><u>Тема: {{ task.level1 }}</u></h3>
-      <h3><u>Подтема: {{ task.level2 }}</u></h3>
-      <h3><u>Номер: {{ task.id }}</u></h3>
-      <h3><u>Баллы: {{ task.cost }}</u></h3>
+        <h3><u>Название: {{ task.name }}</u></h3>
+        <h3><u>Тема: {{ task.level1 }}</u></h3>
+        <h3><u>Подтема: {{ task.level2 }}</u></h3>
+        <h3><u>Номер: {{ task.id }}</u></h3>
+        <h3><u>Баллы: {{ task.cost }}</u></h3>
 
-      <div class="container-fluid mx-auto p-3 mb-5 min-vh-70 border-opacity-25 rounded-4 border border-2 col-12 plate text-le">
-        <p style="white-space: pre-line" [innerHTML]="task.taskText"></p>
+        <div class="container-fluid mx-auto p-3 mb-5 min-vh-70 border-opacity-25 rounded-4 border border-2 col-12 plate text-le">
+          <p style="white-space: pre-line" [innerHTML]="task.taskText"></p>
 
-        <div class="d-inline-block mb-3" *ngFor="let image of task.files">
-          <img *ngIf="checkImage(image)" class="m-2 border-opacity-25 border border-2"
-               [src]="env.filesPath + image" width="500px" height="auto" alt="">
-        </div>
-
-        <task-table class="row" table="{{task.table}}"></task-table>
-
-        <div class="mt-5" *ngIf="task.answerType == 'VARIANTS'">
-          <div *ngFor="let answer of task.answers">
-            <div class="form-check form-check-inline align-content-center align-items-center">
-              <input (change)="!checkChecking(task.id) ? momentCheck(task) : ''" [ngClass]="{'is-invalid': tasksStatus[task.id] == 2 && checkChecking(task.id),
-            'is-valid': tasksStatus[task.id] == 1 && checkChecking(task.id)}" class="form-check-input m-0 align-middle" type="radio" name="{{task.id.toString()}}" value="{{answer}}" formControlName = "{{task.id.toString()}}" id="{{answer}}">
-              <label class="form-check-label px-2 align-middle fs-4" for="{{answer}}">{{answer}}</label>
-            </div>
+          <div class="d-inline-block mb-3" *ngFor="let image of task.files">
+            <img *ngIf="checkImage(image)" class="m-2 border-opacity-25 border border-2"
+                 [ngSrc]="env.filesPath + image" ngSrcset="100w, 200w, 300w" sizes="50vw" alt="">
           </div>
-        </div>
 
-        <div class="mt-5" *ngIf="task.answerType == 'VALUE'">
-          <input (change)="!checkChecking(task.id) ? momentCheck(task) : ''" [ngClass]="{'is-invalid': tasksStatus[task.id] == 2 && checkChecking(task.id),
-            'is-valid': tasksStatus[task.id] == 1 && checkChecking(task.id)}"
-                 formControlName = "{{task.id.toString()}}" placeholder="Введите ответ">
-        </div>
+          <task-table class="row" table="{{task.table}}"></task-table>
 
-        <div class="mt-5" *ngIf="task.answerType == 'DETAILED'">
-          <textarea class="col-7 col-md-5 col-lg-4" [formControlName]="task.id.toString()" style="resize: both" rows="4"
-                    placeholder="Введите ответ" (change)="!checkChecking(task.id) ? momentCheck(task) : ''" [ngClass]="{'is-invalid': tasksStatus[task.id] == 2 && checkChecking(task.id),
-            'is-valid': tasksStatus[task.id] == 1 && checkChecking(task.id)}"></textarea>
-        </div>
+<!--          <div class="mt-5" *ngIf="taskChecking.value.task.answerType == 'VARIANTS'">-->
+<!--            <div *ngFor="let answer of taskChecking.value.task.answers">-->
+<!--              <div class="form-check form-check-inline align-content-center align-items-center">-->
+<!--                <input-->
+<!--                  (change)="!checkChecking(taskChecking.value.task.id) ?-->
+<!--                    momentCheck(taskChecking.value.task) :-->
+<!--                    ''" [ngClass]="{'is-invalid': taskChecking.value.status == 2 && checkChecking(taskChecking.value.task.id),-->
+<!--                  'is-valid': taskChecking.value.status == 1 && checkChecking(taskChecking.value.task.id)}"-->
+<!--                  class="form-check-input m-0 align-middle"-->
+<!--                  type="radio"-->
+<!--                  name="{{taskChecking.value.task.id.toString()}}"-->
+<!--                  value="{{answer}}"-->
+<!--                  formControlName = "{{taskChecking.value.task.id.toString()}}"-->
+<!--                  id="{{answer}}"-->
+<!--                >-->
+<!--                <label class="form-check-label px-2 align-middle fs-4" for="{{answer}}">{{answer}}</label>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
 
-        <div class="mt-5" *ngIf="task.answerType == 'TABLE'">
-          <tables-constructor (change)="!checkChecking(task.id) ? momentCheck(task) : ''" [ngClass]="{'is-invalid': tasksStatus[task.id] == 2 && checkChecking(task.id),
-            'is-valid': tasksStatus[task.id] == 1 && checkChecking(task.id)}" [initTable]="initTable(task.id)" (resultTable)="updateTable($event, task.id)"></tables-constructor>
-          <div class="invalid-feedback">Неверный ответ</div>
-          <div class="valid-feedback">Верный ответ</div>
-        </div>
+          <div class="mt-5" *ngIf="task.answerType == 'VALUE'">
+            <input
+              [ngClass]="pupilAnswer && taskChecking.value.checkingType === 'INSTANCE' ?
+                {
+                'is-invalid': pupilAnswer.status === AnswerStatuses.WRONG,
+                'is-valid': pupilAnswer.status === AnswerStatuses.RIGHT.valueOf()
+                } : {}"
+              formControlName = "{{task.id.toString()}}"
+              placeholder="Введите ответ"
+            >
+          </div>
 
-        <h2 class="mt-3" *ngIf="checkFilesAvailability(task)">Файлы</h2>
-        <div class="d-inline-block mt-1 mx-1" *ngFor="let file of task.files">
-          <a class="mx-auto" *ngIf="!checkImage(file)" [href]="env.filesPath + file" download>
-              <svg fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 30 30" width="60px" height="60px">    <path d="M24.707,8.793l-6.5-6.5C18.019,2.105,17.765,2,17.5,2H7C5.895,2,5,2.895,5,4v22c0,1.105,0.895,2,2,2h16c1.105,0,2-0.895,2-2 V9.5C25,9.235,24.895,8.981,24.707,8.793z M18,21h-8c-0.552,0-1-0.448-1-1c0-0.552,0.448-1,1-1h8c0.552,0,1,0.448,1,1 C19,20.552,18.552,21,18,21z M20,17H10c-0.552,0-1-0.448-1-1c0-0.552,0.448-1,1-1h10c0.552,0,1,0.448,1,1C21,16.552,20.552,17,20,17 z M18,10c-0.552,0-1-0.448-1-1V3.904L23.096,10H18z"/></svg>
-          </a>
-          <figcaption *ngIf="!checkImage(file)" class="mx-auto text-center" style="
-              width: 100px;
-              overflow-wrap: anywhere">{{file}}</figcaption>
-        </div>
+<!--          <div class="mt-5" *ngIf="taskChecking.value.task.answerType == 'DETAILED'">-->
+<!--            <textarea-->
+<!--              class="col-7 col-md-5 col-lg-4"-->
+<!--              [formControlName]="taskChecking.value.task.id.toString()"-->
+<!--              style="resize: both" rows="4"-->
+<!--              placeholder="Введите ответ" (change)="taskChecking.value.checkingType !== 'INSTANCE' ?-->
+<!--                momentCheck(taskChecking.value.task) :-->
+<!--                ''" [ngClass]="{'is-invalid': pupilAnswer.status == 2 && checkChecking(pupilAnswer.task.id),-->
+<!--              'is-valid': pupilAnswer.status == 1 && checkChecking(pupilAnswer.task.id)}"-->
+<!--            >-->
+<!--            </textarea>-->
+<!--          </div>-->
 
-          <button *ngIf="checkChecking(task.id)" [disabled]="tasksStatus[task.id] == 0" type="button" class="mt-3 btn btn-primary col-7 col-md-4 col-lg-3" (click)="momentCheck(task)">Проверить</button>
+<!--          <div class="mt-5" *ngIf="pupilAnswer.task.answerType == 'TABLE'">-->
+<!--            <tables-constructor-->
+<!--              (change)="!checkChecking(pupilAnswer.task.id) ?-->
+<!--                momentCheck(pupilAnswer.task) :-->
+<!--                ''" [ngClass]="{'is-invalid': pupilAnswer.status == 2 && checkChecking(pupilAnswer.task.id),-->
+<!--              'is-valid': pupilAnswer.status == 1 && checkChecking(pupilAnswer.task.id)}"-->
+<!--              [initTable]="initTable(pupilAnswer.task.id)"-->
+<!--              (resultTable)="updateTable($event, pupilAnswer.task.id)"-->
+<!--            >-->
+<!--            </tables-constructor>-->
+<!--            <div class="invalid-feedback">Неверный ответ</div>-->
+<!--            <div class="valid-feedback">Верный ответ</div>-->
+<!--          </div>-->
+
+<!--          <h2 class="mt-3" *ngIf="checkFilesAvailability(pupilAnswer.task)">Файлы</h2>-->
+<!--          <div class="d-inline-block mt-1 mx-1" *ngFor="let file of pupilAnswer.task.files">-->
+<!--            <a class="mx-auto" *ngIf="!checkImage(file)" [href]="env.filesPath + file" download>-->
+<!--                <svg fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 30 30" width="60px" height="60px">-->
+<!--                  <path d="M24.707,8.793l-6.5-6.5C18.019,2.105,17.765,2,17.5,2H7C5.895,2,5,2.895,5,4v22c0,1.105,0.895,2,-->
+<!--                  2,2h16c1.105,0,2-0.895,2-2 V9.5C25,9.235,24.895,8.981,24.707,8.793z M18,21h-8c-0.552,0-1-0.448-1-1c0-->
+<!--                  -0.552,0.448-1,1-1h8c0.552,0,1,0.448,1,1 C19,20.552,18.552,21,18,21z M20,17H10c-0.552,0-1-0.448-1-1c-->
+<!--                  0-0.552,0.448-1,1-1h10c0.552,0,1,0.448,1,1C21,16.552,20.552,17,20,17 z M18,10c-0.552,0-1-0.448-1-1V3.-->
+<!--                  904L23.096,10H18z"/>-->
+<!--                </svg>-->
+<!--            </a>-->
+<!--            <figcaption *ngIf="!checkImage(file)" class="mx-auto text-center" style="-->
+<!--                width: 100px;-->
+<!--                overflow-wrap: anywhere">{{file}}</figcaption>-->
+<!--          </div>-->
+
+<!--            <button-->
+<!--              *ngIf="checkChecking(pupilAnswer.task.id)"-->
+<!--              [disabled]="pupilAnswer.status == 0"-->
+<!--              type="button"-->
+<!--              class="mt-3 btn btn-primary col-7 col-md-4 col-lg-3"-->
+<!--              (click)="momentCheck(pupilAnswer.task)"-->
+<!--            >-->
+<!--              Проверить-->
+<!--            </button>-->
+        </div>
       </div>
-    </div>
+    }
   </div>
 </div>

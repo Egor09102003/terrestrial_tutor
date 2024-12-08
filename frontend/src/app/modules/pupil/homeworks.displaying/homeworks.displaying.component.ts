@@ -1,13 +1,14 @@
 import {Component, OnInit} from '@angular/core';
-import { PupilDataService } from '../services/pupil.data.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { PupilService } from '../services/pupil.service';
-import { Homework } from 'src/app/models/Homework';
-import {FormBuilder, FormGroup } from "@angular/forms";
-import {HomeworkAnswers} from "../../../models/HomeworkAnswers";
+import {PupilDataService} from '../services/pupil.data.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {PupilService} from '../services/pupil.service';
+import {Homework} from 'src/app/models/Homework';
+import {FormBuilder, FormGroup} from "@angular/forms";
 import {Task} from "../../../models/Task";
-import { EnvironmentService } from 'src/environments/environment.service';
-import { HomeworkService } from '../../homework/services/homework.service.';
+import {EnvironmentService} from 'src/environments/environment.service';
+import {HomeworkService} from '../../homework/services/homework.service.';
+import {Attempt} from "../../../models/Attempt";
+import {AnswerStatuses} from "../../../models/enums/AnswerStatuses";
 
 @Component({
     selector: 'app-homeworks.displaying',
@@ -17,11 +18,10 @@ import { HomeworkService } from '../../homework/services/homework.service.';
 export class HomeworksDisplayingComponent implements OnInit {
 
   pupilId: number;
-  homework: Homework = new Homework;
-  tasksAnswers: FormGroup = this.fb.group({});
+  homework: Homework;
+  taskAnswers: FormGroup = this.fb.group({});
   pageLoaded = false;
-  statistic: HomeworkAnswers = {answersStatuses: {}, attemptCount: 1, ordering: []};
-  tasksStatus: {[key: number]: number} = {};
+  attempt: Attempt;
 
   constructor(private pupilDataService: PupilDataService,
       private pupilService: PupilService,
@@ -35,7 +35,7 @@ export class HomeworksDisplayingComponent implements OnInit {
   ngOnInit(): void {
       let hwId = Number(this.route.snapshot.paramMap.get('hwId'));
       this.pupilId = Number(this.route.snapshot.paramMap.get('id'));
-      this.homeworkService.getHomeworkByIdForPupil(hwId).subscribe(homework => {
+      this.homeworkService.getHomeworkById(hwId).subscribe(homework => {
         this.homework = homework;
         this.formFill();
       });
@@ -48,14 +48,12 @@ export class HomeworksDisplayingComponent implements OnInit {
 
   formFill() {
     if ('id' in this.homework && this.homework.id) {
-      this.homeworkService.initLastAttempt(this.homework.id).subscribe(answers => {
-        let answersMap = <HomeworkAnswers> answers
-        for (let task of this.homework.tasks) {
-          let key = task.id.toString();
-          let value = answersMap.answersStatuses[task.id].currentAnswer ?? '';
-          this.tasksAnswers.addControl(
-            key,
-            this.fb.control(value, [])
+      this.pupilService.getActiveAttempt(this.homework.id).subscribe(attempt => {
+        this.attempt = attempt;
+        for (let taskId in this.homework.taskChecking) {
+          this.taskAnswers.addControl(
+            taskId,
+            this.fb.control(this.attempt.answers[taskId] ? this.attempt.answers[taskId].answer : '', [])
           );
         }
         this.pageLoaded = true;
@@ -66,24 +64,24 @@ export class HomeworksDisplayingComponent implements OnInit {
   createCheckRequest(taskId = -1) {
     let answers: {[key: number]: string} = {};
     if (taskId != -1) {
-      answers[taskId] = this.tasksAnswers.controls[taskId].value;
+      answers[taskId] = this.taskAnswers.controls[taskId].value;
     } else {
-      for (let control in this.tasksAnswers.controls) {
-        answers[parseInt(control)] = this.tasksAnswers.controls[control].value;
+      for (let control in this.taskAnswers.controls) {
+        answers[parseInt(control)] = this.taskAnswers.controls[control].value;
       }
     }
     return answers;
   }
 
   submit() {
-    if ('id' in this.homework && this.homework.id) {
-      this.homeworkService.finishHomework(this.createCheckRequest(), this.homework.id).subscribe(answers => {
-        if (answers) {
-          this.statistic = <HomeworkAnswers> answers;
-          this.router.navigate([`/pupil/${this.pupilId}/homework/${this.homework?.id}/statistic`]).then();
-        }
-      });
-    }
+    // if ('id' in this.homework && this.homework.id) {
+    //   this.homeworkService.finishHomework(this.createCheckRequest(), this.homework.id).subscribe(answers => {
+    //     if (answers) {
+    //       this.statistic = <HomeworkAnswers> answers;
+    //       this.router.navigate([`/pupil/${this.pupilId}/homework/${this.homework?.id}/statistic`]).then();
+    //     }
+    //   });
+    // }
   }
 
   checkFilesAvailability(task: Task) {
@@ -104,15 +102,15 @@ export class HomeworksDisplayingComponent implements OnInit {
   }
 
   momentCheck(task: Task) {
-    this.tasksStatus[task.id] = 0;
-    if ('id' in this.homework && this.homework.id) {
-      this.homeworkService.saveHomework(this.createCheckRequest(task.id), this.homework.id).subscribe((statuses) => {
-        let statusMap = <HomeworkAnswers> statuses;
-        for (let status in statusMap.answersStatuses) {
-          this.tasksStatus[task.id] = statusMap.answersStatuses[task.id].status === 'RIGHT' ? 1 : 2;
-        }
-      });
-    }
+    // this.tasksStatus[task.id] = 0;
+    // if ('id' in this.homework && this.homework.id) {
+    //   this.homeworkService.saveHomeworkAnswers(this.createCheckRequest(task.id), this.homework.id).subscribe((statuses) => {
+    //     let statusMap = <HomeworkAnswers> statuses;
+    //     for (let status in statusMap.answersStatuses) {
+    //       this.tasksStatus[task.id] = statusMap.answersStatuses[task.id].status === 'RIGHT' ? 1 : 2;
+    //     }
+    //   });
+    // }
   }
 
   checkTableAnswer (pupilAnswer: string, rightAnswer:string): boolean {
@@ -144,15 +142,17 @@ export class HomeworksDisplayingComponent implements OnInit {
 
   updateTable(table: string, taskId: number) {
     if (taskId) {
-        this.tasksAnswers.controls[taskId.toString()].setValue(table);
+        this.taskAnswers.controls[taskId.toString()].setValue(table);
     }
   }
 
   initTable(taskId: number) {
-    return this.tasksAnswers.controls[taskId.toString()].value;
+    return this.taskAnswers.controls[taskId.toString()].value;
   }
 
   ngOnDestroy() {
     window.addEventListener('beforeunload', this.prevent);
   }
+
+  protected readonly AnswerStatuses = AnswerStatuses;
 }

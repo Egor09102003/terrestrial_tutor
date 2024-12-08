@@ -1,9 +1,9 @@
-import { Component, Input, TemplateRef, type OnInit } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Pupil } from 'src/app/models/Pupil';
-import { PupilService } from '../../pupil/services/pupil.service';
-import { HomeworkAnswers } from 'src/app/models/HomeworkAnswers';
-import { pupilStatisticFields } from 'src/app/models/PupilsStatisticFields';
+import {Component, Input, type OnInit, TemplateRef} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {Pupil} from 'src/app/models/Pupil';
+import {PupilService} from '../../pupil/services/pupil.service';
+import {pupilStatisticFields} from 'src/app/models/enums/PupilsStatisticFields';
+import {Attempt} from "../../../models/Attempt";
 
 @Component({
     selector: 'pupils-modal',
@@ -24,7 +24,7 @@ export class PupilsModalComponent implements OnInit {
     pupilFields = pupilStatisticFields;
 
     ngOnInit(): void {
-        
+
     }
 
     open(content: TemplateRef<any>) {
@@ -34,12 +34,9 @@ export class PupilsModalComponent implements OnInit {
 		this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg'}).result;
 	}
 
-    getAttemptPoints(attempt: HomeworkAnswers): number {
+    getAttemptPoints(attempt: Attempt): number {
         let points = 0;
-        for(let taskId in attempt.answersStatuses) {
-            points += attempt.answersStatuses[taskId].points;
-        }
-        return points;
+        return attempt.attemptPoints;
     }
 
 }

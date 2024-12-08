@@ -13,7 +13,7 @@ import {SupportService} from "../support/services/support.service";
 import {Task} from "../../models/Task";
 import {ActivatedRoute, Router} from "@angular/router";
 import {TaskService} from "./services/task.service";
-import {answerTypes} from "../../models/AnswerTypes";
+import {answerTypes} from "../../models/enums/AnswerTypes";
 import {EnvironmentService} from 'src/environments/environment.service';
 import {Lightbox} from "ngx-lightbox";
 import {

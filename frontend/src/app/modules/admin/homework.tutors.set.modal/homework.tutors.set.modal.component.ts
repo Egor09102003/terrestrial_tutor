@@ -4,7 +4,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HomeworkService } from '../../homework/services/homework.service.';
 import { TutorList } from 'src/app/models/TutorList';
 import { TutorListSelect } from 'src/app/models/TutorListSelect';
-import { tutorProps } from 'src/app/models/TutorProps';
+import { tutorProps } from 'src/app/models/enums/TutorProps';
 import { TutorService } from '../../tutor/services/tutor.service';
 import { AdminService } from '../services/admin.service';
 
@@ -18,7 +18,7 @@ export class HomeworkTutorsSetModalComponent implements OnInit {
     @Input() homeworkId: number;
     @Input() subject: string;
     tutorsSelect: {[key: number]: TutorListSelect} = {};
-    modalLoaded = false; 
+    modalLoaded = false;
     Object = Object;
     TutorProps = tutorProps;
 
@@ -29,8 +29,8 @@ export class HomeworkTutorsSetModalComponent implements OnInit {
     ) {
     }
 
-    ngOnInit(): void { 
-        
+    ngOnInit(): void {
+
     }
 
     open(content: TemplateRef<any>) {
