@@ -1,32 +1,24 @@
 package com.example.terrestrial_tutor.service.impl;
 
-import com.example.terrestrial_tutor.entity.AnswerEntity;
-import com.example.terrestrial_tutor.entity.AttemptEntity;
-import com.example.terrestrial_tutor.entity.HomeworkEntity;
-import com.example.terrestrial_tutor.entity.PupilEntity;
-import com.example.terrestrial_tutor.entity.TaskCheckingEntity;
-import com.example.terrestrial_tutor.entity.TaskEntity;
+import com.example.terrestrial_tutor.entity.*;
 import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
-import com.example.terrestrial_tutor.entity.enums.TaskCheckingType;
 import com.example.terrestrial_tutor.entity.enums.TaskStatuses;
 import com.example.terrestrial_tutor.exceptions.AttemptFinishedException;
 import com.example.terrestrial_tutor.repository.AttemptRepository;
 import com.example.terrestrial_tutor.repository.HomeworkRepository;
-import com.example.terrestrial_tutor.security.JWTAuthenticationFilter;
 import com.example.terrestrial_tutor.service.AnswerService;
 import com.example.terrestrial_tutor.service.AttemptService;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
-import java.util.*;
-
-import javax.lang.model.UnknownEntityException;
-import javax.persistence.EntityExistsException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityExistsException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -85,7 +77,7 @@ public class AttemptServiceImpl implements AttemptService {
             for (Long taskId : taskCheckingTypes.keySet()) {
                 AnswerEntity currentAnswer = attempt.getAnswers().get(taskId);
                 if (currentAnswer == null) {
-                    currentAnswer = new AnswerEntity(attempt, null, taskCheckingTypes.get(taskId).getTask());
+                    continue;
                 }
                 if (answers.containsKey(taskId)) {
                     currentAnswer.setAnswer(answers.get(taskId));
@@ -119,5 +111,9 @@ public class AttemptServiceImpl implements AttemptService {
         attempt = saveAnswers(attempt, answers);
         attempt.setStatus(HomeworkStatus.FINISHED);
         return save(attempt);
+    }
+
+    public List<AttemptEntity> getAll() {
+        return attemptRepository.findAll();
     }
 }

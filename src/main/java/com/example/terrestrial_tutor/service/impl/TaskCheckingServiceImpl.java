@@ -23,5 +23,7 @@ public class TaskCheckingServiceImpl implements TaskCheckingService {
         return (LinkedList<TaskCheckingEntity>) taskCheckingRepository.findAllById(ids);
     }
 
-    
+    public List<TaskCheckingEntity> saveAll(List<TaskCheckingEntity> taskCheckingEntities) {
+        return taskCheckingRepository.saveAll(taskCheckingEntities);
+    }
 }

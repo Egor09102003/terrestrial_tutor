@@ -8,4 +8,6 @@ import com.example.terrestrial_tutor.entity.TaskCheckingEntity;
 public interface TaskCheckingService {
 
     LinkedList<TaskCheckingEntity> findTaskCheckingsByIds(List<Long> ids);
+
+    List<TaskCheckingEntity> saveAll(List<TaskCheckingEntity> taskCheckingEntities);
 }

@@ -1,6 +1,8 @@
 package com.example.terrestrial_tutor.entity;
 
+import com.example.terrestrial_tutor.dto.HomeworkAnswersDTO;
 import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
+import com.google.gson.Gson;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,11 +12,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.io.Serializable;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Сущность ответа ученика на задание
@@ -65,7 +66,17 @@ public class AttemptEntity {
     @MapKeyColumn(name = "task_id")
     Map<Long, AnswerEntity> answers = new HashMap<>();
 
-    
+    @Column(name = "answers_legacy", columnDefinition="text")
+    String answersLegacy;
+
+    public HomeworkAnswersDTO getAnswersLegacy() {
+        try {
+            HomeworkAnswersDTO answers = new Gson().fromJson(this.answersLegacy, HomeworkAnswersDTO.class);
+            return answers;
+        } catch (Exception e) {
+            return new HomeworkAnswersDTO();
+        }
+    }
 
     public AttemptEntity(PupilEntity pupil, Integer attemptNumber, HomeworkEntity homework) {
         this.pupil = pupil;

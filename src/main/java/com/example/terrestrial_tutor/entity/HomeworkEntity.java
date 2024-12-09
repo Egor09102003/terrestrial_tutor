@@ -1,5 +1,6 @@
 package com.example.terrestrial_tutor.entity;
 
+import com.google.gson.Gson;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
@@ -71,6 +72,18 @@ public class HomeworkEntity {
 
     @Column(name = "deleted", nullable = false)
     private Boolean deleted = false;
+
+    @Column(name = "task_checking_types_legacy")
+    String taskCheckingTypesLegacy;
+
+    public LinkedHashMap<String, String> getTaskCheckingTypesLegacy() {
+        try {
+            return new Gson().fromJson(this.taskCheckingTypesLegacy, LinkedHashMap.class);
+        } catch (Exception e) {
+            System.out.println("Failed for: " + this.getId() + " with message: " + e.getMessage());
+            return new LinkedHashMap<>();
+        }
+    }
 
     public List<TaskEntity> getTasks() {
         return this.taskCheckingTypes.values().stream()

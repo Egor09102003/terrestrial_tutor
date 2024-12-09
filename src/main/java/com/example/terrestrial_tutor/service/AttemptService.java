@@ -1,6 +1,7 @@
 package com.example.terrestrial_tutor.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 import com.example.terrestrial_tutor.entity.AttemptEntity;
@@ -15,5 +16,7 @@ public interface AttemptService {
     AttemptEntity saveAnswers(AttemptEntity attempt, HashMap<Long, String> answers);
 
     AttemptEntity finishAttempt(AttemptEntity attempt, HashMap<Long, String> answers);
+
+    List<AttemptEntity> getAll();
 
 }

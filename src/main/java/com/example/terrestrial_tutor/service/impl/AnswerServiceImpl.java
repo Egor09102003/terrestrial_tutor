@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AnswerServiceImpl implements AnswerService {
@@ -74,6 +76,10 @@ public class AnswerServiceImpl implements AnswerService {
 
     public AnswerEntity save(AnswerEntity answer) {
         return answerRepository.save(answer);
+    }
+
+    public List<AnswerEntity> saveAll(List<AnswerEntity> answers) {
+        return answerRepository.saveAll(answers);
     }
     
 }
