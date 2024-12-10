@@ -3,19 +3,16 @@ package com.example.terrestrial_tutor.dto.facade;
 import com.example.terrestrial_tutor.dto.TaskDTO;
 import com.example.terrestrial_tutor.entity.SupportEntity;
 import com.example.terrestrial_tutor.entity.TaskEntity;
-import com.example.terrestrial_tutor.entity.User;
 import com.example.terrestrial_tutor.entity.enums.AnswerTypes;
-import com.example.terrestrial_tutor.entity.enums.ERole;
 import com.example.terrestrial_tutor.service.SubjectService;
 import com.google.gson.Gson;
-
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 
 @Component
 @AllArgsConstructor
@@ -33,10 +30,15 @@ public class TaskMapper {
     }
 
     public TaskDTO taskToTaskDTOWithoutAnswers(TaskEntity task) {
+        if (task.getAnswerType() == AnswerTypes.VARIANTS) {
+            List<?> variants = new Gson().fromJson(task.getAnswer(), LinkedList.class);
+            Collections.shuffle(variants);
+            return getTaskDTO(task, variants);
+        }
         return getTaskDTO(task, null);
     }
 
-    private static TaskDTO getTaskDTO(TaskEntity task, LinkedList<?> answers) {
+    private static TaskDTO getTaskDTO(TaskEntity task, List<?> answers) {
         TaskDTO taskDTO = new TaskDTO(
                 task.getId(),
                 task.getName(),

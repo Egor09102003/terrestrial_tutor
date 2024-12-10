@@ -1,6 +1,6 @@
 
 export enum AnswerStatuses {
-  'RIGHT',
-  'WRONG',
-  'ON_CHECKING',
+  'RIGHT' = 'RIGHT',
+  'WRONG' = 'WRONG',
+  'ON_CHECKING' = 'ON_CHECKING',
 }

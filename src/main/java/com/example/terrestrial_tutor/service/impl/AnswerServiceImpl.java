@@ -33,7 +33,7 @@ public class AnswerServiceImpl implements AnswerService {
             String[] taskAnswers = new Gson().fromJson(task.getAnswer(), String[].class);
             if (taskAnswers.length > 0) {
                 switch (task.getAnswerType()) {
-                    case VALUE, VARIANTS:
+                    case VALUE, VARIANTS, DETAILED:
                         return answer.getAnswer().strip().equals(taskAnswers[0].strip());
                     case TABLE:
                         return checkTable(taskAnswers[0], answer.getAnswer());

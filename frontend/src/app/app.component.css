@@ -150,6 +150,10 @@ figure {
     border-collapse: collapse;
     /*width: 70%;*/
   }
-
 }
+
+.overflow-anywhere {
+  overflow-wrap: anywhere;
+}
+
 

@@ -44,7 +44,7 @@ export class PupilService {
   }
 
   getAll(): Observable<any> {
-    return this.http.get(this.PUPIL_API + 'all');
+    return this.http.get(this.PUPILS_API);
   }
 
   public getActiveAttempt(hwId: number): Observable<any> {

@@ -76,10 +76,10 @@ public class AttemptServiceImpl implements AttemptService {
             attempt.setAttemptPoints(0L);
             for (Long taskId : taskCheckingTypes.keySet()) {
                 AnswerEntity currentAnswer = attempt.getAnswers().get(taskId);
-                if (currentAnswer == null) {
-                    continue;
-                }
-                if (answers.containsKey(taskId)) {
+                if (answers.containsKey(taskId) && !answers.get(taskId).isEmpty()) {
+                    if (currentAnswer == null) {
+                        currentAnswer = new AnswerEntity(attempt, null, taskCheckingTypes.get(taskId).getTask());
+                    }
                     currentAnswer.setAnswer(answers.get(taskId));
                     Boolean isRight = answerService.checkAnswer(currentAnswer);
                     if (isRight) {
@@ -97,6 +97,8 @@ public class AttemptServiceImpl implements AttemptService {
                             currentAnswer.setStatus(TaskStatuses.ON_CHECKING);
                             break;
                     }
+                } else {
+                    continue;
                 }
                 attempt.getAnswers().put(taskId, currentAnswer);
             }
