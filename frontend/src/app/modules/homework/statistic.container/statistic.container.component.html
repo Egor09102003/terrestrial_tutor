@@ -1,21 +1,25 @@
-<!--<div *ngIf="pageLoaded">-->
-<!--    <div class="row">-->
-<!--    <h2 class="mx-3 mb-1 col-4">Ваша статистика</h2>-->
+@if (attempt) {
+    <div class="row">
+    <h2 class="mx-3 mb-1 col-4">Ваша статистика</h2>
 
-<!--    <div ngbDropdown class="col-3">-->
-<!--        <button type="button" class="drop-btn btn-primary drop-btn p-2 col-12" ngbDropdownToggle>-->
-<!--        {{ pupilAnswers.attemptCount }}-->
-<!--        </button>-->
-<!--        <div ngbDropdownMenu class="text-center col-12">-->
-<!--        <button *ngFor="let attempt of attempts" class="nav-btn col-12" type="button" ngbDropdownItem (click)="setCurrentAttempt(attempt)">{{ attempt }}</button>-->
-<!--        </div>-->
-<!--    </div>-->
+    <div ngbDropdown class="col-3">
+        <button type="button" class="drop-btn btn-primary drop-btn p-2 col-12" ngbDropdownToggle>
+        {{ attempt.attemptNumber }}
+        </button>
+        <div ngbDropdownMenu class="text-center col-12">
+          @for (i of attemptNumbers; track i) {
+            <button
+              class="nav-btn col-12" type="button"
+              ngbDropdownItem
+              (click)="updateAttempt(i)">{{ i }}</button>
+          }
+        </div>
+    </div>
 
-<!--    <div class="text-end">-->
-<!--        <button type="button" class="btn btn-primary col-3" (click)="submit()">На главную</button>-->
-<!--    </div>-->
-<!--    </div>-->
-<!--    <h2 class="mx-3 mb-5">Ваш процент выполнения: {{ statistic.percent }}%</h2>-->
-<!--    <h2 class="mx-3 mb-5">Ваши баллы: {{ statistic.points }} из {{ statistic.pointsMax }}</h2>-->
-<!--</div>-->
-<!-- -->
+    <div class="text-end">
+        <button type="button" class="btn btn-primary col-3" (click)="submit()">На главную</button>
+    </div>
+    </div>
+    <h2 class="mx-3 mb-5">Ваш процент выполнения: {{ statistic.percent }}%</h2>
+    <h2 class="mx-3 mb-5">Ваши баллы: {{ statistic.points }} из {{ statistic.pointsMax }}</h2>
+}

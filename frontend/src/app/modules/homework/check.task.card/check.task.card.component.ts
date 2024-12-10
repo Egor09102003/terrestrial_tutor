@@ -3,6 +3,8 @@ import {Task} from "../../../models/Task";
 import { EnvironmentService } from 'src/environments/environment.service';
 import { HomeworkService } from '../services/homework.service.';
 import { ActivatedRoute } from '@angular/router';
+import {Answer} from "../../../models/Answer";
+import {AnswerStatuses} from "../../../models/enums/AnswerStatuses";
 
 @Component({
     selector: 'check-task-card',
@@ -11,14 +13,11 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class CheckTaskCardComponent implements OnInit {
 
-  // @Input() pupilAnswers: HomeworkAnswers
+  @Input() pupilAnswer: Answer
   @Input() task: Task
-  @Input() rightAnswers: {[key: number]: string};
 
   constructor(
       public env: EnvironmentService,
-      private homeworkService: HomeworkService,
-      private route: ActivatedRoute,
     ) {}
 
   ngOnInit(): void {
@@ -41,11 +40,5 @@ export class CheckTaskCardComponent implements OnInit {
     return file.endsWith('.jpg') || file.endsWith('.png') || file.endsWith('.jpeg');
   }
 
-  checkAnswer(task: Task) {
-    // if (this.pupilAnswers.answersStatuses[task.id]) {
-    //   return this.pupilAnswers.answersStatuses[task.id].status === 'RIGHT' ? task.cost : 0;
-    // }
-    return 0;
-  }
-
+  protected readonly AnswerStatuses = AnswerStatuses;
 }

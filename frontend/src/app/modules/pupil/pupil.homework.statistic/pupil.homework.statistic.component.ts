@@ -5,6 +5,8 @@ import {EnvironmentService} from 'src/environments/environment.service';
 import {Homework} from 'src/app/models/Homework';
 import {HomeworkService} from '../../homework/services/homework.service.';
 import {StatisticService} from '../../homework/services/statistic.service';
+import {AttemptService} from "../../homework/services/attempt.service";
+import {Attempt} from "../../../models/Attempt";
 
 @Component({
   selector: 'app-pupil.homework.statistic',
@@ -15,36 +17,27 @@ export class PupilHomeworkStatisticComponent {
 
   homework: Homework;
   tasks: Task[] = [];
-  statistic = {
-    percent: 0,
-    points: 0,
-    pointsMax: 0,
-  };
   pageLoaded = false;
-  attempts: number[] = [];
-  rightAnswers: {[key: number]: string};
+  attempt: Attempt;
 
   constructor(
               private route: ActivatedRoute,
               private homeworkService: HomeworkService,
               public env: EnvironmentService,
               private statisticService: StatisticService,
+              private attemptService: AttemptService,
             ) {}
 
   ngOnInit(): void {
     let homeworkId = Number(this.route.snapshot.paramMap.get('hwId'));
-    this.statisticService.init(homeworkId);
-    this.statisticService.pageLoaded.subscribe(pageLoaded => {
-      this.homework = this.statisticService.homework;
-      // this.pupilAnswers = this.statisticService.pupilAnswers;
-      this.tasks = this.statisticService.tasks;
-      this.attempts = this.statisticService.attempts;
-      this.rightAnswers = this.statisticService.rightAnswers;
-      this.pageLoaded = true;
-    })
+    this.homeworkService.getHomeworkById(homeworkId).subscribe(homework => {
+      this.homework = homework
+
+      this.attemptService.getLastFinishedAttempt(this.homework.id).subscribe(attempt => {
+        this.attempt = attempt
+      });
+    });
   }
 
-  ngOnDestroy() {
-    this.statisticService.attempts = [];
-  }
+    protected readonly Number = Number;
 }

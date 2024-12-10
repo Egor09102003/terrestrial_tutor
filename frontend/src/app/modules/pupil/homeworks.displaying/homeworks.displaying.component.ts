@@ -71,9 +71,9 @@ export class HomeworksDisplayingComponent implements OnInit {
 
   submit() {
     if ('id' in this.homework && this.homework.id) {
-      this.attemptService.saveAttempt(this.taskAnswers.value, this.homework.id).subscribe(answers => {
+      this.attemptService.finishAttempt(this.taskAnswers.value, this.homework.id).subscribe(answers => {
         if (answers) {
-          // this.router.navigate([`/pupil/${this.pupilId}/homework/${this.homework?.id}/statistic`]).then();
+          this.router.navigate([`/pupil/${this.pupilId}/homework/${this.homework?.id}/statistic`]);
         }
       });
     }
@@ -97,7 +97,6 @@ export class HomeworksDisplayingComponent implements OnInit {
   }
 
   momentCheck(task: Task) {
-    console.log(this.taskAnswers.value);
     let answers: {[key: number]: string} = {}
     answers[task.id] = this.taskAnswers.controls[task.id.toString()].value;
     this.attemptService.saveAttempt(

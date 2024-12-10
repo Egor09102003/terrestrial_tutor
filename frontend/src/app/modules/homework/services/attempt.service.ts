@@ -20,6 +20,31 @@ export class AttemptService {
       params: {
         homeworkId: homeworkId ?? -1
       }
-    })
+    });
+  }
+
+  public finishAttempt(answers: {}, homeworkId?: number): Observable<any> {
+    return this.http.post(this.PUPIL_API + 'attempt/finish', answers, {
+      params: {
+        homeworkId: homeworkId ?? -1
+      }
+    });
+  }
+
+  public getLastFinishedAttempt(homeworkId?: number): Observable<any> {
+    return this.http.get(this.PUPIL_API + 'attempt/finish', {
+      params: {
+        homeworkId: homeworkId ?? -1
+      }
+    });
+  }
+
+  public getAttemptByNumber(attemptNumber: number, homeworkId?: number): Observable<any> {
+    return this.http.get(this.PUPIL_API + 'attempt/finish', {
+      params: {
+        homeworkId: homeworkId ?? -1,
+        attemptNumber: attemptNumber
+      }
+    });
   }
 }

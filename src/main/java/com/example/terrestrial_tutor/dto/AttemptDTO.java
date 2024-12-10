@@ -1,5 +1,6 @@
 package com.example.terrestrial_tutor.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +16,7 @@ import com.example.terrestrial_tutor.entity.enums.HomeworkStatus;
  */
 @Getter
 @Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AttemptDTO {
 
     Long id;

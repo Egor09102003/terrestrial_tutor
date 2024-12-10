@@ -111,7 +111,12 @@ public class AttemptServiceImpl implements AttemptService {
 
     public AttemptEntity finishAttempt(AttemptEntity attempt, HashMap<Long, String> answers) {
         attempt = saveAnswers(attempt, answers);
+        Long points = 0L;
+        for (AnswerEntity answer : attempt.getAnswers().values()) {
+            points += answer.getPoints();
+        }
         attempt.setStatus(HomeworkStatus.FINISHED);
+        attempt.setAttemptPoints(points);
         return save(attempt);
     }
 
