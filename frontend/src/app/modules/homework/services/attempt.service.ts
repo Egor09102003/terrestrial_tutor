@@ -13,18 +13,28 @@ export class AttemptService {
     private apiService: EnvironmentService
   ) { }
 
-  private PUPIL_API = this.apiService.apiUrl + 'pupil/';
+  private ATTEMPT_API = this.apiService.apiUrl + 'attempt/';
 
   public saveAttempt(answers: {}, homeworkId?: number): Observable<any> {
-    return this.http.post(this.PUPIL_API + 'attempt', answers, {
+    return this.http.post(this.ATTEMPT_API, answers, {
       params: {
         homeworkId: homeworkId ?? -1
       }
     });
   }
 
+  public getActiveAttempt(hwId: number): Observable<any> {
+    return this.http.get(this.ATTEMPT_API,
+      {
+        params: {
+          homeworkId: hwId
+        }
+      }
+    );
+  }
+
   public finishAttempt(answers: {}, homeworkId?: number): Observable<any> {
-    return this.http.post(this.PUPIL_API + 'attempt/finish', answers, {
+    return this.http.post(this.ATTEMPT_API + 'finish', answers, {
       params: {
         homeworkId: homeworkId ?? -1
       }
@@ -32,7 +42,7 @@ export class AttemptService {
   }
 
   public getLastFinishedAttempt(homeworkId?: number): Observable<any> {
-    return this.http.get(this.PUPIL_API + 'attempt/finish', {
+    return this.http.get(this.ATTEMPT_API + 'finish', {
       params: {
         homeworkId: homeworkId ?? -1
       }
@@ -40,7 +50,7 @@ export class AttemptService {
   }
 
   public getAttemptByNumber(attemptNumber: number, homeworkId?: number): Observable<any> {
-    return this.http.get(this.PUPIL_API + 'attempt/finish', {
+    return this.http.get(this.ATTEMPT_API + 'finish', {
       params: {
         homeworkId: homeworkId ?? -1,
         attemptNumber: attemptNumber

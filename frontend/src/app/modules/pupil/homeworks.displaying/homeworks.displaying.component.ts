@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {PupilService} from '../services/pupil.service';
 import {Homework} from 'src/app/models/Homework';
 import {FormBuilder, FormGroup} from "@angular/forms";
 import {Task} from "../../../models/Task";
@@ -25,7 +24,6 @@ export class HomeworksDisplayingComponent implements OnInit {
   tasksOrdering: number[];
 
   constructor(
-      private pupilService: PupilService,
       private homeworkService: HomeworkService,
       private router: Router,
       private fb: FormBuilder,
@@ -56,7 +54,7 @@ export class HomeworksDisplayingComponent implements OnInit {
 
   formFill() {
     if ('id' in this.homework && this.homework.id) {
-      this.pupilService.getActiveAttempt(this.homework.id).subscribe(attempt => {
+      this.attemptService.getActiveAttempt(this.homework.id).subscribe(attempt => {
         this.attempt = attempt;
         for (let taskId in this.homework.taskChecking) {
           this.taskAnswers.addControl(

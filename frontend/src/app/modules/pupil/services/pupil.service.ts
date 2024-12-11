@@ -47,14 +47,4 @@ export class PupilService {
     return this.http.get(this.PUPILS_API);
   }
 
-  public getActiveAttempt(hwId: number): Observable<any> {
-    return this.http.get(this.PUPIL_API + `attempt`,
-      {
-        params: {
-          homeworkId: hwId
-        }
-      }
-    );
-  }
-
 }
